@@ -1,0 +1,1 @@
+This page provides an illustration for the Domestic Revenue Mobilization course, focusing on the issue of aggressive tax planning and selected policy responses. The simulation component allows users to assess the impact of different tax optimization strategies on both group profitability and government revenue. It also incorporates simulations of selected countermeasures.
