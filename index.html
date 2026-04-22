@@ -1,0 +1,3658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TaxShift — Base Erosion & Profit Shifting Simulator</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,600;0,700;1,400&family=Source+Code+Pro:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0a1628;
+  --navy2: #0f2044;
+  --navy3: #1a3060;
+  --blue: #1a56a0;
+  --blue2: #2563b0;
+  --gold: #c8992a;
+  --gold2: #e8b830;
+  --red: #c0392b;
+  --green: #1a7a4a;
+  --green2: #22a05a;
+  --paper: #f7f5f0;
+  --paper2: #eeeae2;
+  --paper3: #e4e0d8;
+  --ink: #1a1a2e;
+  --ink2: #2d3456;
+  --muted: #6b7280;
+  --border: #d0ccc4;
+  --border2: #b8b4ac;
+  --white: #ffffff;
+  --shadow: 0 2px 8px rgba(10,22,40,0.10);
+  --shadow2: 0 4px 20px rgba(10,22,40,0.15);
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── INTRO / TEACHING NOTE ── */
+.intro {
+  position: fixed; inset: 0;
+  background: var(--navy);
+  z-index: 300;
+  overflow-y: auto;
+}
+
+.intro-topbar {
+  position: sticky; top: 0; z-index: 10;
+  background: var(--navy);
+  border-bottom: 3px solid var(--gold);
+  height: 56px;
+  display: flex; align-items: center;
+  padding: 0 40px;
+  justify-content: space-between;
+}
+
+.intro-topbar-brand {
+  display: flex; align-items: center; gap: 12px;
+}
+
+.intro-topbar-seal {
+  width: 32px; height: 32px;
+  background: var(--gold);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Noto Serif', serif;
+  font-size: 7px; font-weight: 700;
+  color: var(--navy);
+  line-height: 1.2; text-align: center;
+  flex-shrink: 0;
+}
+
+.intro-topbar-title {
+  font-family: 'Noto Serif', serif;
+  font-size: 16px; font-weight: 600;
+  color: white;
+}
+
+.intro-topbar-title span {
+  color: rgba(255,255,255,0.4);
+  font-weight: 400;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px; margin-left: 6px;
+}
+
+.start-btn {
+  background: var(--gold);
+  color: var(--navy);
+  border: none;
+  padding: 10px 28px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px; font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 1.5px;
+  transition: all 0.2s;
+  border-radius: 2px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.start-btn:hover {
+  background: var(--gold2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(200,153,42,0.4);
+}
+
+/* ── TEACHING NOTE ── */
+.note-page {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 52px 48px 100px;
+  font-family: 'Noto Serif', serif;
+  color: rgba(255,255,255,0.7);
+  font-size: 12pt;
+  line-height: 1.78;
+}
+
+.note-header {
+  border-top: 1px solid rgba(255,255,255,0.15);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding: 28px 0 22px;
+  margin-bottom: 40px;
+}
+
+.note-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 8pt; font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 12px;
+}
+
+.note-header h1 {
+  font-family: 'Noto Serif', serif;
+  font-size: 22pt; font-weight: 700;
+  line-height: 1.2; color: white;
+  margin-bottom: 14px;
+}
+
+.note-header h1 em { color: var(--gold2); font-style: italic; }
+
+.note-meta {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 8pt;
+  color: rgba(255,255,255,0.35);
+  display: flex; gap: 18px; flex-wrap: wrap;
+}
+
+.note-meta span::before { content: '·'; margin-right: 6px; color: rgba(255,255,255,0.15); }
+.note-meta span:first-child::before { content: ''; margin: 0; }
+
+.note-body p {
+  margin-bottom: 1.2em;
+  text-align: justify;
+  hyphens: auto;
+  color: rgba(255,255,255,0.65);
+}
+
+.note-body p:first-child::first-letter {
+  font-size: 3.2em; float: left;
+  line-height: 0.82;
+  margin-right: 6px; margin-top: 6px;
+  color: var(--gold);
+}
+
+.note-h2 {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 8pt; font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding-top: 24px;
+  margin: 36px 0 16px;
+}
+
+.note-competences {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 10px; margin: 16px 0 24px;
+}
+
+.note-comp-item {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.09);
+  padding: 13px 16px;
+  font-size: 10.5pt;
+  color: rgba(255,255,255,0.58);
+  border-radius: 3px;
+  font-family: 'DM Sans', sans-serif;
+  line-height: 1.55;
+}
+
+.note-comp-num {
+  font-size: 7.5pt; font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: block; margin-bottom: 5px;
+}
+
+.note-references {
+  margin-top: 40px; padding-top: 24px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  font-size: 10pt;
+}
+
+.note-references p {
+  margin-bottom: 0.65em;
+  text-align: left; hyphens: none;
+  padding-left: 1.8em; text-indent: -1.8em;
+  color: rgba(255,255,255,0.35);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10pt; line-height: 1.6;
+}
+
+.note-references p em { font-style: italic; }
+
+.note-cta {
+  margin-top: 56px;
+  padding: 32px 40px;
+  background: rgba(200,153,42,0.08);
+  border: 1px solid rgba(200,153,42,0.25);
+  border-radius: 4px;
+  text-align: center;
+}
+
+.note-cta p {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: rgba(255,255,255,0.45);
+  margin-bottom: 20px !important;
+  text-align: center !important;
+}
+
+.start-btn-large {
+  background: var(--gold);
+  color: var(--navy);
+  border: none;
+  padding: 15px 56px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: all 0.2s;
+  border-radius: 2px;
+}
+
+.start-btn-large:hover {
+  background: var(--gold2);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(200,153,42,0.4);
+}
+
+.note-footer {
+  margin-top: 40px; padding-top: 18px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 8pt;
+  color: rgba(255,255,255,0.25);
+  display: flex; justify-content: space-between;
+}
+
+/* ── QUIZ ── */
+.quiz-screen {
+  position: fixed; inset: 0;
+  background: var(--navy);
+  z-index: 400;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 24px;
+}
+
+.quiz-card {
+  background: var(--navy2);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px;
+  max-width: 680px; width: 100%;
+  padding: 40px 44px;
+}
+
+.quiz-topbar {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.quiz-progress-label {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 11px; color: rgba(255,255,255,0.35);
+  letter-spacing: 0.08em; white-space: nowrap;
+}
+
+.quiz-progress-track {
+  flex: 1; height: 2px;
+  background: rgba(255,255,255,0.1);
+  margin: 0 16px; overflow: hidden;
+}
+
+.quiz-progress-fill {
+  height: 100%; background: var(--gold);
+  transition: width 0.4s ease;
+}
+
+.quiz-score-badge {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 11px; color: var(--gold);
+  background: rgba(200,153,42,0.12);
+  border: 1px solid rgba(200,153,42,0.25);
+  border-radius: 20px; padding: 3px 12px;
+  white-space: nowrap;
+}
+
+.quiz-multi-hint {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--blue2);
+  background: rgba(26,86,160,0.15);
+  border: 1px solid rgba(26,86,160,0.3);
+  border-radius: 2px; padding: 3px 10px;
+  margin-bottom: 14px; display: inline-block;
+}
+
+.quiz-question {
+  font-family: 'Noto Serif', serif;
+  font-size: 16px; font-weight: 400;
+  line-height: 1.55; color: white;
+  margin-bottom: 24px;
+}
+
+.quiz-options {
+  display: flex; flex-direction: column;
+  gap: 8px; margin-bottom: 28px;
+}
+
+.quiz-option {
+  display: flex; align-items: flex-start;
+  gap: 14px; padding: 12px 16px;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 3px; cursor: pointer;
+  transition: all 0.15s;
+  background: rgba(255,255,255,0.03);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; color: rgba(255,255,255,0.6);
+  line-height: 1.5; text-align: left; width: 100%;
+}
+
+.quiz-option:hover:not(.locked) { border-color: var(--gold); color: white; background: rgba(200,153,42,0.06); }
+.quiz-option.selected { border-color: var(--gold); background: rgba(200,153,42,0.08); color: white; }
+.quiz-option.correct { border-color: var(--green2); background: rgba(26,122,74,0.1); color: #86efac; }
+.quiz-option.wrong { border-color: var(--red); background: rgba(192,57,43,0.1); color: #fca5a5; }
+.quiz-option.missed { border-color: var(--green); background: rgba(26,122,74,0.05); color: #86efac; border-style: dashed; }
+.quiz-option.locked { cursor: default; }
+
+.quiz-option-letter {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 11px; font-weight: 600;
+  color: rgba(255,255,255,0.25);
+  min-width: 18px; padding-top: 1px; flex-shrink: 0;
+}
+
+.quiz-option.selected .quiz-option-letter { color: var(--gold); }
+.quiz-option.correct .quiz-option-letter { color: var(--green2); }
+.quiz-option.wrong .quiz-option-letter { color: var(--red); }
+.quiz-option.missed .quiz-option-letter { color: var(--green); }
+
+.quiz-validate-btn {
+  background: var(--gold); color: var(--navy);
+  border: none; padding: 12px 36px;
+  border-radius: 2px; font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  transition: all 0.2s; width: 100%;
+  letter-spacing: 1.5px; text-transform: uppercase;
+}
+
+.quiz-validate-btn:hover:not(:disabled) { background: var(--gold2); }
+.quiz-validate-btn:disabled { opacity: 0.3; cursor: default; }
+
+.quiz-next-btn {
+  background: transparent; color: var(--gold);
+  border: 1px solid var(--gold); padding: 12px 36px;
+  border-radius: 2px; font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  transition: all 0.2s; width: 100%;
+  letter-spacing: 1.5px; text-transform: uppercase;
+}
+
+.quiz-next-btn:hover { background: rgba(200,153,42,0.08); }
+
+.quiz-feedback {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 3px; padding: 14px 18px;
+  margin-bottom: 20px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; color: rgba(255,255,255,0.55);
+  line-height: 1.6; display: none;
+}
+
+.quiz-feedback.correct-fb { border-color: rgba(26,122,74,0.4); background: rgba(26,122,74,0.06); }
+.quiz-feedback.partial-fb { border-color: rgba(200,153,42,0.35); background: rgba(200,153,42,0.05); }
+.quiz-feedback.wrong-fb { border-color: rgba(192,57,43,0.4); background: rgba(192,57,43,0.06); }
+
+.quiz-feedback-title {
+  font-weight: 700; font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.12em;
+  margin-bottom: 7px;
+}
+
+.correct-fb .quiz-feedback-title { color: var(--green2); }
+.partial-fb .quiz-feedback-title { color: var(--gold); }
+.wrong-fb .quiz-feedback-title { color: var(--red); }
+
+.quiz-result-card {
+  background: var(--navy2);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px;
+  max-width: 520px; width: 100%;
+  padding: 48px 44px; text-align: center;
+}
+
+.quiz-result-score {
+  font-family: 'Noto Serif', serif;
+  font-size: 64px; font-weight: 700;
+  color: var(--gold); line-height: 1;
+  margin-bottom: 8px;
+}
+
+.quiz-result-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px; color: rgba(255,255,255,0.35);
+  letter-spacing: 1px; text-transform: uppercase;
+  margin-bottom: 28px;
+}
+
+.quiz-result-msg {
+  font-family: 'Noto Serif', serif;
+  font-size: 16px; color: rgba(255,255,255,0.75);
+  line-height: 1.6; margin-bottom: 36px;
+}
+
+.quiz-result-btns { display: flex; gap: 12px; }
+
+.quiz-result-btns button {
+  flex: 1; padding: 12px;
+  border-radius: 2px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px; font-weight: 700;
+  cursor: pointer; transition: all 0.2s;
+  letter-spacing: 1.5px; text-transform: uppercase;
+}
+
+.btn-restart { background: transparent; color: var(--gold); border: 1px solid var(--gold); }
+.btn-restart:hover { background: rgba(200,153,42,0.08); }
+.btn-return { background: var(--gold); color: var(--navy); border: none; }
+.btn-return:hover { background: var(--gold2); }
+
+/* ── APP SHELL ── */
+.app-shell { display: flex; flex-direction: column; min-height: 100vh; }
+
+.hidden { display: none !important; }
+
+/* ── TOPBAR ── */
+.topbar {
+  background: var(--navy);
+  border-bottom: 3px solid var(--gold);
+  height: 56px;
+  display: flex; align-items: center;
+  padding: 0 24px;
+  gap: 20px;
+  position: sticky; top: 0; z-index: 100;
+}
+
+.topbar-seal {
+  width: 34px; height: 34px;
+  background: var(--gold);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Noto Serif', serif;
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--navy);
+  flex-shrink: 0;
+}
+
+.topbar-title {
+  font-family: 'Noto Serif', serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: white;
+}
+
+.topbar-title span {
+  color: rgba(255,255,255,0.4);
+  font-weight: 400;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  margin-left: 8px;
+}
+
+.topbar-nav {
+  display: flex; gap: 2px;
+  margin-left: auto;
+  background: rgba(255,255,255,0.07);
+  border-radius: 3px;
+  padding: 3px;
+}
+
+.topbar-tab {
+  padding: 6px 16px;
+  border-radius: 2px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.5);
+  border: none;
+  background: transparent;
+  transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.topbar-tab.active {
+  background: var(--gold);
+  color: var(--navy);
+}
+
+/* ── LAYOUT ── */
+.app-body { display: flex; flex: 1; }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 240px;
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+
+.sidebar-group {
+  padding: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-group-header {
+  padding: 12px 16px 8px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--paper);
+  border-bottom: 1px solid var(--border);
+}
+
+.scenario-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 16px;
+  border: none;
+  background: transparent;
+  color: var(--ink2);
+  text-align: left;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  border-left: 3px solid transparent;
+}
+
+.scenario-link:hover { background: var(--paper); }
+
+.scenario-link.active {
+  background: rgba(26,86,160,0.06);
+  border-left-color: var(--blue);
+  color: var(--blue2);
+  font-weight: 600;
+}
+
+.scenario-link.active-red {
+  background: rgba(192,57,43,0.05);
+  border-left-color: var(--red);
+  color: var(--red);
+}
+
+.scenario-link.active-green {
+  background: rgba(26,122,74,0.05);
+  border-left-color: var(--green);
+  color: var(--green);
+}
+
+.s-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dot-ref { background: var(--blue); }
+.dot-agg { background: var(--red); }
+.dot-cor { background: var(--green); }
+
+.s-badge {
+  margin-left: auto;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  padding: 2px 6px;
+  border-radius: 2px;
+  text-transform: uppercase;
+}
+
+.badge-ref { background: rgba(26,86,160,0.12); color: var(--blue); }
+.badge-agg { background: rgba(192,57,43,0.12); color: var(--red); }
+.badge-cor { background: rgba(26,122,74,0.12); color: var(--green); }
+
+/* ── MAIN ── */
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--paper);
+}
+
+/* ── SCENARIO VIEW ── */
+.scenario-view {
+  max-width: 1060px;
+  padding: 32px 36px;
+}
+
+/* ── POLICY BRIEF HEADER ── */
+.policy-header {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--navy);
+  padding: 24px 28px;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.policy-meta {
+  display: flex; gap: 20px; align-items: center;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.policy-type-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 2px;
+}
+
+.ptb-ref { background: rgba(26,86,160,0.1); color: var(--blue); border: 1px solid rgba(26,86,160,0.25); }
+.ptb-agg { background: rgba(192,57,43,0.1); color: var(--red); border: 1px solid rgba(192,57,43,0.25); }
+.ptb-cor { background: rgba(26,122,74,0.1); color: var(--green); border: 1px solid rgba(26,122,74,0.25); }
+
+.policy-doc-ref {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  margin-left: auto;
+}
+
+.policy-title {
+  font-family: 'Noto Serif', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 8px;
+  line-height: 1.25;
+}
+
+.policy-subtitle {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.65;
+  max-width: 740px;
+  font-family: 'Noto Serif', serif;
+  font-style: italic;
+}
+
+/* ── KPI ROW ── */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.kpi-box {
+  background: var(--white);
+  border: 1px solid var(--border);
+  padding: 16px;
+  position: relative;
+}
+
+.kpi-box::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+
+.kpi-box.k-state::before { background: var(--green); }
+.kpi-box.k-share::before { background: var(--blue); }
+.kpi-box.k-profit::before { background: var(--navy3); }
+.kpi-box.k-beps::before { background: var(--gold); }
+
+.kpi-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.kpi-val {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.kpi-val.v-red { color: var(--red); }
+.kpi-val.v-green { color: var(--green); }
+
+.kpi-sub {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 5px;
+}
+
+.kpi-delta {
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 3px;
+}
+
+.d-neg { color: var(--red); }
+.d-pos { color: var(--green); }
+
+/* ── ENTITY GRID ── */
+.entities-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.entity-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+}
+
+.entity-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--paper);
+}
+
+.entity-flag { font-size: 22px; }
+
+.entity-name {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--navy);
+}
+
+.entity-type {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 1px;
+}
+
+.entity-tax {
+  margin-left: auto;
+  font-family: 'Source Code Pro', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 2px;
+}
+
+.et-high { background: rgba(192,57,43,0.1); color: var(--red); }
+.et-zero { background: rgba(26,86,160,0.1); color: var(--navy3); }
+.et-low  { background: rgba(200,153,42,0.1); color: var(--gold); }
+
+.entity-body { padding: 0; }
+
+.fin-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+  font-size: 12px;
+}
+
+.fin-line:last-child { border-bottom: none; }
+
+.fin-line.total-line {
+  border-top: 2px solid var(--border);
+  padding-top: 10px;
+  margin-top: 4px;
+  font-weight: 700;
+  background: var(--paper);
+}
+
+.fl-label { color: var(--muted); }
+.fl-label.sub { padding-left: 14px; color: #9ca3af; }
+
+.fl-val {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.fv-pos { color: var(--green); }
+.fv-neg { color: var(--red); }
+.fv-neu { color: var(--navy); }
+.fv-acc { color: var(--navy); }
+.fv-muted { color: var(--muted); }
+
+/* ── FLOW DIAGRAM ── */
+.flow-panel {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--navy);
+  padding: 20px 24px;
+  margin-bottom: 24px;
+}
+
+.flow-panel-title {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.flow-panel-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.flow-nodes {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.flow-node {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  padding: 14px 18px;
+  text-align: center;
+  min-width: 140px;
+}
+
+.flow-node-lbl {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.flow-node-val {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.flow-node-sub { font-size: 10px; color: var(--muted); margin-top: 3px; }
+
+.flow-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 8px;
+  gap: 2px;
+}
+
+.flow-arrow-line {
+  font-size: 18px;
+  color: var(--border2);
+}
+
+.flow-arrow-label {
+  font-size: 9px;
+  color: var(--muted);
+  text-align: center;
+  max-width: 60px;
+  line-height: 1.3;
+}
+
+.flow-note {
+  text-align: center;
+  margin-top: 14px;
+  font-size: 11px;
+  color: var(--muted);
+  font-family: 'Noto Serif', serif;
+  font-style: italic;
+}
+
+/* ── WORKING PAPER BOX ── */
+.working-paper {
+  background: var(--white);
+  border: 1px solid var(--border);
+  padding: 24px 28px;
+  margin-bottom: 24px;
+}
+
+.wp-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.wp-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.wp-title {
+  font-family: 'Noto Serif', serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 3px;
+}
+
+.wp-subtitle {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.wp-body {
+  font-family: 'Noto Serif', serif;
+  font-size: 13px;
+  color: #374151;
+  line-height: 1.8;
+}
+
+.wp-body p { margin-bottom: 12px; }
+.wp-body p:last-child { margin-bottom: 0; }
+.wp-body strong { color: var(--navy); font-weight: 700; }
+.wp-body em { font-style: italic; color: #4b5563; }
+
+.references-block {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.ref-header {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.ref-entry {
+  font-family: 'Noto Serif', serif;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 6px;
+  padding-left: 14px;
+  position: relative;
+}
+
+.ref-entry::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--border2);
+}
+
+/* ── NAVIGATION BAR ── */
+.nav-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0 4px;
+  border-top: 1px solid var(--border);
+  margin-top: 8px;
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border: 1px solid var(--border);
+  background: var(--white);
+  color: var(--ink2);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.15s;
+  letter-spacing: 0.3px;
+}
+
+.nav-btn:hover { background: var(--paper2); border-color: var(--navy); color: var(--navy); }
+.nav-btn:disabled { opacity: 0.3; cursor: default; }
+
+.nav-btn.primary {
+  background: var(--navy);
+  color: white;
+  border-color: var(--navy);
+}
+
+.nav-btn.primary:hover { background: var(--navy2); }
+
+.nav-progress {
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  flex: 1; max-width: 260px; margin: 0 20px;
+}
+
+.progress-label {
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.5px;
+}
+
+.progress-track {
+  width: 100%;
+  height: 3px;
+  background: var(--paper3);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--navy);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+/* ── PHASE 2: SIMULATION ── */
+.sim-view { padding: 32px 36px; }
+
+.sim-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.controls-panel {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--navy);
+  padding: 0;
+  position: sticky;
+  top: 20px;
+}
+
+.cp-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--paper);
+}
+
+.cp-title {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--navy);
+}
+
+.cp-body { padding: 18px; }
+
+.ctrl-group { margin-bottom: 18px; }
+
+.ctrl-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink2);
+  margin-bottom: 8px;
+  letter-spacing: 0.3px;
+}
+
+.ctrl-val {
+  font-family: 'Source Code Pro', monospace;
+  font-weight: 700;
+  color: var(--blue2);
+  font-size: 12px;
+}
+
+.ctrl-val.changed {
+  color: #c0392b;
+  font-weight: 800;
+  background: rgba(192,57,43,0.08);
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid rgba(192,57,43,0.25);
+}
+
+.ctrl-label.changed {
+  color: #c0392b;
+}
+
+.ctrl-changed-badge {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: white;
+  background: #c0392b;
+  padding: 1px 5px;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+
+input[type="range"].changed {
+  background: linear-gradient(to right, rgba(192,57,43,0.3), rgba(192,57,43,0.1));
+}
+
+input[type="range"].changed::-webkit-slider-thumb {
+  background: #c0392b;
+  box-shadow: 0 0 0 3px rgba(192,57,43,0.2);
+}
+
+input[type="range"] {
+  width: 100%;
+  -webkit-appearance: none;
+  height: 3px;
+  background: var(--paper3);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--navy);
+  cursor: pointer;
+  border: 2px solid var(--white);
+  box-shadow: 0 0 0 1px var(--navy);
+}
+
+.range-limits {
+  display: flex; justify-content: space-between;
+  font-size: 9px; color: var(--muted); margin-top: 3px;
+  font-family: 'Source Code Pro', monospace;
+}
+
+.strategies-section {
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+  margin-bottom: 16px;
+}
+
+.strategies-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.strategy-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  background: var(--paper);
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  border-radius: 2px;
+}
+
+.strategy-toggle:hover { border-color: var(--navy3); }
+
+.strategy-toggle.on {
+  background: rgba(192,57,43,0.04);
+  border-color: rgba(192,57,43,0.35);
+}
+
+.st-text .st-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink2);
+}
+
+.st-text .st-sub {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 1px;
+}
+
+.st-switch {
+  width: 30px; height: 16px;
+  border-radius: 8px;
+  background: var(--border2);
+  position: relative;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.st-switch.on { background: var(--red); }
+
+.st-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: white;
+  transition: transform 0.2s;
+}
+
+.st-switch.on::after { transform: translateX(14px); }
+
+.results-readout {
+  border-top: 1px solid var(--border);
+  padding: 16px 18px;
+  background: var(--navy);
+}
+
+.rr-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+  margin-bottom: 6px;
+}
+
+.rr-value {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.rr-delta { font-size: 11px; margin-top: 4px; }
+
+/* ── RESULTS PANEL ── */
+.results-area { display: flex; flex-direction: column; gap: 16px; }
+
+.alert-banner {
+  background: rgba(192,57,43,0.06);
+  border: 1px solid rgba(192,57,43,0.25);
+  border-left: 4px solid var(--red);
+  padding: 12px 16px;
+  display: flex; gap: 10px; align-items: flex-start;
+}
+
+.alert-icon { font-size: 16px; flex-shrink: 0; }
+.alert-text { font-size: 12px; color: #374151; line-height: 1.6; }
+.alert-text strong { color: var(--red); }
+
+.data-chart-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  padding: 20px 22px;
+}
+
+.chart-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 18px;
+}
+
+.bar-rows { display: flex; flex-direction: column; gap: 10px; }
+
+.bar-row-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bar-name {
+  width: 160px;
+  flex-shrink: 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.bar-track {
+  flex: 1;
+  height: 24px;
+  background: var(--paper2);
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 1px;
+  display: flex; align-items: center; padding-left: 8px;
+  font-family: 'Source Code Pro', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.9);
+  transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+}
+
+.bar-end-val {
+  width: 56px;
+  text-align: right;
+  font-family: 'Source Code Pro', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+/* ── DATA TABLE ── */
+.data-table-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table thead th {
+  background: var(--navy);
+  color: rgba(255,255,255,0.7);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 11px 14px;
+  text-align: left;
+}
+
+.data-table thead th:not(:first-child) { text-align: right; }
+
+.data-table tbody td {
+  padding: 10px 14px;
+  font-size: 12px;
+  border-bottom: 1px solid var(--paper2);
+  color: var(--ink2);
+}
+
+.data-table tbody td:not(:first-child) {
+  text-align: right;
+  font-family: 'Source Code Pro', monospace;
+  font-size: 11px;
+}
+
+.data-table tbody tr:last-child td { border-bottom: none; }
+.data-table tbody tr.row-alert td { background: rgba(192,57,43,0.03); }
+
+.change-pill {
+  display: inline-block;
+  font-family: 'Source Code Pro', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 2px;
+}
+
+.pill-down { background: rgba(192,57,43,0.1); color: var(--red); }
+.pill-up { background: rgba(26,122,74,0.1); color: var(--green); }
+.pill-neu { background: rgba(107,114,128,0.1); color: var(--muted); }
+
+/* ── ANALYSIS BOX ── */
+.analysis-card {
+  background: var(--navy);
+  border: 1px solid var(--navy2);
+  padding: 22px 24px;
+}
+
+.analysis-header {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.analysis-body {
+  font-family: 'Noto Serif', serif;
+  font-size: 13px;
+  color: rgba(255,255,255,0.75);
+  line-height: 1.75;
+}
+
+.analysis-body p { margin-bottom: 10px; }
+.analysis-body p:last-child { margin-bottom: 0; }
+.analysis-body strong { color: white; }
+.analysis-body em { font-style: italic; color: rgba(255,255,255,0.55); }
+
+.analysis-refs {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.analysis-refs-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  margin-bottom: 6px;
+}
+
+.ar-entry {
+  font-family: 'Noto Serif', serif;
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+  line-height: 1.6;
+  margin-bottom: 4px;
+  padding-left: 10px;
+  position: relative;
+}
+
+.ar-entry::before { content: '·'; position: absolute; left: 0; color: var(--gold); }
+
+/* ── COMPARISON ── */
+.comp-view { padding: 32px 36px; max-width: 1060px; }
+
+.section-header {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--navy);
+  padding: 20px 24px;
+  margin-bottom: 24px;
+}
+
+.sh-title {
+  font-family: 'Noto Serif', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 4px;
+}
+
+.sh-sub {
+  font-size: 13px;
+  color: var(--muted);
+  font-family: 'Noto Serif', serif;
+  font-style: italic;
+}
+
+.comp-bars-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  padding: 20px 24px;
+  margin-bottom: 20px;
+}
+
+.comp-table-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.comp-table { width: 100%; border-collapse: collapse; }
+
+.comp-table thead th {
+  background: var(--navy);
+  color: rgba(255,255,255,0.65);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 12px 14px;
+  text-align: right;
+}
+
+.comp-table thead th:first-child { text-align: left; }
+
+.comp-table tbody td {
+  padding: 11px 14px;
+  font-family: 'Source Code Pro', monospace;
+  font-size: 11px;
+  border-bottom: 1px solid var(--paper2);
+  text-align: right;
+  color: var(--ink2);
+}
+
+.comp-table tbody td:first-child {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+  color: var(--ink);
+}
+
+.comp-table tbody tr:last-child td { border-bottom: none; }
+.comp-table tbody tr.tr-ref td { background: rgba(26,86,160,0.04); }
+.comp-table tbody tr.tr-agg td { background: rgba(192,57,43,0.03); }
+.comp-table tbody tr.tr-cor td { background: rgba(26,122,74,0.03); }
+
+.mini-bar-cell {
+  display: flex; align-items: center; gap: 6px; justify-content: flex-end;
+}
+
+.mini-bar {
+  height: 6px;
+  border-radius: 1px;
+  flex-shrink: 0;
+}
+
+/* ── BALANCE SHEET ── */
+:root {
+  --color-depr: #7c3aed;       /* violet : dotations aux amortissements */
+  --color-depr-bg: rgba(124,58,237,0.08);
+  --color-debt: #0891b2;       /* cyan : charges financières / dette */
+  --color-debt-bg: rgba(8,145,178,0.08);
+  --color-equity: #1a56a0;
+  --color-equity-bg: rgba(26,86,160,0.07);
+}
+
+.bs-section {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--navy3);
+  margin-bottom: 24px;
+}
+
+.bs-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 18px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--border);
+}
+
+.bs-header-title {
+  font-family: 'Noto Serif', serif;
+  font-size: 14px; font-weight: 700; color: var(--navy);
+}
+
+.bs-header-sub {
+  font-size: 11px; color: var(--muted); margin-top: 1px;
+}
+
+.bs-legend {
+  display: flex; gap: 16px; margin-left: auto; flex-wrap: wrap;
+}
+
+.bs-legend-item {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 10px; color: var(--muted); font-weight: 600;
+}
+
+.bs-legend-dot {
+  width: 10px; height: 10px; border-radius: 2px;
+}
+
+.bs-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.bs-col {
+  padding: 0;
+}
+
+.bs-col:first-child {
+  border-right: 1px solid var(--border);
+}
+
+.bs-col-header {
+  padding: 10px 16px;
+  font-size: 9px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--muted);
+  background: var(--paper2);
+  border-bottom: 1px solid var(--border);
+}
+
+.bs-line {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 16px;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+  font-size: 12px;
+}
+
+.bs-line:last-child { border-bottom: none; }
+
+.bs-line.bs-total {
+  border-top: 2px solid var(--border);
+  font-weight: 700; background: var(--paper);
+  padding: 10px 16px;
+}
+
+.bs-line.bs-sub { padding-left: 28px; }
+
+.bs-line-label { color: var(--muted); font-size: 12px; }
+.bs-line-label.bs-bold { color: var(--ink2); font-weight: 600; }
+
+.bs-line-val {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 12px; font-weight: 600; color: var(--navy);
+}
+
+/* Colour-coded links */
+.bs-line.color-depr { background: var(--color-depr-bg); }
+.bs-line.color-depr .bs-line-label,
+.bs-line.color-depr .bs-line-val { color: var(--color-depr); }
+
+.bs-line.color-debt { background: var(--color-debt-bg); }
+.bs-line.color-debt .bs-line-label,
+.bs-line.color-debt .bs-line-val { color: var(--color-debt); }
+
+.bs-line.color-equity { background: var(--color-equity-bg); }
+.bs-line.color-equity .bs-line-label,
+.bs-line.color-equity .bs-line-val { color: var(--color-equity); }
+
+.bs-color-tag {
+  display: inline-block;
+  width: 8px; height: 8px; border-radius: 2px;
+  margin-right: 5px; vertical-align: middle; flex-shrink: 0;
+}
+
+.bs-note {
+  padding: 10px 18px;
+  background: var(--paper);
+  border-top: 1px solid var(--border);
+  font-size: 11px; color: var(--muted);
+  font-family: 'Noto Serif', serif; font-style: italic;
+  line-height: 1.6;
+}
+
+@media (max-width: 720px) {
+  .bs-cols { grid-template-columns: 1fr; }
+  .bs-col:first-child { border-right: none; border-bottom: 1px solid var(--border); }
+}
+
+
+::-webkit-scrollbar-track { background: var(--paper); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+/* ── ANIMATIONS ── */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-in { animation: slideUp 0.3s ease forwards; }
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.live-indicator {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 9px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--green);
+}
+
+.live-dot {
+  width: 5px; height: 5px;
+  background: var(--green);
+  border-radius: 50%;
+  animation: blink 2s infinite;
+}
+
+@media (max-width: 900px) {
+  .sim-grid { grid-template-columns: 1fr; }
+  .kpi-row { grid-template-columns: repeat(2,1fr); }
+  .entities-grid { grid-template-columns: 1fr; }
+  .intro-stats { gap: 20px; }
+}
+
+.data-chart-card, .data-table-card, .analysis-card {
+  transition: opacity 0.15s ease;
+}
+.rr-value { transition: all 0.25s ease; }
+
+</style>
+</head>
+<body>
+
+<!-- INTRO SCREEN -->
+<div id="introScreen" class="intro">
+
+  <!-- Sticky topbar with launch button -->
+  <div class="intro-topbar">
+    <div class="intro-topbar-brand">
+      <div class="intro-topbar-seal">EU<br>DRM</div>
+      <div class="intro-topbar-title">TaxShift <span>· BEPS Simulation · Sub-Saharan Africa</span></div>
+    </div>
+    <button class="start-btn" onclick="startApp()">Launch Simulation →</button>
+  </div>
+
+  <!-- Teaching note -->
+  <div class="note-page">
+
+    <div class="note-header">
+      <p class="note-eyebrow">Teaching Note · International Taxation and Development · EU–INTPA Partnership</p>
+      <h1>Overview of the Pedagogical Simulation on <em>Aggressive Tax Optimization</em></h1>
+      <div class="note-meta">
+        <span>International taxation</span>
+        <span>INTPA partner countries</span>
+        <span>Extractive sector</span>
+        <span>Sub-Saharan Africa</span>
+      </div>
+    </div>
+
+    <div class="note-body">
+
+      <div class="note-h2">1. General Presentation</div>
+
+      <p>Base erosion and profit shifting — commonly referred to by the acronym BEPS — represent a structural fiscal challenge for the partner countries of the European Commission's Directorate-General for International Partnerships (INTPA), whose tax revenues rely heavily on the taxation of multinational enterprises operating in the extractive sector. Crivelli, De Mooij, and Keen (2016) estimate that these practices cost developing countries approximately 1.3 percent of GDP annually in foregone revenues, more than twice the estimated impact on advanced economies. This pedagogical simulation, available in French and English versions with identical content, enables participants to engage concretely and interactively with the mechanisms of aggressive tax planning. It is grounded in a stylized case study representative of a mining enterprise operating in a low-income developing country that is a partner of INTPA: the enterprise generates revenues of 300 million euros and, in the baseline scenario, remits 12 million euros in corporate income tax at a statutory rate of 20 percent. A self-assessment quiz completes the learning experience.</p>
+
+      <div class="note-h2">2. Structure of the Simulation</div>
+
+      <p>The simulation unfolds across three progressive phases. <strong style="color:rgba(255,255,255,0.85)">Phase I — Exploration</strong> presents nine pre-constructed scenarios covering the principal mechanisms of aggressive tax optimization and their regulatory countermeasures: transfer pricing manipulation, thin capitalization through intra-group financing, commodity price hedging contracts (the "sixth method"), treaty shopping, and their combinations. Corrective scenarios illustrate, symmetrically, the countermeasures drawn from the OECD BEPS Action Plan — the arm's length principle (Actions 8–10), the thin capitalization rule, and the interest limitation rule (Action 4). <strong style="color:rgba(255,255,255,0.85)">Phase II — Interactive Simulation</strong> invites participants to calibrate their own optimization strategies and observe in real time their effects on the allocation of profit among the host state, the shareholder, and offshore entities. <strong style="color:rgba(255,255,255,0.85)">Phase III — Comparative Analysis</strong> synthesizes all scenarios in a comparative table accompanied by a BEPS erosion index and a tax policy discussion.</p>
+
+      <div class="note-h2">3. Learning Objectives</div>
+
+      <p>The simulation pursues three complementary objectives. It first aims to <em>demystify the technical complexity</em> of BEPS mechanisms, making them accessible to a broad range of participants — graduate students, tax administration officials, treaty negotiators, and development practitioners. It then enables participants to <em>quantify the fiscal stakes</em> of aggressive tax optimization in resource-dependent contexts, illuminating the structural vulnerability documented by Cobham and Janský (2018) and by Johannesen, Tørsløv, and Wier (2020). Finally, it cultivates a capacity for <em>evidence-based policy evaluation</em>, allowing participants to experiment with countermeasures recommended by the IMF (2014) and the OECD (2015) and to assess their relative effectiveness across the institutional configurations of INTPA partner countries.</p>
+
+      <div class="note-h2">4. Learning Outcomes</div>
+
+      <p>Upon completion of a simulation session, participants will have developed the following competencies:</p>
+
+      <div class="note-competences">
+        <div class="note-comp-item"><span class="note-comp-num">Competency 01 — Analysis</span>Identify and decompose the principal mechanisms of fiscal erosion and understand their effects on the tax base of the host state.</div>
+        <div class="note-comp-item"><span class="note-comp-num">Competency 02 — Quantification</span>Calculate and interpret the budgetary impact of each optimization strategy in terms of revenue losses, offshore profit transfers, and shareholder returns.</div>
+        <div class="note-comp-item"><span class="note-comp-num">Competency 03 — Tax Policy</span>Evaluate the comparative effectiveness of BEPS countermeasures, accounting for the limited administrative capacity characteristic of low-income countries.</div>
+        <div class="note-comp-item"><span class="note-comp-num">Competency 04 — Analytical Perspective</span>Adopt simultaneously the viewpoint of the multinational enterprise and that of the host state, apprehending the information asymmetries inherent in international tax negotiations.</div>
+        <div class="note-comp-item"><span class="note-comp-num">Competency 05 — Documentary Literacy</span>Mobilize academic sources and institutional reports (OECD, IMF, World Bank, European Commission) in connection with sectoral data pertaining to the extractive industries.</div>
+        <div class="note-comp-item"><span class="note-comp-num">Competency 06 — Argumentation</span>Formulate tax policy recommendations grounded in the quantitative and qualitative analysis of trade-offs between investment attractiveness and domestic revenue mobilization.</div>
+      </div>
+
+      <p>These competencies align with the requirements of graduate-level training programs in international taxation and development economics, as well as with the capacity-building needs of tax administrations in INTPA partner countries, including programs coordinated by the African Tax Administration Forum (ATAF) and initiatives conducted under the Platform for Collaboration on Tax (IMF, OECD, UN, World Bank Group).</p>
+
+      <div class="note-h2">5. Self-Assessment</div>
+
+      <p>A self-assessment quiz completes the pedagogical framework. It covers all mechanisms addressed across the nine scenarios — identification of optimization strategies, interpretation of their fiscal effects, and knowledge of regulatory countermeasures — as well as the conceptual and institutional references mobilized throughout the simulation. Designed as a guided-response instrument with immediate corrective feedback, it may be administered at the conclusion of a session for formative purposes, or prior to a training program for diagnostic placement.</p>
+
+    </div>
+
+    <div class="note-references">
+      <div class="note-h2" style="border-top:none;padding-top:0;margin-top:0">References</div>
+      <p>Cobham, A., and Janský, P. (2018). Global distribution of revenue loss from corporate tax avoidance. <em>Journal of International Development</em>, 30(2), 206–232.</p>
+      <p>Crivelli, E., De Mooij, R., and Keen, M. (2016). Base erosion, profit shifting and developing countries. <em>FinanzArchiv</em>, 72(3), 268–301.</p>
+      <p>International Monetary Fund. (2014). <em>Spillovers in international corporate taxation.</em> IMF Policy Paper. Washington, DC: IMF.</p>
+      <p>Hearson, M. (2016). <em>Measuring tax treaty negotiation outcomes: The ActionAid Tax Treaties Dataset.</em> Working Paper 47. Brighton: ActionAid International.</p>
+      <p>Johannesen, N., Tørsløv, T., and Wier, L. (2020). Are less developed countries more exposed to multinational tax avoidance? <em>Economic Policy</em>, 35(103), 457–498.</p>
+      <p>OECD. (2015). <em>BEPS Action Plan — Final reports 2015.</em> Paris: OECD Publishing.</p>
+      <p>Readhead, A. (2016). Special rules for commodity sales: Zambia's "sixth method." <em>Natural Resource Governance Institute</em>. New York: NRGI.</p>
+      <p>Readhead, A. (2017). Preventing tax base erosion in Africa: Transfer pricing challenges in the mining sector. <em>Natural Resource Governance Institute</em>. New York: NRGI.</p>
+      <p>Zucman, G. (2014). Taxing across borders: Tracking personal wealth and corporate profits. <em>Journal of Economic Perspectives</em>, 28(4), 121–148.</p>
+    </div>
+
+    <div class="note-cta">
+      <p>Ready to explore the mechanisms of aggressive tax optimization?</p>
+      <button class="start-btn-large" onclick="startApp()">Launch the Simulation →</button>
+    </div>
+
+    <div class="note-footer">
+      <span>Teaching Note — International Taxation Simulation</span>
+      <span>International Taxation · EU–INTPA Partnership</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="mainApp" class="app-shell hidden">
+  <header class="topbar">
+    <div class="topbar-seal" style="font-size:7px;letter-spacing:0;line-height:1.2;text-align:center;padding:2px;">EU<br>DRM<br>Lecture</div>
+    <div class="topbar-title">TaxShift <span>· BEPS Simulation · Sub-Saharan Africa</span></div>
+    <nav class="topbar-nav">
+      <button class="topbar-tab active" id="tab1" onclick="switchPhase(1)">I. Exploration</button>
+      <button class="topbar-tab" id="tab2" onclick="switchPhase(2)">II. Simulation</button>
+      <button class="topbar-tab" id="tab3" onclick="switchPhase(3)">III. Comparison</button>
+    </nav>
+    <button onclick="startQuiz()" style="margin-left:16px;background:transparent;border:1px solid var(--gold);color:var(--gold);padding:6px 16px;border-radius:2px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all 0.2s;white-space:nowrap" onmouseover="this.style.background='rgba(200,153,42,0.1)'" onmouseout="this.style.background='transparent'">✦ Self-Assessment</button>
+  </header>
+
+  <div class="app-body">
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-group">
+        <div class="sidebar-group-header">Reference</div>
+        <button class="scenario-link active" id="sln-0" onclick="showScenario(0)">
+          <span class="s-dot dot-ref"></span>
+          Baseline
+          <span class="s-badge badge-ref">REF</span>
+        </button>
+      </div>
+      <div class="sidebar-group">
+        <div class="sidebar-group-header">Aggressive Strategies</div>
+        <button class="scenario-link" id="sln-1" onclick="showScenario(1)">
+          <span class="s-dot dot-agg"></span>
+          Transfer Pricing
+          <span class="s-badge badge-agg">AGG</span>
+        </button>
+        <button class="scenario-link" id="sln-2" onclick="showScenario(2)">
+          <span class="s-dot dot-agg"></span>
+          Thin Capitalization
+          <span class="s-badge badge-agg">AGG</span>
+        </button>
+        <button class="scenario-link" id="sln-3" onclick="showScenario(3)">
+          <span class="s-dot dot-agg"></span>
+          Hedging Contract
+          <span class="s-badge badge-agg">AGG</span>
+        </button>
+      </div>
+      <div class="sidebar-group">
+        <div class="sidebar-group-header">Countermeasures</div>
+        <button class="scenario-link" id="sln-4" onclick="showScenario(4)">
+          <span class="s-dot dot-cor"></span>
+          Withholding Tax
+          <span class="s-badge badge-cor">BEPS</span>
+        </button>
+        <button class="scenario-link" id="sln-5" onclick="showScenario(5)">
+          <span class="s-dot dot-cor"></span>
+          Arm's Length Rule
+          <span class="s-badge badge-cor">BEPS</span>
+        </button>
+        <button class="scenario-link" id="sln-6" onclick="showScenario(6)">
+          <span class="s-dot dot-cor"></span>
+          Thin Cap Rule
+          <span class="s-badge badge-cor">BEPS</span>
+        </button>
+        <button class="scenario-link" id="sln-7" onclick="showScenario(7)">
+          <span class="s-dot dot-cor"></span>
+          Earning Stripping Rule
+          <span class="s-badge badge-cor">BEPS</span>
+        </button>
+      </div>
+    </nav>
+
+    <main class="main-content" id="mainContent"></main>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// SCENARIO DATA
+// ═══════════════════════════════════════════════════════
+const SCENARIOS = [
+  {
+    id: 0, type: 'ref',
+    title: 'Baseline Scenario',
+    subtitle: 'Gold mining firm in a partner country, foreign shareholder. No tax planning. Corporate income tax paid at the standard rate of 20% on a taxable profit of $75M. Fixed asset depreciated at 10% per year.',
+    docRef: 'SCN-001 / REF',
+    entities: [{
+      name: 'Partner Country Mining Co.',
+      flag: '🇧🇫', sub: 'Local entity', tax: 'CIT 20%', taxCls: 'et-high',
+      rows: [
+        { l: 'Revenue', v: 300, cls: 'fv-neu' },
+        { l: 'Operating expenses', v: -170, cls: 'fv-neg' },
+        { l: '— Purchases', v: -50, cls: 'fv-neg', sub: true },
+        { l: '— Wages', v: -100, cls: 'fv-neg', sub: true },
+        { l: '— Depreciation (10% × $200M)', v: -20, cls: 'fv-neg', sub: true },
+        { l: 'Financial charges', v: -40, cls: 'fv-neg' },
+        { l: '— Interest on debt', v: -40, cls: 'fv-neg', sub: true },
+        { l: 'Mining Royalty (5% of Revenue)', v: -15, cls: 'fv-neg' },
+        { l: 'Pre-tax profit', v: 75, cls: 'fv-pos' },
+        { l: 'Corporate income tax', v: -15, cls: 'fv-neg' },
+        { l: 'Net profit', v: 60, cls: 'fv-acc', bold: true },
+      ]
+    }],
+    kpis: { state: 30, cit: 15, roy: 15, shareholder: 60, profit: 0.20, beps: 0 },
+    balance: {
+      assets: [
+        { l: 'Mining equipment (gross)', v: 200, color: 'depr', bold: true },
+        { l: '— Accumulated depreciation', v: -50, color: 'depr', sub: true },
+        { l: 'Net fixed assets', v: 150, bold: true },
+        { l: 'Other non-current assets', v: 20 },
+        { l: 'Current assets', v: 130 },
+        { l: 'Cash & equivalents', v: 30, sub: true },
+        { l: 'Receivables', v: 100, sub: true },
+        { l: 'TOTAL ASSETS', v: 300, total: true },
+      ],
+      liabilities: [
+        { l: 'Equity (paid-in capital)', v: 100, color: 'equity', bold: true },
+        { l: 'Retained earnings', v: 60, sub: true, color: 'equity' },
+        { l: 'Total equity', v: 160, bold: true, color: 'equity' },
+        { l: 'Long-term debt (intra-group)', v: 100, color: 'debt', bold: true },
+        { l: '— Interest rate: 10%', v: '→ $10M/yr', sub: true, color: 'debt', isText: true },
+        { l: 'Other financial debt', v: 30, color: 'debt' },
+        { l: 'Current liabilities', v: 10 },
+        { l: 'TOTAL LIABILITIES & EQUITY', v: 300, total: true },
+      ],
+      note: '🟣 Purple items link depreciation (income statement) ↔ depreciable assets (balance sheet).  🔵 Cyan items link financial charges (income statement) ↔ intra-group debt (balance sheet).'
+    },
+    theory: {
+      icon: '📌',
+      title: 'The Reference Scenario',
+      subtitle: 'EU Fiscal Affairs Dept. · Baseline Parameters',
+      body: `<p>In this benchmark scenario, the mining firm generates <strong>$300M in revenue</strong> and incurs $170M in operating costs (purchases $50M, wages $100M, depreciation $20M) plus $40M in interest charges on $400M of debt. The fixed asset is depreciated over 10 years; therefore, the depreciation rate is 10%. Taxable profit is $75M, yielding a <strong>$15M CIT payment</strong> to the host government. Mining royalty paid at the rate of 5% on total revenue, generating an additional <strong>$15M</strong>, for a total fiscal contribution of <strong>$30M</strong>.</p>
+      <p>The foreign shareholder receives <strong>$60M in net dividends</strong>—a 60% return on equity capital of $100M. This scenario reflects normal commercial conditions under a standard 20% CIT regime combined with a resource-sector royalty.</p>
+      <p>All subsequent scenarios hold revenue and operating cost structure constant, isolating the fiscal impact of each tax planning strategy.</p>`,
+      refs: [
+        'Crivelli, E., De Mooij, R. & Keen, M. (2016). Base erosion, profit shifting and developing countries. <em>FinanzArchiv</em>, 72(3), 268–301.',
+        'IMF (2014). <em>Spillovers in International Corporate Taxation.</em> IMF Policy Paper. Washington, D.C.: International Monetary Fund.',
+        'Cobham, A. & Janský, P. (2018). Global distribution of revenue loss from corporate tax avoidance. <em>Journal of International Development</em>, 30(2), 206–232.',
+      ]
+    }
+  },
+  {
+    id: 1, type: 'agg',
+    title: 'Transfer Pricing Manipulation',
+    subtitle: 'A purchasing hub is incorporated in the Bahamas (0% CIT). The mining equipment is invoiced at $400M instead of its fair market value of $200M, inflating depreciable costs in the host country.',
+    docRef: 'SCN-002 / TP',
+    entities: [
+      {
+        name: 'Partner Country Mining Co.',
+        flag: '🇧🇫', sub: 'Local entity', tax: 'CIT 20%', taxCls: 'et-high',
+        rows: [
+          { l: 'Revenue', v: 300, cls: 'fv-neu' },
+          { l: 'Operating expenses', v: -190, cls: 'fv-neg' },
+          { l: '— Purchases', v: -50, cls: 'fv-neg', sub: true },
+          { l: '— Wages', v: -100, cls: 'fv-neg', sub: true },
+          { l: '— Depreciation (10% × $400M)', v: -40, cls: 'fv-neg', sub: true },
+          { l: 'Financial charges', v: -60, cls: 'fv-neg' },
+          { l: 'Mining Royalty (5% of Revenue)', v: -15, cls: 'fv-neg' },
+          { l: 'Pre-tax profit', v: 35, cls: 'fv-pos' },
+          { l: 'Corporate income tax', v: -7, cls: 'fv-neg' },
+          { l: 'Net profit', v: 28, cls: 'fv-acc', bold: true },
+        ]
+      },
+      {
+        name: 'Procurement Hub — Bahamas',
+        flag: '🏝️', sub: 'Offshore entity', tax: 'CIT 0%', taxCls: 'et-zero',
+        rows: [
+          { l: 'Revenue (inflated equipment sale)', v: 400, cls: 'fv-neu' },
+          { l: 'Cost of equipment (market price)', v: -200, cls: 'fv-neg' },
+          { l: 'Local payroll', v: -10, cls: 'fv-neg' },
+          { l: 'Pre-tax profit', v: 190, cls: 'fv-pos' },
+          { l: 'CIT (0%)', v: 0, cls: 'fv-muted' },
+          { l: 'Net profit', v: 190, cls: 'fv-acc', bold: true },
+        ]
+      }
+    ],
+    kpis: { state: 22, cit: 7, roy: 15, shareholder: 218, profit: 0.093, beps: 8 },
+    balance: {
+      assets: [
+        { l: 'Mining equipment (inflated, gross)', v: 400, color: 'depr', bold: true },
+        { l: '— Accumulated depreciation', v: -70, color: 'depr', sub: true },
+        { l: 'Net fixed assets', v: 330, bold: true },
+        { l: 'Other non-current assets', v: 20 },
+        { l: 'Current assets', v: 50 },
+        { l: 'TOTAL ASSETS', v: 400, total: true },
+      ],
+      liabilities: [
+        { l: 'Equity (paid-in capital)', v: 100, color: 'equity', bold: true },
+        { l: 'Retained earnings', v: 16, sub: true, color: 'equity' },
+        { l: 'Total equity', v: 116, bold: true, color: 'equity' },
+        { l: 'Long-term debt (intra-group)', v: 200, color: 'debt', bold: true },
+        { l: '— Interest rate: 10% → $60M charges', v: '→ $60M/yr', sub: true, color: 'debt', isText: true },
+        { l: 'Other debt & payables', v: 84, color: 'debt' },
+        { l: 'Current liabilities', v: 0 },
+        { l: 'TOTAL LIABILITIES & EQUITY', v: 400, total: true },
+      ],
+      note: '🟣 Inflated equipment ($400M vs. $200M fair value) doubles depreciation in the income statement. 🔵 Higher intra-group debt increases financial charges from $40M to $60M, further eroding the tax base.'
+    },
+    theory: {
+      icon: '🔄',
+      title: 'Transfer Pricing & Base Erosion',
+      subtitle: 'OECD BEPS Actions 8–10 · Arm\'s Length Principle',
+      body: `<p><strong>Transfer prices</strong> are the prices charged on transactions between related entities within a multinational group. By overpricing the equipment ($400M vs. market value of $200M), the group shifts $190M of profits to the Bahamas, a zero-tax jurisdiction.</p>
+      <p>The host government's CIT revenue falls from <strong>$12M to $4M</strong> (−67%). The shareholder's total return rises from $48M to <strong>$206M</strong> (+329%), entirely at the expense of fiscal space in a low-income country.</p>
+      <p>Zucman (2014) estimates that approximately <strong>40% of multinational profits</strong> are booked in tax havens globally. This is particularly damaging for resource-dependent low-income countries whose fiscal revenue relies heavily on extractive-sector CIT (Crivelli <em>et al.</em>, 2016).</p>`,
+      refs: [
+        'OECD (2015). <em>Aligning Transfer Pricing Outcomes with Value Creation, Actions 8–10: 2015 Final Report.</em> Paris: OECD Publishing.',
+        'Zucman, G. (2014). Taxing across borders: Tracking personal wealth and corporate profits. <em>Journal of Economic Perspectives</em>, 28(4), 121–148.',
+        'Readhead, A. (2017). Preventing tax base erosion in Africa: Transfer pricing challenges in the mining sector. <em>Natural Resource Governance Institute.</em>',
+      ]
+    }
+  },
+  {
+    id: 2, type: 'agg',
+    title: 'Thin Capitalization',
+    subtitle: 'The subsidiary is financed almost entirely with intra-group debt. The shareholder lends through a Luxembourg financial center. Interest deductions erode the local tax base from $60M to $50.1M.',
+    docRef: 'SCN-003 / THINCAP',
+    entities: [
+      {
+        name: 'Partner Country Mining Co.',
+        flag: '🇧🇫', sub: 'Local entity', tax: 'CIT 20%', taxCls: 'et-high',
+        rows: [
+          { l: 'Revenue', v: 300, cls: 'fv-neu' },
+          { l: 'Operating expenses', v: -170, cls: 'fv-neg' },
+          { l: '— Purchases', v: -50, cls: 'fv-neg', sub: true },
+          { l: '— Wages', v: -100, cls: 'fv-neg', sub: true },
+          { l: '— Depreciation (10% × $200M)', v: -20, cls: 'fv-neg', sub: true },
+          { l: 'Interest charges (debt = $499M)', v: -49.9, cls: 'fv-neg' },
+          { l: 'Mining Royalty (5% of Revenue)', v: -15, cls: 'fv-neg' },
+          { l: 'Pre-tax profit', v: 65.1, cls: 'fv-pos' },
+          { l: 'Corporate income tax', v: -13.02, cls: 'fv-neg' },
+          { l: 'Net profit', v: 52.08, cls: 'fv-acc', bold: true },
+        ]
+      },
+      {
+        name: 'Financial Center — Luxembourg',
+        flag: '🇱🇺', sub: 'Intra-group lender', tax: 'Tax ruling', taxCls: 'et-low',
+        rows: [
+          { l: 'Interest income received', v: 49.9, cls: 'fv-pos' },
+          { l: 'Payroll', v: -1, cls: 'fv-neg' },
+          { l: 'Pre-tax profit', v: 49.9, cls: 'fv-pos' },
+          { l: 'CIT (advance ruling ≈ 0)', v: 0, cls: 'fv-muted' },
+          { l: 'Net profit', v: 49.9, cls: 'fv-acc', bold: true },
+        ]
+      }
+    ],
+    kpis: { state: 28.02, cit: 13.02, roy: 15, shareholder: 102.08, profit: 0.174, beps: 6 },
+    balance: {
+      assets: [
+        { l: 'Mining equipment (gross)', v: 200, color: 'depr', bold: true },
+        { l: '— Accumulated depreciation', v: -50, color: 'depr', sub: true },
+        { l: 'Net fixed assets', v: 150, bold: true },
+        { l: 'Other non-current assets', v: 20 },
+        { l: 'Current assets', v: 330 },
+        { l: 'TOTAL ASSETS', v: 500, total: true },
+      ],
+      liabilities: [
+        { l: 'Equity (paid-in capital)', v: 1, color: 'equity', bold: true },
+        { l: 'Retained earnings', v: 0, sub: true, color: 'equity' },
+        { l: 'Total equity', v: 1, bold: true, color: 'equity' },
+        { l: 'Intra-group debt (Luxembourg)', v: 499, color: 'debt', bold: true },
+        { l: '— Interest rate: 10% → $49.9M/yr', v: '→ $49.9M/yr', sub: true, color: 'debt', isText: true },
+        { l: 'Current liabilities', v: 0 },
+        { l: 'TOTAL LIABILITIES & EQUITY', v: 500, total: true },
+      ],
+      note: '🔵 Extreme thin capitalisation: debt/equity = 499:1. The $499M intra-group debt generates $49.9M of deductible interest, directly eroding the CIT base. 🟣 Depreciation charge unchanged at $50M (standard equipment valuation).'
+    },
+    theory: {
+      icon: '🏦',
+      title: 'Thin Capitalization & Debt Shifting',
+      subtitle: 'OECD BEPS Action 4 · Interest Limitation Rules',
+      body: `<p><strong>Thin capitalization</strong> refers to the financing of a subsidiary predominantly through intra-group debt rather than equity. In this scenario, the local entity's equity drops to <strong>$1M</strong> against $499M in related-party debt—a debt-to-equity ratio of nearly 500:1.</p>
+      <p>The resulting interest deductions ($49.9M) reduce the local tax base by 83%, while Luxembourg's advance tax rulings ensure near-zero taxation on interest income received. Host-country CIT revenue falls from $15M to <strong>$13.02M</strong> (−13%), while the mining royalty remains at $15M — for a total host country revenue of <strong>$28.02M</strong> vs. baseline $30M (−6.6%).</p>
+      <p>This mechanism was directly addressed by OECD <strong>BEPS Action 4</strong>, which recommends capping net interest deductibility at 10–30% of EBITDA (the "Earning Stripping Rule"). The IMF has advocated analogous rules for low-income countries, noting that debt shifting is responsible for substantial revenue loss in Sub-Saharan Africa (Keen & Mansour, 2010).</p>`,
+      refs: [
+        'OECD (2015). <em>Limiting Base Erosion Involving Interest Deductions, Action 4: 2015 Final Report.</em> Paris: OECD Publishing.',
+        'Keen, M. & Mansour, M. (2010). Revenue mobilization in Sub-Saharan Africa. <em>IMF Staff Papers</em>, 57(1), 1–38.',
+        'Fuest, C., Hebous, S. & Riedel, N. (2011). International debt shifting and multinationals\' debt policy. <em>Journal of Public Economics</em>, 95(11–12), 1571–1582.',
+      ]
+    }
+  },
+  {
+    id: 3, type: 'agg',
+    title: 'Commodity Mispricing — Hedging Contract',
+    subtitle: 'An intra-group hedging contract allows a trading hub in Mauritius to purchase gold production at a below-market price ($150M) and resell at market price ($300M), capturing a $149M margin outside the host country\'s tax net.',
+    docRef: 'SCN-004 / HEDGE',
+    entities: [
+      {
+        name: 'Partner Country Mining Co.',
+        flag: '🇧🇫', sub: 'Producer', tax: 'CIT 20%', taxCls: 'et-high',
+        rows: [
+          { l: 'Revenue (below-market price)', v: 150, cls: 'fv-neu' },
+          { l: 'Operating expenses', v: -170, cls: 'fv-neg' },
+          { l: '— Purchases', v: -50, cls: 'fv-neg', sub: true },
+          { l: '— Wages', v: -100, cls: 'fv-neg', sub: true },
+          { l: '— Depreciation (10% × $200M)', v: -20, cls: 'fv-neg', sub: true },
+          { l: 'Financial charges', v: -40, cls: 'fv-neg' },
+          { l: 'Mining Royalty (5% of Revenue)', v: -7.5, cls: 'fv-neg' },
+          { l: 'Pre-tax profit (loss)', v: -67.5, cls: 'fv-neg' },
+          { l: 'CIT', v: 0, cls: 'fv-muted' },
+          { l: 'Net profit (loss)', v: -67.5, cls: 'fv-neg', bold: true },
+        ]
+      },
+      {
+        name: 'Trading Hub — Mauritius',
+        flag: '🇲🇺', sub: 'Commodity trader', tax: 'CIT 0%', taxCls: 'et-zero',
+        rows: [
+          { l: 'Revenue (market price)', v: 300, cls: 'fv-neu' },
+          { l: 'Purchases from producer', v: -150, cls: 'fv-neg' },
+          { l: 'Payroll', v: -1, cls: 'fv-neg' },
+          { l: 'Pre-tax profit', v: 149, cls: 'fv-pos' },
+          { l: 'CIT (0%)', v: 0, cls: 'fv-muted' },
+          { l: 'Net profit', v: 149, cls: 'fv-acc', bold: true },
+        ]
+      }
+    ],
+    kpis: { state: 7.5, cit: 0, roy: 7.5, shareholder: 81.5, profit: -0.225, beps: 9 },
+    balance: {
+      assets: [
+        { l: 'Mining equipment (gross)', v: 200, color: 'depr', bold: true },
+        { l: '— Accumulated depreciation', v: -50, color: 'depr', sub: true },
+        { l: 'Net fixed assets', v: 150, bold: true },
+        { l: 'Tax loss carry-forward (deferred)', v: 90 },
+        { l: 'Current assets', v: 10 },
+        { l: 'TOTAL ASSETS', v: 250, total: true },
+      ],
+      liabilities: [
+        { l: 'Equity (paid-in capital)', v: 100, color: 'equity', bold: true },
+        { l: 'Retained earnings (accumulated loss)', v: -72, sub: true, color: 'equity' },
+        { l: 'Total equity', v: 28, bold: true, color: 'equity' },
+        { l: 'Long-term debt (intra-group)', v: 100, color: 'debt', bold: true },
+        { l: '— Interest rate: 10% → $40M/yr', v: '→ $40M/yr', sub: true, color: 'debt', isText: true },
+        { l: 'Deferred tax liability (refund claim)', v: 18 },
+        { l: 'Other payables', v: 104 },
+        { l: 'TOTAL LIABILITIES & EQUITY', v: 250, total: true },
+      ],
+      note: '🟣 Depreciation ($20M at 10% of $200M) and revenue artificially halved to $150M via hedging contract — creating an operating loss that destroys the tax base. 🔵 Financial charges ($40M interest) compound the loss. The tax loss carry-forward is a deferred asset on the balance sheet.'
+    },
+    theory: {
+      icon: '📉',
+      title: 'Commodity Mispricing via Hedging Contracts',
+      subtitle: 'BEPS & Extractive Industries · Intra-Group Financial Instruments',
+      body: `<p>By selling production to an offshore hub below market price through intra-group hedging contracts, the local entity <strong>records a loss</strong>, eliminating all local tax revenue. The Mauritius trading hub captures $149M of value at a zero tax rate, while the host country receives <strong>no CIT revenue</strong>.</p>
+      <p>The <strong>Glencore–Mopani Copper Mines case in Zambia</strong> illustrates how intra-group hedging contracts can be used to manipulate transfer prices in extractive industries. By structuring hedging agreements with related trading affiliates, the firm was able to lock in artificially low copper prices and generate losses that reduced taxable income in Zambia. This case has become emblematic of the need to scrutinize financial instruments within BEPS frameworks, particularly in resource-rich developing countries (Readhead, 2016; OECD, 2020).</p>`,
+      refs: [
+        'OECD (2020). <em>Building Capacity to Prevent Profit Shifting by Large Companies in Zambia.</em> Paris: Organisation for Economic Co-operation and Development.',
+        'Readhead, A. (2016). Special rules for commodity sales: Zambia\'s "Sixth Method". <em>Natural Resource Governance Institute.</em>',
+        'Zambia Supreme Court (2020). <em>Mopani Copper Mines Plc v. Zambia Revenue Authority.</em> Judgment No. 2019/HP/1286.',
+      ]
+    }
+  },
+  {
+    id: 4, type: 'cor',
+    title: 'Withholding Tax Arbitrage',
+    subtitle: 'Deductible royalties and intra-group fees reduce local taxable income to zero. A withholding tax (WHT) of 20% applies on cross-border payments. The withholding tax is levied on the purchase of assets by the mining firm from a subsidiary located in the Bahamas that is neither registered nor maintains a permanent establishment in the source country.',
+    docRef: 'SCN-005 / WHT',
+    entities: [
+      {
+        name: 'Partner Country Mining Co.',
+        flag: '🇧🇫', sub: 'Local entity', tax: 'CIT 20%', taxCls: 'et-high',
+        rows: [
+          { l: 'Revenue', v: 300, cls: 'fv-neu' },
+          { l: 'Operating expenses', v: -185, cls: 'fv-neg' },
+          { l: '— Purchases', v: -50, cls: 'fv-neg', sub: true },
+          { l: '— Wages', v: -100, cls: 'fv-neg', sub: true },
+          { l: '— Depreciation (10% × $200M)', v: -20, cls: 'fv-neg', sub: true },
+          { l: '— Royalties (5% × $300M)', v: -15, cls: 'fv-neg', sub: true },
+          { l: 'Financial charges', v: -60, cls: 'fv-neg' },
+          { l: 'Mining Royalty (5% of Revenue)', v: -15, cls: 'fv-neg' },
+          { l: 'Pre-tax profit', v: 40, cls: 'fv-pos' },
+          { l: 'Corporate income tax (20%)', v: -8, cls: 'fv-neg' },
+          { l: 'WHT on royalties (20% × $15M)', v: 3, cls: 'fv-pos', bold: true },
+          { l: 'WHT on equipment (10% × $400M)', v: 40, cls: 'fv-pos', bold: true },
+        ]
+      },
+      {
+        name: 'Procurement Hub — Bahamas',
+        flag: '🏝️', sub: 'Offshore entity', tax: 'CIT 0%', taxCls: 'et-zero',
+        rows: [
+          { l: 'Revenue (equipment sale + royalties)', v: 205, cls: 'fv-pos' },
+          { l: '— Equipment margin (400M − 200M)', v: 190, cls: 'fv-pos', sub: true },
+          { l: '— Royalties received', v: 15, cls: 'fv-pos', sub: true },
+          { l: 'WHT withheld at source (royalties)', v: -3, cls: 'fv-neg' },
+          { l: 'WHT withheld at source (equipment)', v: -40, cls: 'fv-neg' },
+          { l: 'CIT (0%)', v: 0, cls: 'fv-muted' },
+          { l: 'Net profit after WHT', v: 162, cls: 'fv-acc', bold: true },
+        ]
+      }
+    ],
+    kpis: { state: 66, cit: 8, roy: 15, wht: 43, shareholder: 194, profit: 0.133, beps: 7 },
+    balance: {
+      assets: [
+        { l: 'Mining equipment (gross)', v: 200, color: 'depr', bold: true },
+        { l: '— Accumulated depreciation', v: -50, color: 'depr', sub: true },
+        { l: 'Net fixed assets', v: 150, bold: true },
+        { l: 'Intangible assets (royalty rights)', v: 60 },
+        { l: 'Current assets', v: 90 },
+        { l: 'TOTAL ASSETS', v: 300, total: true },
+      ],
+      liabilities: [
+        { l: 'Equity (paid-in capital)', v: 100, color: 'equity', bold: true },
+        { l: 'Retained earnings', v: 0, sub: true, color: 'equity' },
+        { l: 'Total equity', v: 100, bold: true, color: 'equity' },
+        { l: 'Long-term debt (intra-group)', v: 120, color: 'debt', bold: true },
+        { l: '— Interest rate: 10% → $60M charges', v: '→ $60M/yr', sub: true, color: 'debt', isText: true },
+        { l: 'Royalty payable (offshore)', v: 60, color: 'debt' },
+        { l: 'Other liabilities', v: 20 },
+        { l: 'TOTAL LIABILITIES & EQUITY', v: 300, total: true },
+      ],
+      note: '🔵 Royalties ($15M = 5% × revenue) and financial charges ($60M) flow to the Bahamas hub. WHT of 20% on royalties ($3M) and 10% on equipment ($40M = 10% × $400M) are withheld at source. 🟣 Depreciation at 10% × $200M = $20M.'
+    },
+    theory: {
+      icon: '✂️',
+      title: 'Withholding Taxes & Treaty Shopping',
+      subtitle: '',
+      body: `<p>Withholding taxes are commonly used as a source-based instrument to curb aggressive tax avoidance by multinational enterprises, particularly by taxing outbound payments such as dividends, interest, and royalties before they can be shifted to low-tax jurisdictions. In theory, they act as a backstop to profit shifting by ensuring a minimum level of taxation at source and reducing the scope for base erosion through deductible payments (OECD, 2015; Keen, 2018).</p>
+      <p>However, their effectiveness is significantly constrained by double taxation treaties, which often cap withholding rates and facilitate treaty shopping, thereby weakening source-country taxing rights and limiting their capacity to counteract aggressive tax planning (Beer and Loeprick, 2015; Johannesen et al., 2020).</p>`,
+      refs: [
+        'Beer, S. & Loeprick, J. (2015). Profit shifting: Drivers of transfer (mis)pricing and the potential of countermeasures. <em>World Bank.</em>',
+        'Johannesen, N., Tørsløv, T. & Wier, L. (2020). Are less developed countries more exposed to multinational tax avoidance? <em>Economic Policy</em>, 35(103), 457–498.',
+        'Keen, M. (2018). The taxation and regulation of multinational enterprises. <em>IMF.</em>',
+        'OECD (2015). <em>Addressing Base Erosion and Profit Shifting.</em> Paris: OECD Publishing.',
+      ]
+    }
+  },
+  {
+    id: 5, type: 'cor',
+    title: "Arm's Length Correction",
+    subtitle: 'Tax administration applies arm\'s length pricing: equipment valued at $220M (market price + 10% mark-up). Depreciation and financing charges are proportionally adjusted, recovering CIT near baseline levels.',
+    docRef: 'SCN-007 / ALP',
+    entities: [{
+      name: 'Partner Country Mining Co.',
+      flag: '🇧🇫', sub: 'Post-correction', tax: 'CIT 20%', taxCls: 'et-high',
+      rows: [
+        { l: 'Revenue', v: 300, cls: 'fv-neu' },
+        { l: 'Operating expenses', v: -172, cls: 'fv-neg' },
+        { l: '— Purchases', v: -50, cls: 'fv-neg', sub: true },
+        { l: '— Wages', v: -100, cls: 'fv-neg', sub: true },
+        { l: '— Depreciation (10% × $220M)', v: -22, cls: 'fv-neg', sub: true },
+        { l: 'Financial charges', v: -42, cls: 'fv-neg' },
+        { l: 'Mining Royalty (5% of Revenue)', v: -15, cls: 'fv-neg' },
+        { l: 'Pre-tax profit', v: 71, cls: 'fv-pos' },
+        { l: 'Corporate income tax', v: -14.2, cls: 'fv-neg' },
+        { l: 'Net profit', v: 56.8, cls: 'fv-acc', bold: true },
+      ]
+    }],
+    kpis: { state: 29.2, cit: 14.2, roy: 15, shareholder: 246.8, profit: 0.189, beps: 3 },
+    balance: {
+      assets: [
+        { l: 'Mining equipment (ALP-corrected, gross)', v: 220, color: 'depr', bold: true },
+        { l: '— Accumulated depreciation', v: -52, color: 'depr', sub: true },
+        { l: 'Net fixed assets', v: 168, bold: true },
+        { l: 'Other non-current assets', v: 20 },
+        { l: 'Current assets', v: 112 },
+        { l: 'TOTAL ASSETS', v: 300, total: true },
+      ],
+      liabilities: [
+        { l: 'Equity (paid-in capital)', v: 100, color: 'equity', bold: true },
+        { l: 'Retained earnings', v: 44.8, sub: true, color: 'equity' },
+        { l: 'Total equity', v: 144.8, bold: true, color: 'equity' },
+        { l: 'Long-term debt (intra-group)', v: 140, color: 'debt', bold: true },
+        { l: '— Interest rate: 10% → $42M/yr', v: '→ $42M/yr', sub: true, color: 'debt', isText: true },
+        { l: 'Current liabilities', v: 15.2 },
+        { l: 'TOTAL LIABILITIES & EQUITY', v: 300, total: true },
+      ],
+      note: '🟣 ALP restores equipment to $220M (market + 10%), reducing annual depreciation from $70M to $52M. 🔵 Lower asset base reduces financing needs, bringing financial charges from $60M to $42M. CIT recovered to $11.2M (93% of baseline).'
+    },
+    theory: {
+      icon: '⚖️',
+      title: "The Arm's Length Principle (ALP)",
+      subtitle: 'OECD Transfer Pricing Guidelines §§ 1.33–1.57',
+      body: `<p>The <strong>arm's length principle (ALP)</strong> is the international standard for evaluating transfer prices. It requires that intra-group transactions be priced as if conducted between independent parties under comparable conditions. It underpins the OECD Transfer Pricing Guidelines and Article 9 of the OECD Model Tax Convention.</p>
+      <p>Applied here, the tax administration rejects the $400M equipment valuation and substitutes an arm's length price of <strong>$220M</strong> (market value $200M plus a standard 10% mark-up). This restores CIT revenue to <strong>$11.2M</strong>—93% of baseline.</p>
+      <p>Despite its theoretical soundness, ALP application is extremely challenging for low-income country tax administrations, which lack access to comparable transaction databases and transfer pricing expertise. IMF capacity development programs in Sub-Saharan Africa specifically address this implementation gap (Oguttu, 2016).</p>`,
+      refs: [
+        'OECD (2017). <em>Transfer Pricing Guidelines for Multinational Enterprises and Tax Administrations.</em> Paris: OECD Publishing. §§ 1.33–1.57.',
+        'Oguttu, A.W. (2016). Tax base erosion and profit shifting in Africa, Part 2. <em>ICTD Working Paper</em>, 54.',
+        'IMF (2014). <em>Spillovers in International Corporate Taxation.</em> IMF Policy Paper. Washington, D.C.: International Monetary Fund.',
+      ]
+    }
+  },
+  {
+    id: 6, type: 'cor',
+    title: 'Thin Capitalization Rule (4:1 Ratio)',
+    subtitle: 'A statutory debt-to-equity cap of 4:1 is applied. Deductible interest is limited to $0.4M (4 × $1M equity × 10% interest rate), sharply reducing the BEPS advantage from debt shifting.',
+    docRef: 'SCN-008 / THINCAP-RULE',
+    entities: [{
+      name: 'Partner Country Mining Co.',
+      flag: '🇧🇫', sub: 'Post Thin Cap Rule', tax: 'CIT 20%', taxCls: 'et-high',
+      rows: [
+        { l: 'Revenue', v: 300, cls: 'fv-neu' },
+        { l: 'Operating expenses', v: -170, cls: 'fv-neg' },
+        { l: '— Purchases', v: -50, cls: 'fv-neg', sub: true },
+        { l: '— Wages', v: -100, cls: 'fv-neg', sub: true },
+        { l: '— Depreciation (10% × $200M)', v: -20, cls: 'fv-neg', sub: true },
+        { l: 'Deductible interest (4:1 cap)', v: -0.4, cls: 'fv-neg' },
+        { l: '— Allowable debt: 4 × $1M equity', v: '$4M', cls: 'fv-muted', isText: true },
+        { l: 'Mining Royalty (5% of Revenue)', v: -15, cls: 'fv-neg' },
+        { l: 'Pre-tax profit', v: 114.6, cls: 'fv-pos' },
+        { l: 'Corporate income tax', v: -22.92, cls: 'fv-neg' },
+        { l: 'Net profit', v: 91.68, cls: 'fv-acc', bold: true },
+      ]
+    }],
+    kpis: { state: 37.92, cit: 22.92, roy: 15, shareholder: 91.68, profit: 0.306, beps: 2 },
+    balance: {
+      assets: [
+        { l: 'Mining equipment (gross)', v: 200, color: 'depr', bold: true },
+        { l: '— Accumulated depreciation', v: -50, color: 'depr', sub: true },
+        { l: 'Net fixed assets', v: 150, bold: true },
+        { l: 'Other non-current assets', v: 20 },
+        { l: 'Current assets', v: 130 },
+        { l: 'TOTAL ASSETS', v: 300, total: true },
+      ],
+      liabilities: [
+        { l: 'Equity (paid-in capital)', v: 1, color: 'equity', bold: true },
+        { l: 'Retained earnings', v: 79.68, sub: true, color: 'equity' },
+        { l: 'Total equity', v: 80.68, bold: true, color: 'equity' },
+        { l: 'Allowable debt (4:1 cap = $4M)', v: 4, color: 'debt', bold: true },
+        { l: '— Deductible interest: 10% × $4M = $0.4M', v: '→ $0.4M/yr', sub: true, color: 'debt', isText: true },
+        { l: 'Excess debt (non-deductible)', v: 495, color: 'debt' },
+        { l: 'Other liabilities', v: 220.32 },
+        { l: 'TOTAL LIABILITIES & EQUITY', v: 300, total: true },
+      ],
+      note: '🔵 The 4:1 thin-cap rule caps deductible debt at $4M (4 × $1M equity). Only $0.4M of interest is deductible — vs. $49.9M without the rule. CIT jumps to $19.92M (+66% vs. baseline). Excess debt remains on the balance sheet but generates no tax benefit. 🟣 Depreciation ($50M) unchanged.'
+    },
+    theory: {
+      icon: '🔒',
+      title: 'Thin Capitalization Rules',
+      subtitle: 'OECD BEPS Action 4 · Debt-to-Equity Approach',
+      body: `<p>A <strong>thin capitalization rule</strong> caps the debt-to-equity ratio beyond which interest deductions are no longer permitted. The OECD has historically recommended a 3:1 ratio; this scenario applies a slightly more permissive <strong>4:1 cap</strong> consistent with IMF guidance for low-income countries.</p>
+      <p>With equity of only $1M, the firm may deduct interest on at most $4M of debt—yielding just $0.4M in deductible interest (at 10%). Pre-tax profit rises to $99.6M and CIT reaches <strong>$19.92M</strong>—66% above baseline. This illustrates that thin-cap rules can <em>over-correct</em> by denying legitimate debt financing.</p>
+      <p>For this reason, the OECD now recommends the Earning Stripping Rule (BEPS Action 4) as the preferred approach: it is more flexible, linking deductibility to actual earnings capacity rather than a fixed balance-sheet ratio.</p>`,
+      refs: [
+        'OECD (2015). <em>Limiting Base Erosion Involving Interest Deductions, Action 4: 2015 Final Report.</em> Paris: OECD Publishing.',
+        'Webber, S. (2010). Thin capitalization and interest deduction rules: A worldwide survey. <em>Tax Notes International</em>, 60(9), 683–708.',
+        'Keen, M. & Mansour, M. (2010). Revenue mobilization in Sub-Saharan Africa. <em>IMF Staff Papers</em>, 57(1), 1–38.',
+      ]
+    }
+  },
+  {
+    id: 7, type: 'cor',
+    title: 'Earning Stripping Rule (30% EBITDA)',
+    subtitle: 'Net interest deductibility capped at 30% of EBITDA per OECD BEPS Action 4. More flexible than debt-to-equity rules: the cap scales with earnings, protecting firms in economic downturns. In this simulation, EBITDA is computed as revenue ($300M) less cash operating expenses — purchases ($50M) and wages ($100M) — thereby adding back depreciation ($20M), financial charges ($60M), and the mining royalty ($15M), consistent with the standard definition of earnings before interest, taxes, depreciation, and amortization, yielding an EBITDA of $150M and a deductible interest cap of $45M (30% × $150M).',
+    docRef: 'SCN-009 / ESR-30',
+    entities: [{
+      name: 'Partner Country Mining Co.',
+      flag: '🇧🇫', sub: 'Post Earning Stripping Rule', tax: 'CIT 20%', taxCls: 'et-high',
+      rows: [
+        { l: 'Revenue', v: 300, cls: 'fv-neu' },
+        { l: 'Operating expenses', v: -170, cls: 'fv-neg' },
+        { l: '— Purchases', v: -50, cls: 'fv-neg', sub: true },
+        { l: '— Wages', v: -100, cls: 'fv-neg', sub: true },
+        { l: '— Depreciation (10% × $200M)', v: -20, cls: 'fv-neg', sub: true },
+        { l: 'Computed EBITDA', v: 150, cls: 'fv-neu' },
+        { l: 'Deductible interest (30% × EBITDA)', v: -45, cls: 'fv-neg' },
+        { l: '— Cap: 30% × $150M = $45M', v: '$45M', cls: 'fv-muted', isText: true },
+        { l: 'Mining Royalty (5% of Revenue)', v: -15, cls: 'fv-neg' },
+        { l: 'Pre-tax profit', v: 70, cls: 'fv-pos' },
+        { l: 'Corporate income tax', v: -14, cls: 'fv-neg' },
+        { l: 'Net profit', v: 56, cls: 'fv-acc', bold: true },
+      ]
+    }],
+    kpis: { state: 29, cit: 14, roy: 15, shareholder: 71, profit: 0.187, beps: 2 },
+    balance: {
+      assets: [
+        { l: 'Mining equipment (gross)', v: 200, color: 'depr', bold: true },
+        { l: '— Accumulated depreciation', v: -50, color: 'depr', sub: true },
+        { l: 'Net fixed assets', v: 150, bold: true },
+        { l: 'Other non-current assets', v: 20 },
+        { l: 'Current assets', v: 130 },
+        { l: 'TOTAL ASSETS', v: 300, total: true },
+      ],
+      liabilities: [
+        { l: 'Equity (paid-in capital)', v: 100, color: 'equity', bold: true },
+        { l: 'Retained earnings', v: 44, sub: true, color: 'equity' },
+        { l: 'Total equity', v: 144, bold: true, color: 'equity' },
+        { l: 'Long-term debt (intra-group)', v: 450, color: 'debt', bold: true },
+        { l: '— Deductible cap: 30% × EBITDA $150M = $45M', v: '→ $45M/yr', sub: true, color: 'debt', isText: true },
+        { l: 'Other liabilities', v: -294 },
+        { l: 'TOTAL LIABILITIES & EQUITY', v: 300, total: true },
+      ],
+      note: '🔵 ESR caps deductible interest at 30% of EBITDA ($150M), i.e. $45M — regardless of actual debt level. CIT recovered to $11M (92% of baseline). Unlike the 4:1 rule, the ESR scales automatically with profitability. 🟣 Depreciation ($50M) deducted before computing EBITDA.'
+    },
+    theory: {
+      icon: '📐',
+      title: 'The Earning Stripping Rule — BEPS Action 4',
+      subtitle: 'OECD BEPS Action 4 · EBITDA-Based Interest Cap',
+      body: `<p>The <strong>Earning Stripping Rule (ESR)</strong> limits net interest deductibility to a fixed percentage of <strong>EBITDA</strong> (Earnings Before Interest, Tax, Depreciation & Amortization). OECD BEPS Action 4 recommends a range of <strong>10–30%</strong>, with 30% as the standard upper bound for most jurisdictions.</p>
+      <p>Applied here, EBITDA is $150M and the cap is 30%, allowing a maximum deduction of <strong>$45M</strong>. CIT revenue is restored to <strong>$11M</strong>—close to the $12M baseline. Crucially, the ESR is <em>countercyclical</em>: when EBITDA falls in a downturn, the cap automatically narrows, preventing manipulation while protecting genuinely distressed firms.</p>
+      <p>The ESR has been adopted by over 35 countries since 2016 and is increasingly recommended by the IMF as the single most cost-effective anti-BEPS measure for developing countries with limited administrative capacity (Devereux <em>et al.</em>, 2015).</p>`,
+      refs: [
+        'OECD (2015). <em>Limiting Base Erosion Involving Interest Deductions, Action 4: 2015 Final Report.</em> Paris: OECD Publishing.',
+        'Devereux, M.P., Fuest, C. & Lockwood, B. (2015). The taxation of foreign profits: A unified view. <em>Journal of Public Economics</em>, 125, 83–97.',
+        'Crivelli, E., De Mooij, R. & Keen, M. (2016). Base erosion, profit shifting and developing countries. <em>FinanzArchiv</em>, 72(3), 268–301.',
+      ]
+    }
+  }
+];
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+let currentScenario = 0;
+let currentPhase = 1;
+let simState = {
+  // CEO parameters
+  citRate: 20,
+  interestRate: 10,
+  ptOn: false,
+  tpMarkup: 200,        // equipment overpricing ($M)
+  scOn: false,
+  debtLevel: 499,       // intra-group debt ($M)
+  hedgeOn: false,
+  hedgeDiscount: 50,    // % discount on commodity price
+  whtOn: false,
+  // Minister parameters
+  minCitRate: 20,
+  minRoyaltyRate: 5,
+  whtRate: 20,          // WHT rate on cross-border payments
+  alpOn: false,
+  alpMarkup: 10,        // arm's length markup %
+  thinCapOn: false,
+  thinCapRatio: 4,      // debt/equity cap
+  esrOn: false,
+  esrRate: 30,          // % of EBITDA cap
+  simMode: 'ceo',       // 'ceo' or 'minister'
+};
+
+// Default values for change detection
+const simDefaults = {
+  citRate: 20, interestRate: 10, tpMarkup: 200, debtLevel: 499,
+  hedgeDiscount: 50, minCitRate: 20, minRoyaltyRate: 5, whtRate: 20,
+  alpMarkup: 10, thinCapRatio: 4, esrRate: 30,
+};
+let changedParams = new Set();
+
+// ═══════════════════════════════════════
+// APP INIT
+// ═══════════════════════════════════════
+function startApp() {
+  document.getElementById('introScreen').style.display = 'none';
+  document.getElementById('mainApp').classList.remove('hidden');
+  showScenario(0);
+}
+
+function switchPhase(p) {
+  currentPhase = p;
+  ['tab1','tab2','tab3'].forEach((id,i) => {
+    document.getElementById(id).classList.toggle('active', i+1 === p);
+  });
+  if (p === 1) showScenario(currentScenario);
+  else if (p === 2) renderSim();
+  else renderComparison();
+}
+
+function switchSimMode(mode) {
+  simState.simMode = mode;
+  renderSim();
+}
+
+// ═══════════════════════════════════════
+// PHASE 1
+// ═══════════════════════════════════════
+function showScenario(idx) {
+  currentScenario = idx;
+  // sidebar active
+  SCENARIOS.forEach((_,i) => {
+    const el = document.getElementById('sln-' + i);
+    if (!el) return;
+    el.className = 'scenario-link' + (i === idx ? (SCENARIOS[i].type === 'ref' ? ' active' : SCENARIOS[i].type === 'agg' ? ' active-red' : ' active-green') : '');
+  });
+  if (currentPhase !== 1) { switchPhase(1); return; }
+
+  const s = SCENARIOS[idx];
+  const total = SCENARIOS.length;
+  const pct = ((idx+1)/total*100).toFixed(0);
+
+  const typeBadge = s.type === 'ref' ? '<span class="policy-type-badge ptb-ref">Reference Scenario</span>'
+    : s.type === 'agg' ? '<span class="policy-type-badge ptb-agg">⚠ Aggressive Tax Strategy</span>'
+    : (s.title.includes('Withholding') ? '<span class="policy-type-badge ptb-cor">🛡 Countermeasure</span>' : '<span class="policy-type-badge ptb-cor">🛡 BEPS Countermeasure</span>');
+
+  // KPIs
+  const base = 30;
+  const delta = ((s.kpis.state - base)/base*100).toFixed(1);
+  const deltaCls = s.kpis.state < base ? 'd-neg' : 'd-pos';
+  const deltaStr = (s.kpis.state < base ? '▼ ' : '▲ +') + Math.abs(delta) + '% vs. baseline';
+
+  const bepsColors = ['#1a7a4a','#1a7a4a','#16a34a','#65a30d','#ca8a04','#d97706','#ea580c','#dc2626','#b91c1c','#991b1b','#7f1d1d'];
+
+  const citVal = s.kpis.cit !== undefined ? s.kpis.cit : s.kpis.state;
+  const royVal = s.kpis.roy !== undefined ? s.kpis.roy : 0;
+  const whtVal = s.kpis.wht !== undefined ? s.kpis.wht : 0;
+  const baseCit = 15, baseRoy = 15;
+  const citDelta = ((citVal - baseCit) / baseCit * 100).toFixed(1);
+  const royDelta = ((royVal - baseRoy) / baseRoy * 100).toFixed(1);
+  const citDeltaCls = citVal < baseCit ? 'd-neg' : 'd-pos';
+  const royDeltaCls = royVal < baseRoy ? 'd-neg' : 'd-pos';
+
+  const kpis = `
+    <div class="kpi-row">
+      <div class="kpi-box k-state" style="min-width:220px">
+        <div class="kpi-label">Host Country Revenue</div>
+        <div class="kpi-val ${s.kpis.state < 0 ? 'v-red' : s.kpis.state < base ? 'v-red' : 'v-green'}">${s.kpis.state}M</div>
+        <div style="display:flex;flex-direction:column;gap:3px;margin-top:6px;font-size:11px;border-top:1px solid rgba(0,0,0,0.08);padding-top:6px">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+            <span style="color:var(--muted)">CIT revenue</span>
+            <span style="font-family:'Source Code Pro',monospace;font-weight:600;color:${citVal < baseCit ? 'var(--red)' : 'var(--green)'}">$${citVal}M</span>
+            <span style="font-size:10px;color:${citVal < baseCit ? 'var(--red)' : 'var(--green)'}">${citVal < baseCit ? '▼' : citVal === baseCit ? '—' : '▲'} ${Math.abs(citDelta)}%</span>
+          </div>
+          ${whtVal > 0 ? `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+            <span style="color:var(--muted)">WHT revenue</span>
+            <span style="font-family:'Source Code Pro',monospace;font-weight:600;color:var(--blue)">$${whtVal}M</span>
+            <span style="font-size:10px;color:var(--muted)">—</span>
+          </div>` : ''}
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+            <span style="color:var(--muted)">Mining royalty</span>
+            <span style="font-family:'Source Code Pro',monospace;font-weight:600;color:${royVal < baseRoy ? 'var(--red)' : 'var(--green)'}">$${royVal}M</span>
+            <span style="font-size:10px;color:${royVal < baseRoy ? 'var(--red)' : 'var(--green)'}">${royVal < baseRoy ? '▼' : royVal === baseRoy ? '—' : '▲'} ${royVal < baseRoy ? Math.abs(royDelta) + '%' : '=base'}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;border-top:1px solid rgba(0,0,0,0.08);padding-top:4px;font-weight:700">
+            <span style="color:var(--ink2)">Total</span>
+            <span style="font-family:'Source Code Pro',monospace;color:${s.kpis.state < base ? 'var(--red)' : 'var(--green)'}">$${s.kpis.state}M</span>
+            <span style="font-size:10px;color:${s.kpis.state < base ? 'var(--red)' : 'var(--green)'}" class="${deltaCls}">${deltaStr}</span>
+          </div>
+        </div>
+      </div>
+      <div class="kpi-box k-share">
+        <div class="kpi-label">Shareholder Return</div>
+        <div class="kpi-val">${s.kpis.shareholder}M</div>
+        <div class="kpi-sub">On $100M equity invested</div>
+      </div>
+      <div class="kpi-box k-profit">
+        <div class="kpi-label">Local Net Margin</div>
+        <div class="kpi-val ${s.kpis.profit < 0 ? 'v-red' : ''}">${(s.kpis.profit*100).toFixed(1)}%</div>
+        <div class="kpi-sub">Net profit / Revenue</div>
+      </div>
+      <div class="kpi-box k-beps">
+        <div class="kpi-label">BEPS Severity Index</div>
+        <div class="kpi-val" style="color:${bepsColors[Math.min(s.kpis.beps,10)]}">${s.kpis.beps}/10</div>
+        <div class="kpi-sub">${s.kpis.beps < 3 ? 'Low erosion' : s.kpis.beps < 6 ? 'Moderate erosion' : 'Severe erosion'}</div>
+      </div>
+    </div>`;
+
+  // Entities — with colour-coding for depreciation and financial charges
+  const entitiesHtml = s.entities.map(e => {
+    const rows = e.rows.map(r => {
+      if (r.isText) return `<div class="fin-line"><span class="fl-label sub">${r.l}</span><span class="fl-val fv-muted">${r.v}</span></div>`;
+      const disp = r.v === 0 ? '—' : (typeof r.v === 'number' ? (r.v > 0 ? `+$${r.v}M` : `-$${Math.abs(r.v)}M`) : r.v);
+
+      // Colour-code rows that link to balance sheet items
+      const lLow = r.l.toLowerCase();
+      let extraStyle = '';
+      let dotHtml = '';
+      if (lLow.includes('depreciation') || lLow.includes('amortis')) {
+        extraStyle = ' style="background:rgba(124,58,237,0.07)"';
+        dotHtml = `<span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#7c3aed;margin-right:5px;vertical-align:middle;flex-shrink:0"></span>`;
+      } else if (lLow.includes('financial charge') || lLow.includes('interest on debt') || lLow.includes('interest charge') || lLow.includes('deductible interest') || lLow.includes('wht') || lLow.includes('royalt')) {
+        extraStyle = ' style="background:rgba(8,145,178,0.07)"';
+        dotHtml = `<span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#0891b2;margin-right:5px;vertical-align:middle;flex-shrink:0"></span>`;
+      }
+
+      const labelStyle = lLow.includes('depreciation') || lLow.includes('amortis')
+        ? ' style="color:#7c3aed"'
+        : (lLow.includes('financial charge') || lLow.includes('interest on debt') || lLow.includes('interest charge') || lLow.includes('deductible interest'))
+        ? ' style="color:#0891b2"' : '';
+      const valStyle = labelStyle;
+
+      return `<div class="fin-line${r.bold ? ' total-line' : ''}"${extraStyle}>
+        <span class="fl-label${r.sub ? ' sub' : ''}"${labelStyle}>${r.sub && dotHtml ? dotHtml : (!r.sub && dotHtml ? dotHtml : '')}${r.l}</span>
+        <span class="fl-val ${r.cls}"${valStyle}>${disp}</span>
+      </div>`;
+    }).join('');
+    return `<div class="entity-card">
+      <div class="entity-head">
+        <span class="entity-flag">${e.flag}</span>
+        <div><div class="entity-name">${e.name}</div><div class="entity-type">${e.sub}</div></div>
+        <span class="entity-tax ${e.taxCls}">${e.tax}</span>
+      </div>
+      <div class="entity-body">${rows}</div>
+    </div>`;
+  }).join('');
+
+  // Flow diagram
+  const flowHtml = buildFlowDiagram(s);
+
+  // Theory
+  const refs = s.theory.refs.map(r => `<div class="ref-entry">${r}</div>`).join('');
+  const theoryHtml = `
+    <div class="working-paper">
+      <div class="wp-header">
+        <span class="wp-icon">${s.theory.icon}</span>
+        <div>
+          <div class="wp-title">${s.theory.title}</div>
+          <div class="wp-subtitle">${s.theory.subtitle}</div>
+        </div>
+      </div>
+      <div class="wp-body">${s.theory.body}
+        <div class="references-block">
+          <div class="ref-header">References</div>
+          ${refs}
+        </div>
+      </div>
+    </div>`;
+
+  // Nav
+  const navHtml = `
+    <div class="nav-strip">
+      <button class="nav-btn" onclick="showScenario(${idx-1})" ${idx===0?'disabled':''}>← Previous</button>
+      <div class="nav-progress">
+        <span class="progress-label">Scenario ${idx+1} of ${total}</span>
+        <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+      </div>
+      ${idx === total-1
+        ? `<button class="nav-btn primary" onclick="switchPhase(2)">Open Simulation →</button>`
+        : `<button class="nav-btn primary" onclick="showScenario(${idx+1})">Next →</button>`}
+    </div>`;
+
+  document.getElementById('mainContent').innerHTML = `
+    <div class="scenario-view slide-in">
+      <div class="policy-header">
+        <div class="policy-meta">
+          ${typeBadge}
+          <span class="policy-doc-ref">${s.docRef}</span>
+        </div>
+        <h1 class="policy-title">${s.title}</h1>
+        <p class="policy-subtitle">${s.subtitle}</p>
+      </div>
+      ${kpis}
+      <div style="display:flex;gap:16px;margin-bottom:10px;padding:8px 12px;background:var(--white);border:1px solid var(--border);border-radius:2px;flex-wrap:wrap;align-items:center">
+        <span style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">Colour code:</span>
+        <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:#7c3aed;font-weight:600">
+          <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#7c3aed"></span>
+          Depreciation ↔ Depreciable assets
+        </span>
+        <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:#0891b2;font-weight:600">
+          <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#0891b2"></span>
+          Financial charges ↔ Debt
+        </span>
+      </div>
+      <div class="entities-grid">${entitiesHtml}</div>
+      ${buildBalanceSheet(s)}
+      ${flowHtml}
+      ${theoryHtml}
+      ${navHtml}
+    </div>`;
+}
+
+// ═══════════════════════════════════════
+// BALANCE SHEET BUILDER
+// ═══════════════════════════════════════
+function buildBalanceSheet(s) {
+  if (!s.balance) return '';
+
+  const colorClass = c => c === 'depr' ? 'color-depr' : c === 'debt' ? 'color-debt' : c === 'equity' ? 'color-equity' : '';
+  const colorDot   = c => c === 'depr'
+    ? `<span class="bs-color-tag" style="background:var(--color-depr)"></span>`
+    : c === 'debt'
+    ? `<span class="bs-color-tag" style="background:var(--color-debt)"></span>`
+    : '';
+
+  const renderLines = (lines) => lines.map(r => {
+    const cc = colorClass(r.color);
+    const sub = r.sub ? ' bs-sub' : '';
+    const tot = r.total ? ' bs-total' : '';
+    const bold = r.bold ? ' bs-bold' : '';
+    const dot = colorDot(r.color);
+
+    let valHtml = '';
+    if (r.isText) {
+      valHtml = `<span class="bs-line-val" style="font-size:10px;opacity:0.7">${r.v}</span>`;
+    } else {
+      const num = typeof r.v === 'number' ? r.v : 0;
+      const disp = num === 0 ? '—' : (num > 0 ? `$${num}M` : `-$${Math.abs(num)}M`);
+      valHtml = `<span class="bs-line-val">${disp}</span>`;
+    }
+
+    return `<div class="bs-line${sub}${tot}${cc ? ' ' + cc : ''}">
+      <span class="bs-line-label${bold}">${dot}${r.l}</span>
+      ${valHtml}
+    </div>`;
+  }).join('');
+
+  return `
+    <div class="bs-section">
+      <div class="bs-header">
+        <div>
+          <div class="bs-header-title">📋 Balance Sheet — ${s.entities[0].name}</div>
+          <div class="bs-header-sub">Stylised statement · USD millions · colour-coded links to income statement</div>
+        </div>
+        <div class="bs-legend">
+          <div class="bs-legend-item">
+            <div class="bs-legend-dot" style="background:var(--color-depr)"></div>
+            Depreciable assets ↔ Depreciation
+          </div>
+          <div class="bs-legend-item">
+            <div class="bs-legend-dot" style="background:var(--color-debt)"></div>
+            Debt ↔ Financial charges
+          </div>
+          <div class="bs-legend-item">
+            <div class="bs-legend-dot" style="background:var(--color-equity)"></div>
+            Equity
+          </div>
+        </div>
+      </div>
+      <div class="bs-cols">
+        <div class="bs-col">
+          <div class="bs-col-header">Assets</div>
+          ${renderLines(s.balance.assets)}
+        </div>
+        <div class="bs-col">
+          <div class="bs-col-header">Liabilities &amp; Equity</div>
+          ${renderLines(s.balance.liabilities)}
+        </div>
+      </div>
+      <div class="bs-note">${s.balance.note}</div>
+    </div>`;
+}
+
+function buildFlowDiagram(s) {
+  const hasOffshore = s.entities.length > 1;
+  const localNet = s.entities[0].rows.find(r => r.bold)?.v ?? '?';
+
+  if (!hasOffshore) {
+    return `<div class="flow-panel">
+      <div class="flow-panel-title">Capital Flow Analysis</div>
+      <div class="flow-nodes">
+        <div class="flow-node">
+          <div class="flow-node-lbl">${s.entities[0].flag} Local entity</div>
+          <div class="flow-node-val">$300M</div>
+          <div class="flow-node-sub">Revenue</div>
+        </div>
+        <div class="flow-arrow"><span class="flow-arrow-line">→</span><span class="flow-arrow-label">CIT payment</span></div>
+        <div class="flow-node" style="border-top:3px solid var(--green)">
+          <div class="flow-node-lbl">🏛 Host Government</div>
+          <div class="flow-node-val" style="color:var(--green)">$${s.kpis.state}M</div>
+          <div class="flow-node-sub">${((s.kpis.state/300)*100).toFixed(1)}% of revenue</div>
+        </div>
+        <div class="flow-arrow"><span class="flow-arrow-line">→</span><span class="flow-arrow-label">Net dividend</span></div>
+        <div class="flow-node" style="border-top:3px solid var(--blue)">
+          <div class="flow-node-lbl">👤 Foreign Shareholder</div>
+          <div class="flow-node-val" style="color:var(--blue)">$${s.kpis.shareholder}M</div>
+          <div class="flow-node-sub">Return on equity</div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  const offshoreEnt = s.entities[1];
+  const offshoreNet = offshoreEnt.rows.find(r => r.bold)?.v ?? '?';
+
+  return `<div class="flow-panel">
+    <div class="flow-panel-title">Cross-Border Capital Flow · BEPS Structure</div>
+    <div class="flow-nodes">
+      <div class="flow-node" style="border-top:3px solid var(--navy)">
+        <div class="flow-node-lbl">${s.entities[0].flag} Local entity</div>
+        <div class="flow-node-val">$300M</div>
+        <div class="flow-node-sub">CIT paid: $${s.kpis.state}M</div>
+      </div>
+      <div class="flow-arrow">
+        <span class="flow-arrow-line" style="color:var(--red)">⇄</span>
+        <span class="flow-arrow-label" style="color:var(--red)">Intra-group pricing</span>
+      </div>
+      <div class="flow-node" style="border-top:3px solid var(--navy3)">
+        <div class="flow-node-lbl">${offshoreEnt.flag} Offshore entity</div>
+        <div class="flow-node-val" style="color:var(--navy3)">$${offshoreNet}M</div>
+        <div class="flow-node-sub">CIT = $0</div>
+      </div>
+      <div class="flow-arrow"><span class="flow-arrow-line">→</span><span class="flow-arrow-label">Government revenue</span></div>
+      <div class="flow-node" style="border-top:3px solid var(--red)">
+        <div class="flow-node-lbl">🏛 Host Government</div>
+        <div class="flow-node-val" style="color:var(--red)">$${s.kpis.state}M</div>
+        <div class="flow-node-sub">Loss vs. baseline: $${(s.kpis.state - 30).toFixed(2)}M</div>
+      </div>
+    </div>
+    <div class="flow-note">Profit shifted offshore: <strong style="color:var(--red)">$${offshoreNet}M</strong> · Host fiscal loss: <strong style="color:var(--red)">$${(12 - s.kpis.state).toFixed(2)}M</strong></div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════
+// PHASE 2 — SIMULATION
+// ═══════════════════════════════════════
+function renderSim() {
+  // Compute both modes independently
+  const savedMode = simState.simMode;
+
+  simState.simMode = 'ceo';
+  const resCeo = computeSim();
+
+  simState.simMode = 'minister';
+  const resMin = computeSim();
+
+  simState.simMode = savedMode;
+
+  document.getElementById('mainContent').innerHTML = `
+    <div class="sim-view slide-in">
+      <div class="policy-header" style="margin-bottom:20px">
+        <div class="policy-meta">
+          <span class="policy-doc-ref"><span class="live-indicator"><span class="live-dot"></span>Live Model</span></span>
+        </div>
+        <h1 class="policy-title">Interactive Simulation Module</h1>
+        <p class="policy-subtitle">Both roles are active simultaneously. Adjust parameters in each panel and observe real-time fiscal impacts.</p>
+      </div>
+
+      <!-- CEO PANEL -->
+      <div style="border:2px solid rgba(192,57,43,0.3);border-top:4px solid var(--red);margin-bottom:32px;background:var(--white)">
+        <div style="background:var(--red);padding:12px 20px;display:flex;align-items:center;gap:12px">
+          <span style="font-size:20px">💼</span>
+          <div>
+            <div style="font-family:'Noto Serif',serif;font-size:15px;font-weight:700;color:white">CEO — Tax Optimisation</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.7)">Maximise shareholder return through aggressive tax strategies</div>
+          </div>
+          <div style="margin-left:auto;text-align:right">
+            <div style="font-size:11px;color:rgba(255,255,255,0.7)">Shareholder Return</div>
+            <div style="font-family:'Source Code Pro',monospace;font-size:20px;font-weight:700;color:white">$${resCeo.shareholderReturn.toFixed(1)}M</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:340px 1fr;gap:0">
+          <div style="border-right:1px solid var(--border)">
+            ${renderCeoControls(resCeo)}
+          </div>
+          <div style="padding:20px" id="sim-results-ceo">
+            ${renderSimResults(resCeo, true)}
+          </div>
+        </div>
+      </div>
+
+      <!-- MINISTER PANEL -->
+      <div style="border:2px solid rgba(26,122,74,0.3);border-top:4px solid var(--green);background:var(--white)">
+        <div style="background:var(--green);padding:12px 20px;display:flex;align-items:center;gap:12px">
+          <span style="font-size:20px">🏛</span>
+          <div>
+            <div style="font-family:'Noto Serif',serif;font-size:15px;font-weight:700;color:white">Minister of Finance — Fiscal Policy</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.7)">Maximise host-country revenue through fiscal parameters and countermeasures</div>
+          </div>
+          <div style="margin-left:auto;text-align:right">
+            <div style="font-size:11px;color:rgba(255,255,255,0.7)">Host Country Revenue</div>
+            <div style="font-family:'Source Code Pro',monospace;font-size:20px;font-weight:700;color:white">$${resMin.stateRevenue.toFixed(1)}M</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:340px 1fr;gap:0">
+          <div style="border-right:1px solid var(--border)">
+            ${renderMinisterControls(resMin)}
+          </div>
+          <div style="padding:20px" id="sim-results-min">
+            ${renderSimResults(resMin, false)}
+          </div>
+        </div>
+      </div>
+
+    </div>`;
+}
+
+function renderCeoControls(res) {
+  return `
+    <div class="cp-header"><div class="cp-title">💼 CEO Controls — Maximise Shareholder Return</div></div>
+    <div class="cp-body">
+      <p style="font-size:11px;color:var(--muted);margin-bottom:16px;line-height:1.6">You are the CEO of the mining firm. Activate and calibrate aggressive tax strategies to maximise total shareholder return. The model computes fiscal impacts in real time.</p>
+
+      <!-- TRANSFER PRICING -->
+      <div style="border:1px solid var(--border);border-top:3px solid var(--red);margin-bottom:12px;padding:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div>
+            <div style="font-weight:700;font-size:13px;color:var(--navy)">Transfer Pricing</div>
+            <div style="font-size:11px;color:var(--muted)">Overprice equipment via Bahamas hub</div>
+          </div>
+          <div onclick="togSim('ptOn')" style="cursor:pointer;width:44px;height:24px;border-radius:12px;background:${simState.ptOn ? 'var(--red)' : 'var(--border)'};position:relative;transition:background 0.2s;flex-shrink:0">
+            <div style="position:absolute;top:3px;left:${simState.ptOn ? '23px' : '3px'};width:18px;height:18px;border-radius:50%;background:white;transition:left 0.2s"></div>
+          </div>
+        </div>
+        ${simState.ptOn ? `
+        <div class="ctrl-group" style="margin-top:8px">
+          <div data-param="tpMarkup" class="ctrl-label ${changedParams.has('tpMarkup') ? 'changed' : ''}">Equipment invoice value <span class="ctrl-val ${changedParams.has('tpMarkup') ? 'changed' : ''}">$${simState.tpMarkup}M</span>${changedParams.has('tpMarkup') ? '<span class="ctrl-changed-badge">modified</span>' : ''}</div>
+          <input type="range" min="200" max="600" step="10" value="${simState.tpMarkup}" oninput="updSim('tpMarkup',this.value)" class="${changedParams.has('tpMarkup') ? 'changed' : ''}">
+          <div class="range-limits"><span>$200M (fair)</span><span>$600M</span></div>
+        </div>
+        <div class="ctrl-group">
+          <div data-param="interestRate" class="ctrl-label ${changedParams.has('interestRate') ? 'changed' : ''}">Intra-group interest rate <span class="ctrl-val ${changedParams.has('interestRate') ? 'changed' : ''}">${simState.interestRate}%</span>${changedParams.has('interestRate') ? '<span class="ctrl-changed-badge">modified</span>' : ''}</div>
+          <input type="range" min="1" max="20" step="0.5" value="${simState.interestRate}" oninput="updSim('interestRate',this.value)" class="${changedParams.has('interestRate') ? 'changed' : ''}">
+          <div class="range-limits"><span>1%</span><span>20%</span></div>
+        </div>` : ''}
+      </div>
+
+      <!-- THIN CAPITALISATION -->
+      <div style="border:1px solid var(--border);border-top:3px solid var(--gold);margin-bottom:12px;padding:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div>
+            <div style="font-weight:700;font-size:13px;color:var(--navy)">Thin Capitalisation</div>
+            <div style="font-size:11px;color:var(--muted)">Maximise intra-group debt (Luxembourg)</div>
+          </div>
+          <div onclick="togSim('scOn')" style="cursor:pointer;width:44px;height:24px;border-radius:12px;background:${simState.scOn ? 'var(--gold)' : 'var(--border)'};position:relative;transition:background 0.2s;flex-shrink:0">
+            <div style="position:absolute;top:3px;left:${simState.scOn ? '23px' : '3px'};width:18px;height:18px;border-radius:50%;background:white;transition:left 0.2s"></div>
+          </div>
+        </div>
+        ${simState.scOn ? `
+        <div class="ctrl-group" style="margin-top:8px">
+          <div data-param="debtLevel" class="ctrl-label ${changedParams.has('debtLevel') ? 'changed' : ''}">Intra-group debt level <span class="ctrl-val ${changedParams.has('debtLevel') ? 'changed' : ''}">$${simState.debtLevel}M</span>${changedParams.has('debtLevel') ? '<span class="ctrl-changed-badge">modified</span>' : ''}</div>
+          <input type="range" min="100" max="900" step="10" value="${simState.debtLevel}" oninput="updSim('debtLevel',this.value)" class="${changedParams.has('debtLevel') ? 'changed' : ''}">
+          <div class="range-limits"><span>$100M</span><span>$900M</span></div>
+        </div>
+        <div class="ctrl-group">
+          <div data-param="interestRate" class="ctrl-label ${changedParams.has('interestRate') ? 'changed' : ''}">Intra-group interest rate <span class="ctrl-val ${changedParams.has('interestRate') ? 'changed' : ''}">${simState.interestRate}%</span>${changedParams.has('interestRate') ? '<span class="ctrl-changed-badge">modified</span>' : ''}</div>
+          <input type="range" min="1" max="20" step="0.5" value="${simState.interestRate}" oninput="updSim('interestRate',this.value)" class="${changedParams.has('interestRate') ? 'changed' : ''}">
+          <div class="range-limits"><span>1%</span><span>20%</span></div>
+        </div>` : ''}
+      </div>
+
+      <!-- HEDGING CONTRACT -->
+      <div style="border:1px solid var(--border);border-top:3px solid var(--blue);margin-bottom:12px;padding:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div>
+            <div style="font-weight:700;font-size:13px;color:var(--navy)">Hedging Contract</div>
+            <div style="font-size:11px;color:var(--muted)">Commodity mispricing via Mauritius hub</div>
+          </div>
+          <div onclick="togSim('hedgeOn')" style="cursor:pointer;width:44px;height:24px;border-radius:12px;background:${simState.hedgeOn ? 'var(--blue)' : 'var(--border)'};position:relative;transition:background 0.2s;flex-shrink:0">
+            <div style="position:absolute;top:3px;left:${simState.hedgeOn ? '23px' : '3px'};width:18px;height:18px;border-radius:50%;background:white;transition:left 0.2s"></div>
+          </div>
+        </div>
+        ${simState.hedgeOn ? `
+        <div class="ctrl-group" style="margin-top:8px">
+          <div data-param="hedgeDiscount" class="ctrl-label ${changedParams.has('hedgeDiscount') ? 'changed' : ''}">Below-market price discount <span class="ctrl-val ${changedParams.has('hedgeDiscount') ? 'changed' : ''}">${simState.hedgeDiscount}%</span>${changedParams.has('hedgeDiscount') ? '<span class="ctrl-changed-badge">modified</span>' : ''}</div>
+          <input type="range" min="10" max="70" step="5" value="${simState.hedgeDiscount}" oninput="updSim('hedgeDiscount',this.value)" class="${changedParams.has('hedgeDiscount') ? 'changed' : ''}">
+          <div class="range-limits"><span>10%</span><span>70%</span></div>
+        </div>` : ''}
+      </div>
+    </div>
+    <div class="results-readout" style="background:rgba(192,57,43,0.06);border-top:3px solid var(--red)">
+      <div class="rr-label">Total Shareholder Return</div>
+      <div class="rr-value" style="color:var(--red)">$${res.shareholderReturn.toFixed(1)}M</div>
+      <div class="rr-delta" style="color:${res.shareholderReturn > 60 ? 'var(--green)' : 'var(--muted)'}">
+        ${res.shareholderReturn > 60 ? '▲ +' : '▼ −'}${Math.abs(((res.shareholderReturn - 60)/60)*100).toFixed(1)}% vs. no-planning baseline
+      </div>
+    </div>`;
+}
+
+function renderMinisterControls(res) {
+  return `
+    <div class="cp-header"><div class="cp-title">🏛 Minister of Finance Controls</div></div>
+    <div class="cp-body">
+      <p style="font-size:11px;color:var(--muted);margin-bottom:16px;line-height:1.6">You are the Minister of Finance of the partner country. Set fiscal parameters and activate countermeasures to maximise domestic revenue from the mining sector.</p>
+
+      <!-- FISCAL PARAMETERS -->
+      <div style="background:var(--paper2);padding:14px;margin-bottom:12px;border-left:3px solid var(--green)">
+        <div style="font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:12px">Fiscal Parameters</div>
+        <div class="ctrl-group">
+          <div data-param="minCitRate" class="ctrl-label ${changedParams.has('minCitRate') ? 'changed' : ''}">Corporate Income Tax Rate <span class="ctrl-val ${changedParams.has('minCitRate') ? 'changed' : ''}">${simState.minCitRate}%</span>${changedParams.has('minCitRate') ? '<span class="ctrl-changed-badge">modified</span>' : ''}</div>
+          <input type="range" min="5" max="40" step="1" value="${simState.minCitRate}" oninput="updSim('minCitRate',this.value)" class="${changedParams.has('minCitRate') ? 'changed' : ''}">
+          <div class="range-limits"><span>5%</span><span>40%</span></div>
+        </div>
+        <div class="ctrl-group">
+          <div data-param="minRoyaltyRate" class="ctrl-label ${changedParams.has('minRoyaltyRate') ? 'changed' : ''}">Mining Royalty Rate <span class="ctrl-val ${changedParams.has('minRoyaltyRate') ? 'changed' : ''}">${simState.minRoyaltyRate}%</span>${changedParams.has('minRoyaltyRate') ? '<span class="ctrl-changed-badge">modified</span>' : ''}</div>
+          <input type="range" min="1" max="20" step="0.5" value="${simState.minRoyaltyRate}" oninput="updSim('minRoyaltyRate',this.value)" class="${changedParams.has('minRoyaltyRate') ? 'changed' : ''}">
+          <div class="range-limits"><span>1%</span><span>20%</span></div>
+        </div>
+      </div>
+
+      <!-- WITHHOLDING TAX -->
+      <div style="border:1px solid var(--border);border-top:3px solid var(--green);margin-bottom:10px;padding:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div>
+            <div style="font-weight:700;font-size:13px;color:var(--navy)">Withholding Tax</div>
+            <div style="font-size:11px;color:var(--muted)">Tax on outbound cross-border payments</div>
+          </div>
+          <div onclick="togSim('whtOn')" style="cursor:pointer;width:44px;height:24px;border-radius:12px;background:${simState.whtOn ? 'var(--green)' : 'var(--border)'};position:relative;transition:background 0.2s;flex-shrink:0">
+            <div style="position:absolute;top:3px;left:${simState.whtOn ? '23px' : '3px'};width:18px;height:18px;border-radius:50%;background:white;transition:left 0.2s"></div>
+          </div>
+        </div>
+        ${simState.whtOn ? `
+        <div class="ctrl-group" style="margin-top:8px">
+          <div data-param="whtRate" class="ctrl-label ${changedParams.has('whtRate') ? 'changed' : ''}">WHT rate <span class="ctrl-val ${changedParams.has('whtRate') ? 'changed' : ''}">${simState.whtRate}%</span>${changedParams.has('whtRate') ? '<span class="ctrl-changed-badge">modified</span>' : ''}</div>
+          <input type="range" min="5" max="35" step="1" value="${simState.whtRate}" oninput="updSim('whtRate',this.value)" class="${changedParams.has('whtRate') ? 'changed' : ''}">
+          <div class="range-limits"><span>5%</span><span>35%</span></div>
+        </div>` : ''}
+      </div>
+
+      <!-- ARM'S LENGTH PRICING -->
+      <div style="border:1px solid var(--border);border-top:3px solid var(--green);margin-bottom:10px;padding:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div>
+            <div style="font-weight:700;font-size:13px;color:var(--navy)">Transfer Pricing (ALP)</div>
+            <div style="font-size:11px;color:var(--muted)">Arm's length correction on equipment value</div>
+          </div>
+          <div onclick="togSim('alpOn')" style="cursor:pointer;width:44px;height:24px;border-radius:12px;background:${simState.alpOn ? 'var(--green)' : 'var(--border)'};position:relative;transition:background 0.2s;flex-shrink:0">
+            <div style="position:absolute;top:3px;left:${simState.alpOn ? '23px' : '3px'};width:18px;height:18px;border-radius:50%;background:white;transition:left 0.2s"></div>
+          </div>
+        </div>
+        ${simState.alpOn ? `
+        <div class="ctrl-group" style="margin-top:8px">
+          <div data-param="alpMarkup" class="ctrl-label ${changedParams.has('alpMarkup') ? 'changed' : ''}">ALP mark-up over market value <span class="ctrl-val ${changedParams.has('alpMarkup') ? 'changed' : ''}">${simState.alpMarkup}%</span>${changedParams.has('alpMarkup') ? '<span class="ctrl-changed-badge">modified</span>' : ''}</div>
+          <input type="range" min="0" max="30" step="1" value="${simState.alpMarkup}" oninput="updSim('alpMarkup',this.value)" class="${changedParams.has('alpMarkup') ? 'changed' : ''}">
+          <div class="range-limits"><span>0%</span><span>30%</span></div>
+        </div>` : ''}
+      </div>
+
+      <!-- THIN CAP RULE -->
+      <div style="border:1px solid var(--border);border-top:3px solid var(--green);margin-bottom:10px;padding:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div>
+            <div style="font-weight:700;font-size:13px;color:var(--navy)">Thin Capitalisation Rule</div>
+            <div style="font-size:11px;color:var(--muted)">Debt/equity cap on interest deductibility</div>
+          </div>
+          <div onclick="togSim('thinCapOn')" style="cursor:pointer;width:44px;height:24px;border-radius:12px;background:${simState.thinCapOn ? 'var(--green)' : 'var(--border)'};position:relative;transition:background 0.2s;flex-shrink:0">
+            <div style="position:absolute;top:3px;left:${simState.thinCapOn ? '23px' : '3px'};width:18px;height:18px;border-radius:50%;background:white;transition:left 0.2s"></div>
+          </div>
+        </div>
+        ${simState.thinCapOn ? `
+        <div class="ctrl-group" style="margin-top:8px">
+          <div data-param="thinCapRatio" class="ctrl-label ${changedParams.has('thinCapRatio') ? 'changed' : ''}">Debt/equity ratio cap <span class="ctrl-val ${changedParams.has('thinCapRatio') ? 'changed' : ''}">${simState.thinCapRatio}:1</span>${changedParams.has('thinCapRatio') ? '<span class="ctrl-changed-badge">modified</span>' : ''}</div>
+          <input type="range" min="1" max="10" step="0.5" value="${simState.thinCapRatio}" oninput="updSim('thinCapRatio',this.value)" class="${changedParams.has('thinCapRatio') ? 'changed' : ''}">
+          <div class="range-limits"><span>1:1</span><span>10:1</span></div>
+        </div>` : ''}
+      </div>
+
+      <!-- EARNING STRIPPING RULE -->
+      <div style="border:1px solid var(--border);border-top:3px solid var(--green);margin-bottom:10px;padding:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div>
+            <div style="font-weight:700;font-size:13px;color:var(--navy)">Earning Stripping Rule</div>
+            <div style="font-size:11px;color:var(--muted)">EBITDA-based interest deduction cap</div>
+          </div>
+          <div onclick="togSim('esrOn')" style="cursor:pointer;width:44px;height:24px;border-radius:12px;background:${simState.esrOn ? 'var(--green)' : 'var(--border)'};position:relative;transition:background 0.2s;flex-shrink:0">
+            <div style="position:absolute;top:3px;left:${simState.esrOn ? '23px' : '3px'};width:18px;height:18px;border-radius:50%;background:white;transition:left 0.2s"></div>
+          </div>
+        </div>
+        ${simState.esrOn ? `
+        <div class="ctrl-group" style="margin-top:8px">
+          <div data-param="esrRate" class="ctrl-label ${changedParams.has('esrRate') ? 'changed' : ''}">Max. interest as % of EBITDA <span class="ctrl-val ${changedParams.has('esrRate') ? 'changed' : ''}">${simState.esrRate}%</span>${changedParams.has('esrRate') ? '<span class="ctrl-changed-badge">modified</span>' : ''}</div>
+          <input type="range" min="10" max="50" step="1" value="${simState.esrRate}" oninput="updSim('esrRate',this.value)" class="${changedParams.has('esrRate') ? 'changed' : ''}">
+          <div class="range-limits"><span>10%</span><span>50%</span></div>
+        </div>` : ''}
+      </div>
+
+    </div>
+    <div class="results-readout" style="background:rgba(26,122,74,0.06);border-top:3px solid var(--green)">
+      <div class="rr-label">Total Host Country Revenue</div>
+      <div class="rr-value" style="color:var(--green)">$${res.stateRevenue.toFixed(1)}M</div>
+      <div class="rr-delta" style="color:${res.stateRevenue >= 30 ? '#5edf9e' : '#e87070'}">
+        ${res.stateRevenue >= 30 ? '▲ +' : '▼ −'}${Math.abs(((res.stateRevenue - 30)/30)*100).toFixed(1)}% vs. baseline ($30M)
+      </div>
+    </div>`;
+}
+
+function renderSimResults(res, isCeo = true) {
+  const accentColor = isCeo ? 'var(--red)' : 'var(--green)';
+  return `
+    ${buildAlert(res)}
+    <div class="data-chart-card">
+      <div class="chart-label">${isCeo ? 'Profit Distribution (USD millions)' : 'Fiscal Revenue Breakdown (USD millions)'}</div>
+      <div class="bar-rows">
+        ${mkBar('Host Govt Revenue', res.stateRevenue, 300, '#1a7a4a')}
+        ${mkBar('  CIT', res.IS_paid, 300, '#16a34a')}
+        ${mkBar('  Mining Royalty', res.miningRoyalty, 300, '#4ade80')}
+        ${res.whtRevenue > 0 ? mkBar('  WHT', res.whtRevenue, 300, '#86efac') : ''}
+        ${mkBar('Shareholder Return', res.shareholderReturn, 300, isCeo ? '#c0392b' : '#1a56a0')}
+        ${res.offshoreProfit > 0 ? mkBar('Offshore Profit', res.offshoreProfit, 300, '#0f2044') : ''}
+      </div>
+    </div>
+    <div class="data-table-card">
+      <table class="data-table">
+        <thead>
+          <tr><th>Indicator</th><th>Baseline</th><th>Simulation</th><th>Δ</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Host country revenue</td><td>$30M</td>
+            <td style="color:${res.stateRevenue < 30 ? 'var(--red)' : 'var(--green)'}">$${res.stateRevenue.toFixed(2)}M</td>
+            <td><span class="change-pill ${res.stateRevenue < 30 ? 'pill-down' : 'pill-up'}">${res.stateRevenue < 30 ? '▼' : '▲'} ${Math.abs(((res.stateRevenue-30)/30)*100).toFixed(1)}%</span></td>
+          </tr>
+          <tr>
+            <td>— CIT</td><td>$15M</td>
+            <td>$${res.IS_paid.toFixed(2)}M</td>
+            <td><span class="change-pill ${res.IS_paid < 15 ? 'pill-down' : 'pill-up'}">${res.IS_paid < 15 ? '▼' : '▲'} ${Math.abs(((res.IS_paid-15)/15)*100).toFixed(1)}%</span></td>
+          </tr>
+          <tr>
+            <td>— Mining Royalty</td><td>$15M</td>
+            <td>$${res.miningRoyalty.toFixed(2)}M</td>
+            <td><span class="change-pill ${res.miningRoyalty < 15 ? 'pill-down' : res.miningRoyalty > 15 ? 'pill-up' : 'pill-neu'}">${res.miningRoyalty < 15 ? '▼' : res.miningRoyalty > 15 ? '▲' : '—'} ${Math.abs(((res.miningRoyalty-15)/15)*100).toFixed(1)}%</span></td>
+          </tr>
+          ${res.whtRevenue > 0 ? `<tr>
+            <td>— WHT Revenue</td><td>$0M</td>
+            <td style="color:var(--green)">$${res.whtRevenue.toFixed(2)}M</td>
+            <td><span class="change-pill pill-up">▲ New</span></td>
+          </tr>` : ''}
+          <tr>
+            <td>Shareholder return</td><td>$60M</td>
+            <td style="color:${isCeo ? 'var(--red)' : 'inherit'}">$${res.shareholderReturn.toFixed(2)}M</td>
+            <td><span class="change-pill ${res.shareholderReturn > 60 ? 'pill-down' : 'pill-up'}">${res.shareholderReturn > 60 ? '▲' : '▼'} ${Math.abs(((res.shareholderReturn-60)/60)*100).toFixed(1)}%</span></td>
+          </tr>
+          ${res.offshoreProfit > 0 ? `<tr>
+            <td>Offshore profit</td><td>$0M</td>
+            <td style="color:var(--navy3)">$${res.offshoreProfit.toFixed(2)}M</td>
+            <td><span class="change-pill pill-down">Offshore</span></td>
+          </tr>` : ''}
+        </tbody>
+      </table>
+    </div>
+    <div class="analysis-card">
+      <div class="analysis-header">${isCeo ? '💼 CEO Strategy Analysis' : '🏛 Fiscal Policy Analysis'}</div>
+      <div class="analysis-body">${isCeo ? buildCeoAnalysis(res) : buildMinisterAnalysis(res)}</div>
+    </div>`;
+}
+
+function buildCeoAnalysis(res) {
+  if (res.activeCount === 0)
+    return '<p>No tax planning strategy is active. The firm operates under the reference scenario: $75M taxable profit, $15M CIT, $60M net dividend. Activate strategies to observe profit-shifting dynamics.</p>';
+  const gain = (res.shareholderReturn - 60).toFixed(1);
+  return '<p>With ' + res.activeCount + ' active strateg' + (res.activeCount > 1 ? 'ies' : 'y') + ', shareholder return reaches <strong>$' + res.shareholderReturn.toFixed(1) + 'M</strong> — a gain of <strong>$' + gain + 'M</strong> over the baseline. Host-country CIT falls to <strong>$' + res.IS_paid.toFixed(1) + 'M</strong>. ' + (res.offshoreProfit > 0 ? '<strong>$' + res.offshoreProfit.toFixed(1) + 'M</strong> is booked in zero- or low-tax offshore jurisdictions.' : '') + '</p>';
+}
+
+function buildMinisterAnalysis(res) {
+  if (res.activeCount === 0 && res.stateRevenue <= 30)
+    return '<p>No countermeasure is active. The country operates under baseline fiscal conditions: $15M CIT (20%) + $15M mining royalty = $30M total. Activate countermeasures or adjust fiscal parameters to recover revenue.</p>';
+  const gain = (res.stateRevenue - 30).toFixed(1);
+  return '<p>Current fiscal package yields <strong>$' + res.stateRevenue.toFixed(1) + 'M</strong> in total host-country revenue' + (gain > 0 ? ' — a <strong>$' + gain + 'M increase</strong> over baseline' : ' — <strong>$' + Math.abs(gain) + 'M below baseline</strong>') + '. CIT collected: <strong>$' + res.IS_paid.toFixed(1) + 'M</strong>; Mining royalty: <strong>$' + res.miningRoyalty.toFixed(1) + 'M</strong>' + (res.whtRevenue > 0 ? '; WHT: <strong>$' + res.whtRevenue.toFixed(1) + 'M</strong>' : '') + '.</p>';
+}
+
+
+function mkToggle(key, name, sub, on) {
+  return `<div class="strategy-toggle ${on ? 'on' : ''}" onclick="togSim('${key}')">
+    <div class="st-text">
+      <div class="st-name">${name}</div>
+      <div class="st-sub">${sub}</div>
+    </div>
+    <div class="st-switch ${on ? 'on' : ''}"></div>
+  </div>`;
+}
+
+function togSim(key) {
+  simState[key] = !simState[key];
+  if (simState[key]) changedParams.add(key); else changedParams.delete(key);
+  renderSim();
+}
+
+function updSim(key, v) {
+  simState[key] = parseFloat(v);
+  if (simDefaults[key] !== undefined && parseFloat(v) !== simDefaults[key]) {
+    changedParams.add(key);
+  } else {
+    changedParams.delete(key);
+  }
+  // Smooth patch: update only result elements, not the full page
+  if (document.getElementById('sim-results-ceo')) {
+    patchSimResults();
+  } else {
+    renderSim();
+  }
+}
+
+function patchSimResults() {
+  const savedMode = simState.simMode;
+
+  simState.simMode = 'ceo';
+  const resCeo = computeSim();
+  simState.simMode = 'minister';
+  const resMin = computeSim();
+  simState.simMode = savedMode;
+
+  // Patch CEO results panel
+  const ceoPatch = document.getElementById('sim-results-ceo');
+  if (ceoPatch) ceoPatch.innerHTML = renderSimResults(resCeo, true);
+
+  // Patch Minister results panel
+  const minPatch = document.getElementById('sim-results-min');
+  if (minPatch) minPatch.innerHTML = renderSimResults(resMin, false);
+
+  // Patch CEO readout
+  const ceoReadout = document.getElementById('sim-readout-ceo');
+  if (ceoReadout) {
+    ceoReadout.innerHTML = `
+      <div class="rr-label">Total Shareholder Return</div>
+      <div class="rr-value" style="color:var(--red);transition:all 0.3s">$${resCeo.shareholderReturn.toFixed(1)}M</div>
+      <div class="rr-delta" style="color:${resCeo.shareholderReturn > 60 ? 'var(--green)' : 'var(--muted)'}">
+        ${resCeo.shareholderReturn > 60 ? '▲ +' : '▼ −'}${Math.abs(((resCeo.shareholderReturn - 60)/60)*100).toFixed(1)}% vs. no-planning baseline
+      </div>`;
+  }
+
+  // Patch Minister readout
+  const minReadout = document.getElementById('sim-readout-min');
+  if (minReadout) {
+    minReadout.innerHTML = `
+      <div class="rr-label">Total Host Country Revenue</div>
+      <div class="rr-value" style="color:var(--green);transition:all 0.3s">$${resMin.stateRevenue.toFixed(1)}M</div>
+      <div class="rr-delta" style="color:${resMin.stateRevenue >= 30 ? '#5edf9e' : '#e87070'}">
+        ${resMin.stateRevenue >= 30 ? '▲ +' : '▼ −'}${Math.abs(((resMin.stateRevenue - 30)/30)*100).toFixed(1)}% vs. baseline
+      </div>`;
+  }
+
+  // Update ctrl-val labels smoothly (no full re-render)
+  document.querySelectorAll('[data-param]').forEach(el => {
+    const key = el.dataset.param;
+    const isChanged = changedParams.has(key);
+    const valEl = el.querySelector('.ctrl-val');
+    const badgeEl = el.querySelector('.ctrl-changed-badge');
+    if (valEl) {
+      valEl.classList.toggle('changed', isChanged);
+      el.classList.toggle('changed', isChanged);
+    }
+    if (badgeEl) badgeEl.style.display = isChanged ? 'inline' : 'none';
+    const input = el.nextElementSibling;
+    if (input && input.tagName === 'INPUT') input.classList.toggle('changed', isChanged);
+  });
+}
+
+function computeSim() {
+  // ── CEO MODE ──────────────────────────────────────
+  if (simState.simMode === 'ceo') {
+    const IS = simState.citRate / 100;
+    const r = simState.interestRate / 100;
+    let ca = 300, purchases = 50, wages = 100, depr = 20;
+    let interets = 400 * r, offshoreProfit = 0, beps = 0;
+    let tpEquipment = 200, tpDepr = 20;
+
+    if (simState.ptOn) {
+      tpEquipment = simState.tpMarkup;
+      tpDepr = tpEquipment * 0.10;
+      depr = tpDepr;
+      offshoreProfit += (tpEquipment - 200);
+      interets = (200 + (tpEquipment - 200) * 0.3 + 400) * r;
+      beps += 4;
+    }
+    if (simState.scOn) {
+      const debt = simState.debtLevel;
+      interets = debt * r;
+      offshoreProfit += debt * r * (simState.ptOn ? 1 : 1);
+      beps += 3;
+    }
+    if (simState.hedgeOn) {
+      const discount = simState.hedgeDiscount / 100;
+      ca = 300 * (1 - discount);
+      offshoreProfit += 300 * discount - 1;
+      beps += 4;
+    }
+
+    const chargesExp = purchases + wages + depr;
+    const royaltyRate = 0.05;
+    const miningRoyalty = ca * royaltyRate;
+    const pretax = ca - chargesExp - interets - miningRoyalty;
+    const taxBase = Math.max(0, pretax);
+    const IS_paid = taxBase * IS;
+    const localNet = pretax - IS_paid;
+
+    return {
+      mode: 'ceo',
+      ca, interets, chargesExp, depr, tpEquipment,
+      stateRevenue: IS_paid + miningRoyalty,
+      shareholderReturn: localNet + offshoreProfit,
+      localNet, offshoreProfit, miningRoyalty, IS_paid,
+      deductions: chargesExp + interets,
+      bepsScore: Math.min(10, beps),
+      activeCount: [simState.ptOn, simState.scOn, simState.hedgeOn].filter(Boolean).length,
+    };
+  }
+
+  // ── MINISTER MODE ─────────────────────────────────
+  const IS = simState.minCitRate / 100;
+  const royaltyRate = simState.minRoyaltyRate / 100;
+  const r = 0.10; // fixed interest rate for minister mode
+  let ca = 300, purchases = 50, wages = 100, depr = 20;
+  let interets = 400 * r, offshoreProfit = 190, whtRevenue = 0;
+
+  // ALP correction: limit equipment value to ALP-corrected level
+  let equipmentBase = 400; // assume firm used TP (inflated equipment)
+  if (simState.alpOn) {
+    const alpPrice = 200 * (1 + simState.alpMarkup / 100);
+    depr = alpPrice * 0.10;
+    interets = (alpPrice * 0.7) * r;
+    offshoreProfit = Math.max(0, offshoreProfit - (400 - alpPrice) * 0.5);
+    equipmentBase = alpPrice;
+  }
+
+  // Thin Cap rule
+  if (simState.thinCapOn) {
+    const equity = 100;
+    const maxDebt = equity * simState.thinCapRatio;
+    interets = Math.min(interets, maxDebt * r);
+  }
+
+  // ESR rule
+  if (simState.esrOn) {
+    const ebitda = ca - purchases - wages; // 150M
+    const maxInterest = ebitda * simState.esrRate / 100;
+    interets = Math.min(interets, maxInterest);
+  }
+
+  // WHT on cross-border payments
+  if (simState.whtOn) {
+    const whtBase = offshoreProfit;
+    whtRevenue = whtBase * simState.whtRate / 100;
+    offshoreProfit = offshoreProfit - whtRevenue;
+  }
+
+  const chargesExp = purchases + wages + depr;
+  const miningRoyalty = ca * royaltyRate;
+  const pretax = ca - chargesExp - interets - miningRoyalty;
+  const taxBase = Math.max(0, pretax);
+  const IS_paid = taxBase * IS;
+  const localNet = pretax - IS_paid;
+
+  return {
+    mode: 'minister',
+    ca, interets, chargesExp, depr, whtRevenue,
+    stateRevenue: IS_paid + miningRoyalty + whtRevenue,
+    shareholderReturn: localNet + offshoreProfit,
+    localNet, offshoreProfit, miningRoyalty, IS_paid, whtRevenue,
+    deductions: chargesExp + interets,
+    bepsScore: 0,
+    activeCount: [simState.alpOn, simState.thinCapOn, simState.esrOn, simState.whtOn].filter(Boolean).length,
+  };
+}
+
+function mkBar(label, value, max, color) {
+  const pct = Math.min(100, Math.max(0, (Math.abs(value)/max)*100)).toFixed(1);
+  const disp = value < 0 ? `-$${Math.abs(value).toFixed(1)}M` : `$${value.toFixed(1)}M`;
+  return `<div class="bar-row-item">
+    <div class="bar-name">${label}</div>
+    <div class="bar-track">
+      <div class="bar-fill" style="width:${pct}%;background:${color}">${parseFloat(pct) > 12 ? disp : ''}</div>
+    </div>
+    <div class="bar-end-val">${disp}</div>
+  </div>`;
+}
+
+function buildAlert(res) {
+  if (res.activeCount === 0 || res.stateRevenue >= 30) return '';
+  const drop = ((30 - res.stateRevenue)/30*100).toFixed(0);
+  return `<div class="alert-banner">
+    <span class="alert-icon">⚠</span>
+    <div class="alert-text">
+      <strong>BEPS Alert:</strong> Active strategy combination reduces host-country CIT by <strong>${drop}%</strong> relative to baseline.
+      ${res.offshoreProfit > 100 ? ` <strong>$${res.offshoreProfit.toFixed(0)}M</strong> in profits shifted to zero- or low-tax jurisdictions.` : ''}
+      ${res.stateRevenue < 4 ? ' Total fiscal revenue below minimum threshold for fiscal viability ($20M). Audit trigger probability: HIGH.' : ''}
+    </div>
+  </div>`;
+}
+
+function buildAnalysis(res) {
+  const strats = [];
+  if (simState.ptOn) strats.push('transfer pricing manipulation');
+  if (simState.scOn) strats.push('thin capitalization');
+  if (simState.hedgeOn) strats.push('commodity mispricing via hedging contract');
+  if (simState.whtOn) strats.push('royalty / withholding tax structuring');
+
+  if (strats.length === 0) {
+    return `<p>No BEPS strategies are active. The model reflects the <strong>baseline scenario</strong>: the host government collects $${res.stateRevenue.toFixed(2)}M in CIT at a rate of ${simState.citRate}%.</p>
+    <p>Enable strategies in the controls panel to observe profit-shifting dynamics. Note that adjusting the CIT rate can partially offset revenue losses but may also affect investment incentives.</p>`;
+  }
+
+  return `<p>With ${strats.length} active strateg${strats.length > 1 ? 'ies' : 'y'} (<strong>${strats.join('; ')}</strong>), host-country total revenue (CIT + Mining Royalty) is <strong>$${res.stateRevenue.toFixed(2)}M</strong>—${res.stateRevenue < 30 ? `a ${Math.abs(((res.stateRevenue-30)/30)*100).toFixed(1)}% reduction from baseline ($30M)` : `above baseline ($30M)`}.</p>
+  <p>${res.offshoreProfit > 0 ? `<strong>$${res.offshoreProfit.toFixed(2)}M</strong> has been shifted to offshore entities in zero- or low-tax jurisdictions.` : ''} The shareholder's aggregate return reaches <strong>$${res.shareholderReturn.toFixed(2)}M</strong>—compared with $48M under the baseline.</p>
+  <p>This configuration exemplifies the <em>base erosion and profit shifting</em> (BEPS) phenomenon documented by the OECD and IMF. Crivelli <em>et al.</em> (2016) estimate that BEPS costs developing countries approximately <strong>1.3% of GDP</strong> in lost revenue annually—significantly higher than for advanced economies.</p>`;
+}
+
+// ═══════════════════════════════════════
+// PHASE 3 — COMPARISON
+// ═══════════════════════════════════════
+function renderComparison() {
+  const bepsColors = ['#1a7a4a','#1a7a4a','#16a34a','#65a30d','#ca8a04','#d97706','#ea580c','#dc2626','#b91c1c','#991b1b','#7f1d1d'];
+
+  const barRows = SCENARIOS.map(s => {
+    const color = s.type === 'ref' ? '#1a56a0' : s.type === 'agg' ? '#c0392b' : '#1a7a4a';
+    const val = Math.max(0, s.kpis.state);
+    const pct = Math.min(100, (val/70)*100).toFixed(1);
+    return `<div class="bar-row-item">
+      <div class="bar-name" style="font-size:11px">${s.title.substring(0,24)}</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:${pct}%;background:${color}"></div>
+      </div>
+      <div class="bar-end-val" style="color:${color}">$${s.kpis.state}M</div>
+    </div>`;
+  }).join('');
+
+  const tableRows = SCENARIOS.map(s => {
+    const delta = ((s.kpis.state - 30)/30*100).toFixed(1);
+    const deltaCls = s.kpis.state < 30 ? 'style="color:var(--red)"' : 'style="color:var(--green)"';
+    const trCls = s.type === 'ref' ? 'tr-ref' : s.type === 'agg' ? 'tr-agg' : 'tr-cor';
+    const typeLabel = s.type === 'ref' ? 'Reference' : s.type === 'agg' ? '⚠ Aggressive' : '🛡 Corrective';
+    const bw = Math.min(80, s.kpis.beps * 8);
+    const bc = s.type === 'ref' ? '#1a56a0' : s.kpis.beps > 6 ? '#c0392b' : s.kpis.beps > 3 ? '#d97706' : '#1a7a4a';
+    return `<tr class="${trCls}">
+      <td><strong>${s.title}</strong><br><span style="font-family:'DM Sans',sans-serif;font-size:10px;color:var(--muted);font-weight:400">${typeLabel}</span></td>
+      <td>$${s.kpis.state}M</td>
+      <td>$${s.kpis.shareholder}M</td>
+      <td>${(s.kpis.profit*100).toFixed(1)}%</td>
+      <td ${deltaCls}>${delta > 0 ? '+' : ''}${delta}%</td>
+      <td>
+        <div class="mini-bar-cell">
+          <div class="mini-bar" style="width:${bw}px;background:${bc}"></div>
+          <span style="color:${bc}">${s.kpis.beps}/10</span>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('mainContent').innerHTML = `
+    <div class="comp-view slide-in">
+      <div class="section-header">
+        <div class="sh-title">Scenario Comparison Table</div>
+        <div class="sh-sub">All nine scenarios · Host-country fiscal impact · Sub-Saharan Africa mining case study</div>
+      </div>
+
+      <div class="comp-bars-card">
+        <div class="chart-label">Host Country Revenue by Scenario — CIT + Mining Royalty (USD millions)</div>
+        <div class="bar-rows">${barRows}</div>
+      </div>
+
+      <div class="comp-table-card">
+        <table class="comp-table">
+          <thead>
+            <tr>
+              <th>Scenario</th>
+              <th>CIT Revenue</th>
+              <th>Shareholder Return</th>
+              <th>Local Net Margin</th>
+              <th>Δ vs. Baseline</th>
+              <th>BEPS Score</th>
+            </tr>
+          </thead>
+          <tbody>${tableRows}</tbody>
+        </table>
+      </div>
+
+      <div class="working-paper">
+        <div class="wp-header">
+          <span class="wp-icon">🔑</span>
+          <div>
+            <div class="wp-title">Key Policy Findings</div>
+            <div class="wp-subtitle">EU Fiscal Affairs Department · Sub-Saharan Africa Programme</div>
+          </div>
+        </div>
+        <div class="wp-body">
+          <p>This simulation illustrates the <strong>fundamental trade-off</strong> between shareholder tax optimization and host-country fiscal capacity. In the most aggressive scenario (TP + Thin Capitalization combined), the host government retains only <strong>$15M</strong> (Mining Royalty only, CIT = $0) of a potential $24M baseline revenue—a loss of 37.5%—while the shareholder captures <strong>$252.1M</strong> in total returns.</p>
+          <p>BEPS countermeasures demonstrate meaningful recovery potential: the Thin Cap Rule restores CIT to <strong>$19.92M</strong> (166% of baseline), while the Earning Stripping Rule and Arm's Length corrections restore revenues to approximately 90–93% of baseline with lower distortionary risk. The IMF recommends the <em>simultaneous implementation</em> of interest limitation rules (Action 4) and arm's length pricing enforcement (Actions 8–10) as the most cost-effective reform package for low-income country tax administrations.</p>
+          <p>Crivelli <em>et al.</em> (2016) estimate that profit shifting costs developing countries approximately <strong>1.3% of GDP</strong> annually—more than double the impact on advanced economies—highlighting the disproportionate fiscal vulnerability of resource-dependent low-income states.</p>
+          <div class="references-block">
+            <div class="ref-header">References</div>
+            <div class="ref-entry">Cobham, A. & Janský, P. (2018). Global distribution of revenue loss from corporate tax avoidance. <em>Journal of International Development</em>, 30(2), 206–232.</div>
+            <div class="ref-entry">Crivelli, E., De Mooij, R. & Keen, M. (2016). Base erosion, profit shifting and developing countries. <em>FinanzArchiv</em>, 72(3), 268–301.</div>
+            <div class="ref-entry">IMF (2014). <em>Spillovers in International Corporate Taxation.</em> IMF Policy Paper. Washington, D.C.: International Monetary Fund.</div>
+            <div class="ref-entry">OECD (2015). <em>BEPS Action Plans — 15 Actions, 2015 Final Reports.</em> Paris: OECD Publishing. Available at: https://www.oecd.org/tax/beps/</div>
+            <div class="ref-entry">Zucman, G. (2014). Taxing across borders: Tracking personal wealth and corporate profits. <em>Journal of Economic Perspectives</em>, 28(4), 121–148.</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+</script>
+<!-- ── QUIZ ── -->
+<div id="quizScreen" class="quiz-screen" style="display:none">
+  <div id="quizInner" style="width:100%;display:flex;justify-content:center"></div>
+</div>
+
+<script>
+const QUIZ = [
+  { q:"What does the acronym BEPS stand for?", multi:false,
+    options:["Base Erosion and Profit Sharing","Base Erosion and Profit Shifting","Bilateral Exchange and Payment System","Budget Erosion and Public Spending"],
+    correct:[1],
+    feedback:"BEPS stands for <em>Base Erosion and Profit Shifting</em>. The term refers to tax planning strategies that exploit gaps and mismatches in national tax rules to artificially shift profits to low- or no-tax jurisdictions, thereby eroding the tax base of source countries." },
+  { q:"Which of the following jurisdictions is commonly regarded as a tax haven facilitating BEPS arrangements?", multi:true,
+    options:["Germany","Cayman Islands","Mauritius","Brazil","South Africa"],
+    correct:[1,2],
+    feedback:"The Cayman Islands and Mauritius are two low- or zero-tax jurisdictions frequently deployed in BEPS arrangements, particularly in the African extractive sector, owing to their favorable treaty networks and near-absence of withholding taxes on outbound financial flows." },
+  { q:"The arm's length principle requires that intra-group transactions be conducted:", multi:false,
+    options:["At the price most advantageous to the controlling shareholder","At the price that independent enterprises would have agreed upon under comparable circumstances","At a price unilaterally determined by the parent company","At the industry-average price, irrespective of the specific transactional conditions"],
+    correct:[1],
+    feedback:"The arm's length principle — the cornerstone of the OECD Transfer Pricing Guidelines (Actions 8–10) — requires that transactions between related entities reflect the prices and conditions that would have prevailed between unrelated, independent parties engaged in comparable transactions under comparable circumstances." },
+  { q:"What are the typical fiscal consequences of transfer pricing manipulation for the host state of a subsidiary?", multi:true,
+    options:["A reduction of the local corporate income tax base","An offsetting increase in customs revenues","A transfer of profits to lower-tax jurisdictions","A higher net profit reported by the local subsidiary","An automatic increase in mining royalties"],
+    correct:[0,2],
+    feedback:"Transfer pricing manipulation reduces the locally taxable profit base and shifts profits to low-tax jurisdictions, depriving the host state of corporate income tax revenues. It does not generate automatic compensatory inflows through other fiscal instruments such as royalties or import duties." },
+  { q:"Thin capitalization refers to:", multi:false,
+    options:["Reducing a company's share capital below the statutory minimum","Financing a subsidiary almost exclusively through intra-group debt rather than equity","Relocating the registered office to a zero-tax jurisdiction","Concentrating dividend distributions by limiting the number of shareholders"],
+    correct:[1],
+    feedback:"Thin capitalization involves structuring a subsidiary's financing predominantly through intra-group loans rather than equity. The resulting interest payments, which are tax-deductible under standard corporate income tax rules, erode the local taxable base while channeling income to the lending entity, typically situated in a low-tax jurisdiction." },
+  { q:"Why do interest payments to a related entity in a thin capitalization arrangement reduce the host state's tax revenues?", multi:false,
+    options:["Because they are subject to a zero effective tax rate in the host country","Because they constitute tax-deductible expenses that reduce the locally taxable profit","Because they substitute for dividends, which are themselves non-taxable","Because bilateral tax treaties systematically exempt intra-group financial flows from taxation"],
+    correct:[1],
+    feedback:"Interest payments are deductible charges under standard corporate income tax frameworks. By artificially inflating intra-group indebtedness, the multinational group mechanically reduces the profit subject to corporate income tax in the host country, thereby narrowing the tax base available to the source state." },
+  { q:"Which ratio is conventionally used to assess the degree of thin capitalization of a subsidiary?", multi:false,
+    options:["The revenue-to-net profit ratio","The debt-to-equity ratio","The effective tax rate expressed as tax paid relative to pre-tax profit","The ratio of offshore assets to total consolidated assets"],
+    correct:[1],
+    feedback:"The debt-to-equity ratio is the standard diagnostic indicator used to detect thin capitalization. An extreme ratio — sometimes several hundred to one — reveals artificially inflated intra-group debt financing at the expense of equity, structured primarily to generate deductible interest charges and erode the local tax base." },
+  { q:"The commodity price hedging mechanism (the 'sixth method') enables the enterprise to:", multi:true,
+    options:["Sell its output to an offshore trading entity at a price below the prevailing market price","Transfer the margin between the contractual sale price and the market price to a low-tax entity","Increase host state revenues through foreign exchange gains","Exempt the local subsidiary from withholding tax on dividend distributions","Hedge against currency risk without any effect on the local taxable base"],
+    correct:[0,1],
+    feedback:"The sixth method involves an intra-group hedging contract under which the local subsidiary sells its production below the prevailing market price to an offshore trading entity. The latter captures the spread between the contractual price and the actual market price within a low-tax jurisdiction, thereby depriving the host state of the corresponding taxable profit." },
+  { q:"What does 'treaty shopping' refer to in the context of international tax planning?", multi:false,
+    options:["A state's aggressive renegotiation of its bilateral tax treaty network","The interposition of an entity resident in a treaty partner state to access reduced withholding tax rates on outbound payments","The secondary-market purchase of tax credits generated under treaty provisions","The cross-country comparison of corporate income tax rates to guide investment location decisions"],
+    correct:[1],
+    feedback:"Treaty shopping involves the deliberate interposition of an entity in a jurisdiction that has concluded a favorable bilateral tax treaty with the source state, in order to benefit from reduced withholding tax rates on dividends, interest, and royalties. Such conduit entities typically lack genuine economic substance in the treaty partner state." },
+  { q:"Under which circumstances can withholding taxes serve as an effective fiscal backstop for the host state?", multi:true,
+    options:["When the applicable treaty rate is sufficiently high to offset base erosion","When they apply to outbound payments that the enterprise cannot legally avoid","When the local subsidiary is operating at a loss","When the group benefits from a favorable advance tax ruling in its state of residence"],
+    correct:[0,1],
+    feedback:"Withholding taxes function as an effective fiscal safeguard when their rate is meaningful and when they are levied on financial flows — interest, royalties, and dividends — that the enterprise cannot structurally avoid. Their efficacy is substantially diminished, however, by bilateral tax treaties that cap applicable rates and by treaty shopping arrangements." },
+  { q:"Which of the following sectors are particularly exposed to BEPS practices in developing countries?", multi:true,
+    options:["Mining and extractive industries","Telecommunications","Subsistence agriculture","Oil and gas industries","Local artisanal production"],
+    correct:[0,1,3],
+    feedback:"Extractive industries — mining, oil, and gas — and telecommunications are acutely vulnerable to BEPS because they concentrate high-value intangible and tangible assets and generate significant cross-border financial flows in countries that frequently exhibit limited tax administration capacity, creating substantial opportunities for profit shifting." },
+  { q:"Which characteristics typically define a tax haven used in BEPS arrangements?", multi:true,
+    options:["Zero or near-zero corporate income tax rates","Weak or absent requirements for the automatic exchange of tax information","Elevated value-added tax rates","Absence of withholding taxes on outbound financial flows","Corporate income tax rates exceeding the OECD average"],
+    correct:[0,1,3],
+    feedback:"Tax havens are characterized by very low or zero taxation on corporate profits, opacity regarding the beneficial ownership of assets and legal entities, and the absence of withholding taxes on outbound payments. These three features combined render such jurisdictions attractive conduits for profit-shifting arrangements." },
+  { q:"Which characteristics distinguish a thin capitalization arrangement from standard arm's length external borrowing?", multi:true,
+    options:["The lender is a related entity belonging to the same consolidated corporate group","The interest rate may be set above prevailing market conditions to maximize deductible charges","The loan is necessarily denominated in a foreign currency","Repayment of principal is guaranteed by the host state","The loan instrument is systematically registered in a tax haven"],
+    correct:[0,1],
+    feedback:"In a thin capitalization arrangement, the lender is a related entity within the same corporate group, which enables the parties to negotiate interest rates above arm's length market levels. A standard external bank loan, by contrast, is governed by market-rate terms determined through negotiations with an independent counterparty." },
+  { q:"The arm's length principle (BEPS Actions 8–10) is designed to:", multi:true,
+    options:["Align taxable profits with actual value creation within each group entity","Correct abusive transfer prices by restoring market-equivalent pricing","Eliminate all bilateral tax treaties between OECD member states","Impose a minimum corporate income tax rate of 20 percent across all OECD jurisdictions"],
+    correct:[0,1],
+    feedback:"Actions 8–10 of the BEPS Action Plan are designed to align the allocation of taxable profits with genuine value creation and to correct abusive transfer prices by restoring arm's length market equivalence. They neither eliminate bilateral tax treaties nor impose a minimum corporate income tax rate." },
+  { q:"What are the principal obstacles to the effective implementation of anti-BEPS rules in developing countries?", multi:true,
+    options:["Insufficient numbers of qualified staff within revenue administrations","Inadequate access to information on the ownership structures and financial flows of multinational groups","A complete absence of tax treaty relationships with advanced economies","Asymmetric bargaining power in negotiations with multinational enterprises","A prohibition on developing country participation in the BEPS Inclusive Framework"],
+    correct:[0,1,3],
+    feedback:"The three principal impediments are the deficit of technical capacity within revenue administrations, insufficient transparency regarding the structures and financial flows of multinational groups, and the asymmetric negotiating leverage between low-income states and multinational enterprises. Developing countries are not excluded from the BEPS Inclusive Framework." },
+  { q:"What is an advance tax ruling as used in certain BEPS arrangements?", multi:false,
+    options:["A court decision annulling a tax reassessment issued by a revenue authority","A binding agreement between a tax administration and an enterprise fixing the tax treatment of a specified transaction in advance","An accounting standard permitting the deferral of profit recognition","A value-added tax refund mechanism available to exporting enterprises"],
+    correct:[1],
+    feedback:"An advance tax ruling — commonly referred to as a 'tax ruling' — is a binding agreement concluded in advance between an enterprise and a national tax authority, specifying the tax treatment applicable to a designated transaction or structure. Certain rulings issued by low-tax jurisdictions have been used to guarantee near-zero effective taxation on intra-group financial income." },
+  { q:"Which of the following organizations are members of the Platform for Collaboration on Tax, dedicated to supporting developing countries?", multi:true,
+    options:["The International Monetary Fund (IMF)","The OECD","The World Bank Group","The World Trade Organization (WTO)","The World Food Programme (WFP)"],
+    correct:[0,1,2],
+    feedback:"The Platform for Collaboration on Tax brings together the IMF, the OECD, the UN, and the World Bank Group to coordinate technical assistance and capacity-building support to developing countries in the areas of tax policy and tax administration. The WTO and WFP are not members of this platform." },
+  { q:"Which of the following instruments constitute recognized countermeasures against thin capitalization?", multi:true,
+    options:["A rule capping the deductibility of net interest expense at a fixed percentage of EBITDA","A rule imposing a maximum debt-to-equity ratio beyond which interest charges are no longer deductible","A blanket exemption of intra-group dividends from corporate income tax","The introduction of a minimum tax levied on gross revenues"],
+    correct:[0,1],
+    feedback:"Two internationally recognized countermeasures exist: the fixed-ratio rule limiting the deductibility of net interest to a percentage of EBITDA — as recommended by BEPS Action 4 — and the thin capitalization rule, which caps the debt-to-equity ratio eligible for interest deductibility. Both instruments constrain the artificial inflation of deductible financial charges." },
+  { q:"No single countermeasure is sufficient to neutralize all BEPS strategies simultaneously. Which of the following statements support this conclusion?", multi:true,
+    options:["Multinational groups can deploy multiple optimization strategies in combination","A rule targeting transfer pricing does not protect against thin capitalization","Certain corrective countermeasures can restore revenues in excess of the baseline scenario","Anti-BEPS rules produce identical outcomes across all jurisdictions, irrespective of administrative capacity"],
+    correct:[0,1,2],
+    feedback:"BEPS arrangements frequently combine multiple mechanisms, rendering any single countermeasure insufficient in isolation. Furthermore, certain corrective rules — notably the thin capitalization rule — can, under specific configurations, restore tax revenues exceeding the baseline level. The effectiveness of anti-BEPS measures varies substantially with the administrative capacity and institutional context of each jurisdiction." },
+  { q:"Which of the following capabilities are indispensable for a revenue administration seeking to detect and challenge an abusive transfer pricing arrangement?", multi:true,
+    options:["Access to comparable data on prices established between independent enterprises","The ability to analyze the consolidated financial statements of the multinational group","The existence of a double taxation convention with every relevant treaty partner","Mastery of the transfer pricing methods recognized under the OECD Guidelines","A statutory corporate income tax rate exceeding 25 percent"],
+    correct:[0,1,3],
+    feedback:"Detecting an abusive transfer price requires access to comparable uncontrolled price data, the analytical capacity to examine consolidated group accounts in order to identify intra-group financial flows, and proficiency in the OECD-recognized transfer pricing methods — the comparable uncontrolled price method, the cost-plus method, the resale price method, and transactional profit methods." }
+];
+
+let quizState = { current:0, score:0, selected:[], validated:false };
+
+function startQuiz() {
+  quizState = { current:0, score:0, selected:[], validated:false };
+  document.getElementById('quizScreen').style.display = 'flex';
+  renderQuizQuestion();
+}
+
+function closeQuiz() {
+  document.getElementById('quizScreen').style.display = 'none';
+}
+
+function renderQuizQuestion() {
+  const q = QUIZ[quizState.current];
+  const idx = quizState.current;
+  const total = QUIZ.length;
+  const pct = (idx / total * 100).toFixed(0);
+  const letters = ['a','b','c','d','e'];
+  const optionsHtml = q.options.map((opt, i) => `
+    <button class="quiz-option" id="qopt-${i}" onclick="toggleOption(${i})">
+      <span class="quiz-option-letter">${letters[i]})</span>
+      <span>${opt}</span>
+    </button>`).join('');
+  document.getElementById('quizInner').innerHTML = `
+    <div class="quiz-card">
+      <div class="quiz-topbar">
+        <span class="quiz-progress-label">Question ${idx+1} / ${total}</span>
+        <div class="quiz-progress-track"><div class="quiz-progress-fill" style="width:${pct}%"></div></div>
+        <span class="quiz-score-badge">${quizState.score} pt${quizState.score !== 1 ? 's' : ''}</span>
+      </div>
+      ${q.multi ? '<span class="quiz-multi-hint">Multiple answers may apply</span>' : ''}
+      <div class="quiz-question">${q.q}</div>
+      <div class="quiz-options">${optionsHtml}</div>
+      <div class="quiz-feedback" id="quizFeedback"></div>
+      <button class="quiz-validate-btn" id="quizValidateBtn" onclick="validateQuiz()" disabled>Submit Answer</button>
+    </div>`;
+  quizState.selected = [];
+  quizState.validated = false;
+}
+
+function toggleOption(i) {
+  if (quizState.validated) return;
+  const q = QUIZ[quizState.current];
+  const btn = document.getElementById('qopt-' + i);
+  if (!q.multi) {
+    quizState.selected = [i];
+    document.querySelectorAll('.quiz-option').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+  } else {
+    const pos = quizState.selected.indexOf(i);
+    if (pos === -1) { quizState.selected.push(i); btn.classList.add('selected'); }
+    else { quizState.selected.splice(pos, 1); btn.classList.remove('selected'); }
+  }
+  document.getElementById('quizValidateBtn').disabled = quizState.selected.length === 0;
+}
+
+function validateQuiz() {
+  if (quizState.validated) return;
+  quizState.validated = true;
+  const q = QUIZ[quizState.current];
+  const selected = quizState.selected;
+  const correct = q.correct;
+  const isFullyCorrect = selected.length === correct.length && correct.every(c => selected.includes(c));
+  const isPartial = !isFullyCorrect && correct.some(c => selected.includes(c)) && !selected.some(s => !correct.includes(s));
+  if (isFullyCorrect) quizState.score++;
+  document.querySelectorAll('.quiz-option').forEach((btn, i) => {
+    btn.classList.add('locked');
+    if (correct.includes(i) && selected.includes(i)) btn.classList.add('correct');
+    else if (!correct.includes(i) && selected.includes(i)) btn.classList.add('wrong');
+    else if (correct.includes(i) && !selected.includes(i)) btn.classList.add('missed');
+  });
+  const fb = document.getElementById('quizFeedback');
+  fb.style.display = 'block';
+  let fbClass, fbTitle;
+  if (isFullyCorrect) { fbClass = 'correct-fb'; fbTitle = '✓ Correct'; }
+  else if (isPartial) { fbClass = 'partial-fb'; fbTitle = '◐ Partially correct'; }
+  else { fbClass = 'wrong-fb'; fbTitle = '✗ Incorrect'; }
+  fb.className = 'quiz-feedback ' + fbClass;
+  fb.innerHTML = `<div class="quiz-feedback-title">${fbTitle}</div>${q.feedback}`;
+  const btn = document.getElementById('quizValidateBtn');
+  const isLast = quizState.current === QUIZ.length - 1;
+  btn.className = 'quiz-next-btn';
+  btn.disabled = false;
+  btn.textContent = isLast ? 'View Results →' : 'Next Question →';
+  btn.onclick = isLast ? showQuizResults : nextQuizQuestion;
+}
+
+function nextQuizQuestion() {
+  quizState.current++;
+  renderQuizQuestion();
+}
+
+function showQuizResults() {
+  const score = quizState.score;
+  const total = QUIZ.length;
+  const pct = Math.round(score / total * 100);
+  let msg;
+  if (pct >= 85) msg = "Outstanding command of BEPS mechanisms and international tax policy. Excellent work.";
+  else if (pct >= 65) msg = "Solid overall understanding. A few mechanisms warrant additional review.";
+  else if (pct >= 45) msg = "A sound foundation, though several core concepts remain to be consolidated.";
+  else msg = "An additional simulation session will help reinforce your understanding of the key mechanisms.";
+  document.getElementById('quizInner').innerHTML = `
+    <div class="quiz-result-card">
+      <div class="quiz-result-score">${score}<span style="font-size:32px;color:rgba(255,255,255,0.25)">/${total}</span></div>
+      <div class="quiz-result-label">${pct}% correct responses</div>
+      <div class="quiz-result-msg">${msg}</div>
+      <div class="quiz-result-btns">
+        <button class="btn-restart" onclick="startQuiz()">↺ Retake Quiz</button>
+        <button class="btn-return" onclick="closeQuiz()">Return to Simulation →</button>
+      </div>
+    </div>`;
+}
+</script>
+</body>
+</html>
