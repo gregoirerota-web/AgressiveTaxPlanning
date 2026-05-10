@@ -1720,7 +1720,227 @@ input[type="range"]::-webkit-slider-thumb {
 .data-chart-card, .data-table-card, .analysis-card {
   transition: opacity 0.15s ease;
 }
+
+/* ── Reference vs Current bandeau ── */
+.ref-vs-cur {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Source Code Pro', monospace;
+  font-size: 10.5px;
+  color: var(--muted);
+  background: var(--paper2);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 4px 10px;
+  margin: 4px 0 8px;
+  line-height: 1.4;
+}
+.ref-vs-cur strong {
+  font-weight: 700;
+  color: var(--ink);
+}
+.ref-vs-cur strong:last-child {
+  color: var(--blue);
+}
+.rvc-cur {
+  font-weight: 700;
+  color: var(--red);
+}
+
 .rr-value { transition: all 0.25s ease; }
+
+/* ══════════════════════════════════════════
+   IV. GLOSSARY
+══════════════════════════════════════════ */
+.gloss-wrap {
+  width: 100%; padding: 40px 48px 80px;
+  overflow-y: auto; background: var(--navy);
+  min-height: 100%;
+  font-family: 'DM Sans', sans-serif;
+}
+.gloss-header {
+  max-width: 820px; margin: 0 auto 0;
+  border-top: 1px solid rgba(255,255,255,0.15);
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+  padding: 24px 0 18px;
+  margin-bottom: 28px;
+}
+.gloss-eyebrow {
+  font-size: 8pt; font-weight: 600;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 8px;
+}
+.gloss-h1 {
+  font-family: 'Noto Serif', serif;
+  font-size: 20pt; font-weight: 700;
+  line-height: 1.2; color: white; margin-bottom: 10px;
+}
+.gloss-h1 em { color: var(--gold2); font-style: italic; }
+.gloss-meta-bar {
+  font-size: 8pt; color: rgba(255,255,255,0.32);
+  display: flex; gap: 16px; flex-wrap: wrap;
+}
+.gloss-meta-bar span::before { content:'·'; margin-right:5px; color:rgba(255,255,255,0.12); }
+.gloss-meta-bar span:first-child::before { content:''; margin:0; }
+.gloss-intro-p {
+  max-width: 820px; margin: 0 auto 24px;
+  font-family: 'Noto Serif', serif;
+  font-size: 11pt; line-height: 1.75;
+  color: rgba(255,255,255,0.55);
+  text-align: justify; hyphens: auto;
+}
+.gloss-controls {
+  max-width: 820px; margin: 0 auto 12px;
+  display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+}
+.gloss-search-inp {
+  flex: 1; min-width: 220px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 3px;
+  padding: 9px 14px 9px 36px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px; color: white; outline: none;
+  transition: border-color 0.2s;
+}
+.gloss-search-inp::placeholder { color: rgba(255,255,255,0.28); }
+.gloss-search-inp:focus { border-color: rgba(200,153,42,0.5); }
+.gloss-search-wrap { position: relative; flex:1; }
+.gloss-search-icon {
+  position: absolute; left:11px; top:50%; transform:translateY(-50%);
+  color:rgba(255,255,255,0.28); font-size:13px; pointer-events:none;
+}
+.gloss-lang-pills {
+  display: flex; gap: 2px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 3px; padding: 2px;
+}
+.gloss-lang-pill {
+  font-family:'DM Sans',sans-serif; font-size:10px; font-weight:700;
+  letter-spacing:0.1em; text-transform:uppercase;
+  padding:4px 12px; border:none; cursor:pointer; border-radius:2px;
+  transition:all 0.15s;
+}
+.gloss-lang-pill.active { background:var(--gold); color:var(--navy); }
+.gloss-lang-pill:not(.active) { background:transparent; color:rgba(255,255,255,0.38); }
+.gloss-lang-pill:not(.active):hover { color:rgba(255,255,255,0.7); }
+.gloss-count-line {
+  max-width: 820px; margin: 0 auto 16px;
+  font-family: 'Source Code Pro', monospace;
+  font-size: 10px; color: rgba(255,255,255,0.25);
+  letter-spacing: 0.05em; text-align: right;
+}
+.gloss-legend {
+  max-width: 820px; margin: 0 auto 20px;
+  display: flex; gap: 16px; flex-wrap: wrap;
+}
+.gloss-leg-item {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 9px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+}
+.gloss-leg-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.gloss-alpha-nav {
+  max-width: 820px; margin: 0 auto 20px;
+  display: flex; flex-wrap: wrap; gap: 4px;
+}
+.gloss-alpha-btn {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 10px; font-weight: 600;
+  width: 26px; height: 26px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: transparent; color: rgba(255,255,255,0.22);
+  cursor: default; border-radius: 2px;
+  display: flex; align-items: center; justify-content: center;
+  text-transform: uppercase; transition: all 0.15s;
+}
+.gloss-alpha-btn.has { color: rgba(255,255,255,0.5); border-color:rgba(255,255,255,0.18); cursor:pointer; }
+.gloss-alpha-btn.has:hover { border-color:var(--gold); color:var(--gold); }
+.gloss-body { max-width: 820px; margin: 0 auto; }
+.gloss-letter-group { margin-bottom: 2px; }
+.gloss-letter-head {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 9pt; font-weight: 700;
+  letter-spacing: 0.12em; color: var(--gold);
+  padding: 14px 0 7px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  margin-bottom: 2px;
+  display: flex; align-items: center; gap: 10px;
+}
+.gloss-letter-head::after { content:''; flex:1; height:1px; background:rgba(255,255,255,0.04); }
+.gloss-entry { border-bottom: 1px solid rgba(255,255,255,0.05); overflow: hidden; }
+.gloss-entry:last-child { border-bottom: none; }
+.gloss-trigger {
+  width:100%; text-align:left; background:transparent; border:none;
+  padding: 13px 0; cursor:pointer;
+  display:flex; align-items:center; gap:10px;
+  transition: opacity 0.15s;
+}
+.gloss-trigger:hover { opacity: 0.82; }
+.gloss-tag { flex-shrink:0; width:6px; height:6px; border-radius:50%; }
+.gtag-gen  { background: rgba(255,255,255,0.28); }
+.gtag-mec  { background: var(--red); }
+.gtag-cor  { background: var(--green2); }
+.gtag-acc  { background: #6b7280; }
+.gloss-term {
+  font-family: 'Noto Serif', serif;
+  font-size: 12pt; font-weight: 600; color: white;
+  flex: 1; text-align: left;
+}
+.gloss-alt {
+  font-family: 'DM Sans', sans-serif; font-size: 9pt;
+  color: rgba(255,255,255,0.28); font-style: italic;
+  flex-shrink:0; white-space:nowrap;
+}
+.gloss-chev {
+  font-size: 10px; color: rgba(255,255,255,0.22);
+  flex-shrink:0; transition: transform 0.25s ease;
+}
+.gloss-entry.open .gloss-chev { transform: rotate(180deg); }
+.gloss-body-inner { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+.gloss-entry.open .gloss-body-inner { max-height: 1000px; }
+.gloss-content {
+  padding: 4px 16px 20px;
+  border-left: 2px solid rgba(255,255,255,0.06);
+  margin-left: 8px; margin-bottom: 2px;
+}
+.gloss-entry.gmec .gloss-content { border-left-color: rgba(192,57,43,0.35); }
+.gloss-entry.gcor .gloss-content { border-left-color: rgba(34,160,90,0.4); }
+.gloss-entry.gacc .gloss-content { border-left-color: rgba(107,114,128,0.35); }
+.gloss-def {
+  font-family: 'Noto Serif', serif;
+  font-size: 11pt; line-height: 1.78;
+  color: rgba(255,255,255,0.62);
+  margin-bottom: 14px; text-align:justify; hyphens:auto;
+}
+.gloss-def strong { color: rgba(255,255,255,0.88); }
+.gloss-def em { color: var(--gold2); font-style:italic; }
+.gloss-refs { border-top:1px solid rgba(255,255,255,0.06); padding-top:9px; }
+.gloss-ref-label {
+  font-size: 8pt; font-weight:600;
+  letter-spacing:0.10em; text-transform:uppercase;
+  color: rgba(255,255,255,0.2); margin-bottom:5px;
+}
+.gloss-refs p {
+  font-family:'DM Sans',sans-serif; font-size:9.5pt; line-height:1.6;
+  color: rgba(255,255,255,0.28);
+  padding-left:1.6em; text-indent:-1.6em; margin-bottom:4px;
+}
+.gloss-refs p em { font-style:italic; }
+.gloss-nores {
+  font-family:'Noto Serif',serif; font-size:13pt;
+  color:rgba(255,255,255,0.22); text-align:center;
+  padding:60px 0; font-style:italic;
+}
+.gloss-footer {
+  max-width:820px; margin:48px auto 0; padding-top:16px;
+  border-top:1px solid rgba(255,255,255,0.06);
+  font-size:8pt; color:rgba(255,255,255,0.2);
+  display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px;
+}
 
 </style>
 </head>
@@ -1822,12 +2042,21 @@ input[type="range"]::-webkit-slider-thumb {
       <button class="topbar-tab active" id="tab1" onclick="switchPhase(1)">I. Exploration</button>
       <button class="topbar-tab" id="tab2" onclick="switchPhase(2)">II. Simulation</button>
       <button class="topbar-tab" id="tab3" onclick="switchPhase(3)">III. Comparison</button>
+      <button class="topbar-tab" id="tab4" onclick="switchPhase(4)">IV. Glossary</button>
     </nav>
     <button onclick="startQuiz()" style="margin-left:16px;background:transparent;border:1px solid var(--gold);color:var(--gold);padding:6px 16px;border-radius:2px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all 0.2s;white-space:nowrap" onmouseover="this.style.background='rgba(200,153,42,0.1)'" onmouseout="this.style.background='transparent'">✦ Self-Assessment</button>
   </header>
 
   <div class="app-body">
     <nav class="sidebar" id="sidebar">
+      <div class="sidebar-group">
+        <div class="sidebar-group-header">Introduction</div>
+        <button class="scenario-link active" id="sln-intro" onclick="showIntroPage()">
+          <span class="s-dot" style="background:var(--navy)"></span>
+          Overview
+          <span class="s-badge" style="background:rgba(10,22,40,0.10);color:var(--navy)">INTRO</span>
+        </button>
+      </div>
       <div class="sidebar-group">
         <div class="sidebar-group-header">Reference</div>
         <button class="scenario-link active" id="sln-0" onclick="showScenario(0)">
@@ -2449,17 +2678,20 @@ let changedParams = new Set();
 function startApp() {
   document.getElementById('introScreen').style.display = 'none';
   document.getElementById('mainApp').classList.remove('hidden');
-  showScenario(0);
+  showIntroPage();
 }
 
 function switchPhase(p) {
   currentPhase = p;
-  ['tab1','tab2','tab3'].forEach((id,i) => {
-    document.getElementById(id).classList.toggle('active', i+1 === p);
+  ['tab1','tab2','tab3','tab4'].forEach((id,i) => {
+    const el = document.getElementById(id); if(el) el.classList.toggle('active', i+1 === p);
   });
+  const sidebar = document.getElementById('sidebar');
+  if (sidebar) sidebar.style.display = (p === 4) ? 'none' : '';
   if (p === 1) showScenario(currentScenario);
   else if (p === 2) renderSim();
-  else renderComparison();
+  else if (p === 3) renderComparison();
+  else renderGlossary();
 }
 
 function switchSimMode(mode) {
@@ -2470,6 +2702,156 @@ function switchSimMode(mode) {
 // ═══════════════════════════════════════
 // PHASE 1
 // ═══════════════════════════════════════
+
+function showIntroPage() {
+  document.querySelectorAll('.scenario-link').forEach(el =>
+    el.classList.remove('active','active-red','active-green'));
+  const lnk = document.getElementById('sln-intro');
+  if (lnk) lnk.classList.add('active');
+
+  document.getElementById('mainContent').innerHTML = `
+<div class="slide-in" style="padding:32px 40px 72px;max-width:900px">
+
+  <div class="policy-header" style="margin-bottom:26px">
+    <div class="policy-meta">
+      <span class="policy-doc-ref" style="font-family:'Source Code Pro',monospace;font-size:10px;letter-spacing:.1em;color:var(--muted)">Phase I · Exploration · Introduction</span>
+    </div>
+    <h1 style="font-family:'Noto Serif',serif;font-size:22px;font-weight:700;color:var(--ink);margin:8px 0 6px">The Profit Shifting Mechanism</h1>
+    <p style="font-size:13px;color:var(--muted);line-height:1.65;max-width:660px">Before exploring the scenarios, here is a schematic representation of financial flows within a multinational structure with aggressive tax planning. No specific instrument is named here — the general dynamic is illustrated.</p>
+  </div>
+
+  <!-- Legend -->
+  <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:18px">
+    <div style="display:flex;align-items:center;gap:7px;font-size:11px;font-weight:600;color:var(--ink2)">
+      <div style="width:26px;height:2px;background:var(--blue);border-radius:1px"></div>Without optimisation
+    </div>
+    <div style="display:flex;align-items:center;gap:7px;font-size:11px;font-weight:600;color:var(--ink2)">
+      <div style="width:26px;height:2px;background:var(--red);border-radius:1px"></div>With tax optimisation
+    </div>
+    <div style="display:flex;align-items:center;gap:7px;font-size:11px;font-weight:600;color:var(--ink2)">
+      <div style="width:26px;height:2px;background:var(--gold);border-radius:1px"></div>Profit shifting flows
+    </div>
+  </div>
+
+  <!-- Diagram -->
+  <div style="background:var(--white);border:1px solid var(--border);border-radius:3px;padding:20px 16px;margin-bottom:22px">
+    <svg viewBox="0 0 820 380" xmlns="http://www.w3.org/2000/svg" width="100%" style="display:block">
+      <defs>
+        <style>
+          @keyframes fl{to{stroke-dashoffset:-18}}
+          @keyframes fp{0%,100%{opacity:.55}50%{opacity:1}}
+          .fl{stroke-dasharray:6 4;animation:fl 1.4s linear infinite}
+          .fl2{stroke-dasharray:7 5;animation:fl 2.2s linear infinite}
+          .fp{animation:fp 2.4s ease-in-out infinite}
+        </style>
+        <marker id="mab" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#1a56a0" stroke-width="1.5" stroke-linejoin="round"/>
+        </marker>
+        <marker id="mar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#c0392b" stroke-width="1.5" stroke-linejoin="round"/>
+        </marker>
+        <marker id="mag" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#c8992a" stroke-width="1.5" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- Host State -->
+      <rect x="30" y="130" width="148" height="72" rx="3" fill="white" stroke="#d0ccc4" stroke-width="0.8"/>
+      <rect x="30" y="130" width="148" height="5" rx="2" fill="#1a7a4a"/>
+      <rect x="30" y="133" width="148" height="2" fill="#1a7a4a"/>
+      <text x="104" y="158" text-anchor="middle" font-family="Noto Serif,serif" font-size="12" font-weight="700" fill="#1a1a2e">Host State</text>
+      <text x="104" y="174" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="10" fill="#6b7280">Tax Authority</text>
+      <text x="104" y="192" text-anchor="middle" font-family="Source Code Pro,monospace" font-size="10" fill="#1a7a4a" font-weight="600">Tax revenues</text>
+
+      <!-- Mining Company -->
+      <rect x="330" y="140" width="160" height="78" rx="3" fill="#fff8f8" stroke="#c0392b" stroke-width="1.2"/>
+      <rect x="330" y="140" width="160" height="5" rx="2" fill="#c0392b"/>
+      <rect x="330" y="143" width="160" height="2" fill="#c0392b"/>
+      <text x="410" y="168" text-anchor="middle" font-family="Noto Serif,serif" font-size="12" font-weight="700" fill="#1a1a2e">Mining Company</text>
+      <text x="410" y="184" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="10" fill="#6b7280">Host country · Revenue $300M</text>
+      <text x="410" y="202" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="10" fill="#c0392b" font-weight="600">Eroded tax base</text>
+
+      <!-- Offshore Entities -->
+      <rect x="620" y="70" width="162" height="76" rx="3" fill="#fffbf0" stroke="#c8992a" stroke-width="1.2"/>
+      <rect x="620" y="70" width="162" height="5" rx="2" fill="#c8992a"/>
+      <rect x="620" y="73" width="162" height="2" fill="#c8992a"/>
+      <text x="701" y="97" text-anchor="middle" font-family="Noto Serif,serif" font-size="12" font-weight="700" fill="#1a1a2e">Offshore Entities</text>
+      <text x="701" y="112" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="10" fill="#6b7280">Low-tax jurisdictions</text>
+      <text x="701" y="128" text-anchor="middle" font-family="Source Code Pro,monospace" font-size="10" fill="#c8992a" font-weight="600">CIT ≈ 0 %</text>
+
+      <!-- Shareholder -->
+      <rect x="330" y="285" width="160" height="72" rx="3" fill="white" stroke="#1a56a0" stroke-width="1"/>
+      <rect x="330" y="285" width="160" height="5" rx="2" fill="#1a56a0"/>
+      <rect x="330" y="288" width="160" height="2" fill="#1a56a0"/>
+      <text x="410" y="313" text-anchor="middle" font-family="Noto Serif,serif" font-size="12" font-weight="700" fill="#1a1a2e">Shareholder</text>
+      <text x="410" y="329" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="10" fill="#6b7280">Multinational group</text>
+      <text x="410" y="345" text-anchor="middle" font-family="Source Code Pro,monospace" font-size="10" fill="#1a56a0" font-weight="600">Maximised return</text>
+
+      <!-- Without optimisation (blue dashed) -->
+      <path d="M330 168 Q240 155 180 162" fill="none" stroke="#1a56a0" stroke-width="1.2" stroke-dasharray="5 3.5" marker-end="url(#mab)" opacity="0.45"/>
+      <text x="252" y="147" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="9" fill="#1a56a0" opacity="0.7">CIT + royalty</text>
+      <text x="252" y="158" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="9" fill="#1a56a0" opacity="0.7">(full base)</text>
+      <path d="M388 218 Q382 248 385 283" fill="none" stroke="#1a56a0" stroke-width="1.2" stroke-dasharray="5 3.5" marker-end="url(#mab)" opacity="0.45"/>
+      <text x="362" y="254" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="9" fill="#1a56a0" opacity="0.7">Dividend</text>
+      <text x="362" y="265" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="9" fill="#1a56a0" opacity="0.7">full</text>
+
+      <!-- With optimisation (red animated) -->
+      <path class="fp" d="M330 175 Q215 180 180 180" fill="none" stroke="#c0392b" stroke-width="1.8" marker-end="url(#mar)"/>
+      <text x="248" y="198" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="9.5" fill="#c0392b" font-weight="600">CIT reduced</text>
+      <text x="248" y="209" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="9" fill="#c0392b">(eroded base)</text>
+      <path class="fp" d="M432 218 Q438 252 435 283" fill="none" stroke="#c0392b" stroke-width="1.8" marker-end="url(#mar)"/>
+      <text x="456" y="254" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="9.5" fill="#c0392b" font-weight="600">Dividend</text>
+      <text x="456" y="265" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="9" fill="#c0392b">reduced</text>
+
+      <!-- Profit shifting flows (gold animated) -->
+      <path class="fl" d="M490 172 Q555 145 618 118" fill="none" stroke="#c8992a" stroke-width="2" marker-end="url(#mag)"/>
+      <text x="552" y="138" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="10" fill="#c8992a" font-weight="700">Intra-group flows</text>
+      <text x="552" y="150" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="9" fill="#c8992a">Shifted profits</text>
+      <path class="fl2" d="M680 146 Q640 220 500 305" fill="none" stroke="#c8992a" stroke-width="1.6" marker-end="url(#mag)"/>
+      <text x="617" y="248" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="9" fill="#c8992a" font-weight="600">Repatriation</text>
+      <text x="617" y="259" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="9" fill="#c8992a">of profits</text>
+
+      <!-- Comparison tables -->
+      <rect x="32" y="212" width="144" height="50" rx="2" fill="white" stroke="#e5e7eb" stroke-width="0.8"/>
+      <line x1="32" y1="228" x2="176" y2="228" stroke="#e5e7eb" stroke-width="0.6"/>
+      <text x="42" y="224" font-family="DM Sans,sans-serif" font-size="9" fill="#6b7280">No optimisation</text>
+      <text x="168" y="224" text-anchor="end" font-family="Source Code Pro,monospace" font-size="10" font-weight="700" fill="#1a7a4a">$30M</text>
+      <text x="42" y="247" font-family="DM Sans,sans-serif" font-size="9" fill="#c0392b">With optimisation</text>
+      <text x="168" y="247" text-anchor="end" font-family="Source Code Pro,monospace" font-size="10" font-weight="700" fill="#c0392b">&#8595;&#8595; &lt; $30M</text>
+      <rect x="622" y="156" width="158" height="30" rx="2" fill="white" stroke="#e5e7eb" stroke-width="0.8"/>
+      <text x="634" y="174" font-family="DM Sans,sans-serif" font-size="9" fill="#6b7280">CIT captured offshore</text>
+      <text x="772" y="174" text-anchor="end" font-family="Source Code Pro,monospace" font-size="10" font-weight="700" fill="#c8992a">&#8776; $0M</text>
+    </svg>
+  </div>
+
+  <!-- Three concept cards -->
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:26px">
+    <div style="background:var(--white);border:1px solid var(--border);border-top:3px solid var(--red);padding:16px">
+      <div style="font-family:'DM Sans',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--red);margin-bottom:8px">Tax base</div>
+      <div style="font-family:'Noto Serif',serif;font-size:12px;line-height:1.65;color:var(--ink2)">Artificially reduced by inflated deductible intra-group charges, without corresponding value creation in the host state.</div>
+    </div>
+    <div style="background:var(--white);border:1px solid var(--border);border-top:3px solid var(--gold);padding:16px">
+      <div style="font-family:'DM Sans',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:8px">Shifted profits</div>
+      <div style="font-family:'Noto Serif',serif;font-size:12px;line-height:1.65;color:var(--ink2)">Captured in jurisdictions with low or zero taxation, beyond the reach of the local tax authority, through intra-group flows.</div>
+    </div>
+    <div style="background:var(--white);border:1px solid var(--border);border-top:3px solid var(--blue);padding:16px">
+      <div style="font-family:'DM Sans',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--blue);margin-bottom:8px">Shareholder return</div>
+      <div style="font-family:'Noto Serif',serif;font-size:12px;line-height:1.65;color:var(--ink2)">Maximised at the expense of host state revenues — a zero-sum game between public revenues and private profit.</div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div style="background:var(--navy);border-radius:3px;padding:26px 32px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap">
+    <div>
+      <div style="font-family:'Noto Serif',serif;font-size:14px;font-weight:600;color:white;margin-bottom:5px">Explore the pre-built scenarios</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.45)">9 scenarios — from aggressive tax strategy to regulatory countermeasure</div>
+    </div>
+    <button onclick="showScenario(0)" style="background:var(--gold);color:var(--navy);border:none;padding:11px 28px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;border-radius:2px;white-space:nowrap" onmouseover="this.style.background='var(--gold2)'" onmouseout="this.style.background='var(--gold)'">Explore →</button>
+  </div>
+
+</div>`;
+}
+
 function showScenario(idx) {
   currentScenario = idx;
   // sidebar active
@@ -2478,6 +2860,7 @@ function showScenario(idx) {
     if (!el) return;
     el.className = 'scenario-link' + (i === idx ? (SCENARIOS[i].type === 'ref' ? ' active' : SCENARIOS[i].type === 'agg' ? ' active-red' : ' active-green') : '');
   });
+  const _il = document.getElementById('sln-intro'); if(_il) _il.className = 'scenario-link';
   if (currentPhase !== 1) { switchPhase(1); return; }
 
   const s = SCENARIOS[idx];
@@ -2646,7 +3029,7 @@ function showScenario(idx) {
           Financial charges ↔ Debt
         </span>
       </div>
-      <div class="entities-grid">${entitiesHtml}</div>
+      <div class="entities-grid" style="${s.entities.length === 1 ? 'max-width:480px' : ''}">${entitiesHtml}</div>
       ${buildBalanceSheet(s)}
       ${flowHtml}
       ${theoryHtml}
@@ -2857,6 +3240,7 @@ function renderSim() {
       </div>
 
     </div>`;
+  setTimeout(() => { if(document.querySelector('[data-rvc]')) patchSimResults(); }, 0);
 }
 
 function renderCeoControls(res) {
@@ -2878,12 +3262,12 @@ function renderCeoControls(res) {
         </div>
         ${simState.ptOn ? `
         <div class="ctrl-group" style="margin-top:8px">
-          <div data-param="tpMarkup" class="ctrl-label ${changedParams.has('tpMarkup') ? 'changed' : ''}">Equipment invoice value <span class="ctrl-val ${changedParams.has('tpMarkup') ? 'changed' : ''}">$${simState.tpMarkup}M</span>${changedParams.has('tpMarkup') ? '<span class="ctrl-changed-badge">modified</span>' : ''}</div>
+          <div data-param="tpMarkup" class="ctrl-label ${changedParams.has('tpMarkup') ? 'changed' : ''}">Equipment invoice value${changedParams.has('tpMarkup') ? '<span class="ctrl-changed-badge">modified</span>' : ''}</div><div class="ref-vs-cur" data-rvc="tpMarkup">Reference&nbsp;: <strong>$200M</strong>&emsp;→&emsp;Current&nbsp;: <span class="rvc-cur"></span></div>
           <input type="range" min="200" max="600" step="10" value="${simState.tpMarkup}" oninput="updSim('tpMarkup',this.value)" class="${changedParams.has('tpMarkup') ? 'changed' : ''}">
           <div class="range-limits"><span>$200M (fair)</span><span>$600M</span></div>
         </div>
         <div class="ctrl-group">
-          <div data-param="interestRate" class="ctrl-label ${changedParams.has('interestRate') ? 'changed' : ''}">Intra-group interest rate <span class="ctrl-val ${changedParams.has('interestRate') ? 'changed' : ''}">${simState.interestRate}%</span>${changedParams.has('interestRate') ? '<span class="ctrl-changed-badge">modified</span>' : ''}</div>
+          <div data-param="interestRate" class="ctrl-label ${changedParams.has('interestRate') ? 'changed' : ''}">Intra-group interest rate${changedParams.has('interestRate') ? '<span class="ctrl-changed-badge">modified</span>' : ''}</div><div class="ref-vs-cur" data-rvc="interestRate">Reference&nbsp;: <strong>10%</strong>&emsp;→&emsp;Current&nbsp;: <span class="rvc-cur"></span></div>
           <input type="range" min="1" max="20" step="0.5" value="${simState.interestRate}" oninput="updSim('interestRate',this.value)" class="${changedParams.has('interestRate') ? 'changed' : ''}">
           <div class="range-limits"><span>1%</span><span>20%</span></div>
         </div>` : ''}
@@ -2902,12 +3286,12 @@ function renderCeoControls(res) {
         </div>
         ${simState.scOn ? `
         <div class="ctrl-group" style="margin-top:8px">
-          <div data-param="debtLevel" class="ctrl-label ${changedParams.has('debtLevel') ? 'changed' : ''}">Intra-group debt level <span class="ctrl-val ${changedParams.has('debtLevel') ? 'changed' : ''}">$${simState.debtLevel}M</span>${changedParams.has('debtLevel') ? '<span class="ctrl-changed-badge">modified</span>' : ''}</div>
+          <div data-param="debtLevel" class="ctrl-label ${changedParams.has('debtLevel') ? 'changed' : ''}">Intra-group debt level${changedParams.has('debtLevel') ? '<span class="ctrl-changed-badge">modified</span>' : ''}</div><div class="ref-vs-cur" data-rvc="debtLevel">Reference&nbsp;: <strong>$499M</strong>&emsp;→&emsp;Current&nbsp;: <span class="rvc-cur"></span></div>
           <input type="range" min="100" max="900" step="10" value="${simState.debtLevel}" oninput="updSim('debtLevel',this.value)" class="${changedParams.has('debtLevel') ? 'changed' : ''}">
           <div class="range-limits"><span>$100M</span><span>$900M</span></div>
         </div>
         <div class="ctrl-group">
-          <div data-param="interestRate" class="ctrl-label ${changedParams.has('interestRate') ? 'changed' : ''}">Intra-group interest rate <span class="ctrl-val ${changedParams.has('interestRate') ? 'changed' : ''}">${simState.interestRate}%</span>${changedParams.has('interestRate') ? '<span class="ctrl-changed-badge">modified</span>' : ''}</div>
+          <div data-param="interestRate" class="ctrl-label ${changedParams.has('interestRate') ? 'changed' : ''}">Intra-group interest rate${changedParams.has('interestRate') ? '<span class="ctrl-changed-badge">modified</span>' : ''}</div><div class="ref-vs-cur" data-rvc="interestRate">Reference&nbsp;: <strong>10%</strong>&emsp;→&emsp;Current&nbsp;: <span class="rvc-cur"></span></div>
           <input type="range" min="1" max="20" step="0.5" value="${simState.interestRate}" oninput="updSim('interestRate',this.value)" class="${changedParams.has('interestRate') ? 'changed' : ''}">
           <div class="range-limits"><span>1%</span><span>20%</span></div>
         </div>` : ''}
@@ -2926,7 +3310,7 @@ function renderCeoControls(res) {
         </div>
         ${simState.hedgeOn ? `
         <div class="ctrl-group" style="margin-top:8px">
-          <div data-param="hedgeDiscount" class="ctrl-label ${changedParams.has('hedgeDiscount') ? 'changed' : ''}">Below-market price discount <span class="ctrl-val ${changedParams.has('hedgeDiscount') ? 'changed' : ''}">${simState.hedgeDiscount}%</span>${changedParams.has('hedgeDiscount') ? '<span class="ctrl-changed-badge">modified</span>' : ''}</div>
+          <div data-param="hedgeDiscount" class="ctrl-label ${changedParams.has('hedgeDiscount') ? 'changed' : ''}">Below-market price discount${changedParams.has('hedgeDiscount') ? '<span class="ctrl-changed-badge">modified</span>' : ''}</div><div class="ref-vs-cur" data-rvc="hedgeDiscount">Reference&nbsp;: <strong>50%</strong>&emsp;→&emsp;Current&nbsp;: <span class="rvc-cur"></span></div>
           <input type="range" min="10" max="70" step="5" value="${simState.hedgeDiscount}" oninput="updSim('hedgeDiscount',this.value)" class="${changedParams.has('hedgeDiscount') ? 'changed' : ''}">
           <div class="range-limits"><span>10%</span><span>70%</span></div>
         </div>` : ''}
@@ -2951,12 +3335,12 @@ function renderMinisterControls(res) {
       <div style="background:var(--paper2);padding:14px;margin-bottom:12px;border-left:3px solid var(--green)">
         <div style="font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:12px">Fiscal Parameters</div>
         <div class="ctrl-group">
-          <div data-param="minCitRate" class="ctrl-label ${changedParams.has('minCitRate') ? 'changed' : ''}">Corporate Income Tax Rate <span class="ctrl-val ${changedParams.has('minCitRate') ? 'changed' : ''}">${simState.minCitRate}%</span>${changedParams.has('minCitRate') ? '<span class="ctrl-changed-badge">modified</span>' : ''}</div>
+          <div data-param="minCitRate" class="ctrl-label ${changedParams.has('minCitRate') ? 'changed' : ''}">Corporate Income Tax Rate${changedParams.has('minCitRate') ? '<span class="ctrl-changed-badge">modified</span>' : ''}</div><div class="ref-vs-cur" data-rvc="minCitRate">Reference&nbsp;: <strong>20%</strong>&emsp;→&emsp;Current&nbsp;: <span class="rvc-cur"></span></div>
           <input type="range" min="5" max="40" step="1" value="${simState.minCitRate}" oninput="updSim('minCitRate',this.value)" class="${changedParams.has('minCitRate') ? 'changed' : ''}">
           <div class="range-limits"><span>5%</span><span>40%</span></div>
         </div>
         <div class="ctrl-group">
-          <div data-param="minRoyaltyRate" class="ctrl-label ${changedParams.has('minRoyaltyRate') ? 'changed' : ''}">Mining Royalty Rate <span class="ctrl-val ${changedParams.has('minRoyaltyRate') ? 'changed' : ''}">${simState.minRoyaltyRate}%</span>${changedParams.has('minRoyaltyRate') ? '<span class="ctrl-changed-badge">modified</span>' : ''}</div>
+          <div data-param="minRoyaltyRate" class="ctrl-label ${changedParams.has('minRoyaltyRate') ? 'changed' : ''}">Mining Royalty Rate${changedParams.has('minRoyaltyRate') ? '<span class="ctrl-changed-badge">modified</span>' : ''}</div><div class="ref-vs-cur" data-rvc="minRoyaltyRate">Reference&nbsp;: <strong>5%</strong>&emsp;→&emsp;Current&nbsp;: <span class="rvc-cur"></span></div>
           <input type="range" min="1" max="20" step="0.5" value="${simState.minRoyaltyRate}" oninput="updSim('minRoyaltyRate',this.value)" class="${changedParams.has('minRoyaltyRate') ? 'changed' : ''}">
           <div class="range-limits"><span>1%</span><span>20%</span></div>
         </div>
@@ -2975,7 +3359,7 @@ function renderMinisterControls(res) {
         </div>
         ${simState.whtOn ? `
         <div class="ctrl-group" style="margin-top:8px">
-          <div data-param="whtRate" class="ctrl-label ${changedParams.has('whtRate') ? 'changed' : ''}">WHT rate <span class="ctrl-val ${changedParams.has('whtRate') ? 'changed' : ''}">${simState.whtRate}%</span>${changedParams.has('whtRate') ? '<span class="ctrl-changed-badge">modified</span>' : ''}</div>
+          <div data-param="whtRate" class="ctrl-label ${changedParams.has('whtRate') ? 'changed' : ''}">WHT rate${changedParams.has('whtRate') ? '<span class="ctrl-changed-badge">modified</span>' : ''}</div><div class="ref-vs-cur" data-rvc="whtRate">Reference&nbsp;: <strong>20%</strong>&emsp;→&emsp;Current&nbsp;: <span class="rvc-cur"></span></div>
           <input type="range" min="5" max="35" step="1" value="${simState.whtRate}" oninput="updSim('whtRate',this.value)" class="${changedParams.has('whtRate') ? 'changed' : ''}">
           <div class="range-limits"><span>5%</span><span>35%</span></div>
         </div>` : ''}
@@ -2994,7 +3378,7 @@ function renderMinisterControls(res) {
         </div>
         ${simState.alpOn ? `
         <div class="ctrl-group" style="margin-top:8px">
-          <div data-param="alpMarkup" class="ctrl-label ${changedParams.has('alpMarkup') ? 'changed' : ''}">ALP mark-up over market value <span class="ctrl-val ${changedParams.has('alpMarkup') ? 'changed' : ''}">${simState.alpMarkup}%</span>${changedParams.has('alpMarkup') ? '<span class="ctrl-changed-badge">modified</span>' : ''}</div>
+          <div data-param="alpMarkup" class="ctrl-label ${changedParams.has('alpMarkup') ? 'changed' : ''}">ALP mark-up over market value${changedParams.has('alpMarkup') ? '<span class="ctrl-changed-badge">modified</span>' : ''}</div><div class="ref-vs-cur" data-rvc="alpMarkup">Reference&nbsp;: <strong>10%</strong>&emsp;→&emsp;Current&nbsp;: <span class="rvc-cur"></span></div>
           <input type="range" min="0" max="30" step="1" value="${simState.alpMarkup}" oninput="updSim('alpMarkup',this.value)" class="${changedParams.has('alpMarkup') ? 'changed' : ''}">
           <div class="range-limits"><span>0%</span><span>30%</span></div>
         </div>` : ''}
@@ -3013,7 +3397,7 @@ function renderMinisterControls(res) {
         </div>
         ${simState.thinCapOn ? `
         <div class="ctrl-group" style="margin-top:8px">
-          <div data-param="thinCapRatio" class="ctrl-label ${changedParams.has('thinCapRatio') ? 'changed' : ''}">Debt/equity ratio cap <span class="ctrl-val ${changedParams.has('thinCapRatio') ? 'changed' : ''}">${simState.thinCapRatio}:1</span>${changedParams.has('thinCapRatio') ? '<span class="ctrl-changed-badge">modified</span>' : ''}</div>
+          <div data-param="thinCapRatio" class="ctrl-label ${changedParams.has('thinCapRatio') ? 'changed' : ''}">Debt/equity ratio cap${changedParams.has('thinCapRatio') ? '<span class="ctrl-changed-badge">modified</span>' : ''}</div><div class="ref-vs-cur" data-rvc="thinCapRatio">Reference&nbsp;: <strong>4:1</strong>&emsp;→&emsp;Current&nbsp;: <span class="rvc-cur"></span></div>
           <input type="range" min="1" max="10" step="0.5" value="${simState.thinCapRatio}" oninput="updSim('thinCapRatio',this.value)" class="${changedParams.has('thinCapRatio') ? 'changed' : ''}">
           <div class="range-limits"><span>1:1</span><span>10:1</span></div>
         </div>` : ''}
@@ -3032,7 +3416,7 @@ function renderMinisterControls(res) {
         </div>
         ${simState.esrOn ? `
         <div class="ctrl-group" style="margin-top:8px">
-          <div data-param="esrRate" class="ctrl-label ${changedParams.has('esrRate') ? 'changed' : ''}">Max. interest as % of EBITDA <span class="ctrl-val ${changedParams.has('esrRate') ? 'changed' : ''}">${simState.esrRate}%</span>${changedParams.has('esrRate') ? '<span class="ctrl-changed-badge">modified</span>' : ''}</div>
+          <div data-param="esrRate" class="ctrl-label ${changedParams.has('esrRate') ? 'changed' : ''}">Max. interest as % of EBITDA${changedParams.has('esrRate') ? '<span class="ctrl-changed-badge">modified</span>' : ''}</div><div class="ref-vs-cur" data-rvc="esrRate">Reference&nbsp;: <strong>30%</strong>&emsp;→&emsp;Current&nbsp;: <span class="rvc-cur"></span></div>
           <input type="range" min="10" max="50" step="1" value="${simState.esrRate}" oninput="updSim('esrRate',this.value)" class="${changedParams.has('esrRate') ? 'changed' : ''}">
           <div class="range-limits"><span>10%</span><span>50%</span></div>
         </div>` : ''}
@@ -3192,6 +3576,28 @@ function patchSimResults() {
         ${resMin.stateRevenue >= 30 ? '▲ +' : '▼ −'}${Math.abs(((resMin.stateRevenue - 30)/30)*100).toFixed(1)}% vs. baseline
       </div>`;
   }
+
+
+  // ── Update Reference → Current banners ──
+  const rvcFormats = {
+    tpMarkup:       v => '$' + v + 'M',
+    debtLevel:      v => '$' + v + 'M',
+    hedgeDiscount:  v => v + '%',
+    interestRate:   v => v + '%',
+    minCitRate:     v => v + '%',
+    minRoyaltyRate: v => v + '%',
+    whtRate:        v => v + '%',
+    alpMarkup:      v => v + '%',
+    thinCapRatio:   v => v + ':1',
+    esrRate:        v => v + '%',
+  };
+  document.querySelectorAll('[data-rvc]').forEach(el => {
+    const key = el.dataset.rvc;
+    const cur = el.querySelector('.rvc-cur');
+    if (cur && rvcFormats[key] !== undefined) {
+      cur.textContent = rvcFormats[key](simState[key]);
+    }
+  });
 
   // Update ctrl-val labels smoothly (no full re-render)
   document.querySelectorAll('[data-param]').forEach(el => {
@@ -3653,6 +4059,405 @@ function showQuizResults() {
       </div>
     </div>`;
 }
+
+// ═══════════════════════════════════════════════════════════════
+// IV. GLOSSAIRE — DONNÉES ET RENDU
+// ═══════════════════════════════════════════════════════════════
+let glossLang = 'en';
+
+const GLOSS_I18N = {
+  fr: {
+    eyebrow: 'Note pédagogique · Fiscalité internationale et développement · Partenariat UE–INTPA',
+    title: 'Glossaire des termes techniques — <em>TaxShift</em>',
+    meta: ['Fiscalité internationale','Pays partenaires INTPA','Secteur extractif','Afrique subsaharienne'],
+    intro: `Ce glossaire réunit les 42 termes techniques mobilisés dans le jeu de simulation pédagogique <em>TaxShift</em>. Il couvre trois champs complémentaires : la comptabilité et la structure financière des entités du secteur extractif, les mécanismes d'optimisation fiscale agressive (BEPS) et leurs contre-mesures réglementaires, ainsi que les concepts de politique fiscale internationale pertinents pour les pays en développement. Les références suivent le style Harvard.`,
+    placeholder: 'Rechercher un terme…',
+    leg: ['Concept général','Mécanisme BEPS','Contre-mesure','Comptabilité / Finance'],
+    refLabel: 'Références',
+    noResults: 'Aucun terme ne correspond à cette recherche.',
+    countFn: n => n + ' entr' + (n>1?'ées':'ée') + ' affichée' + (n>1?'s':''),
+    footL: 'TaxShift · CERDI – Université Clermont Auvergne · Partenariat UE–INTPA',
+    footR: '42 entrées · Références Harvard · 2024'
+  },
+  en: {
+    eyebrow: 'Teaching Note · International Taxation and Development · EU–INTPA Partnership',
+    title: 'Technical Glossary — <em>TaxShift</em>',
+    meta: ['International Taxation','INTPA Partner Countries','Extractive Sector','Sub-Saharan Africa'],
+    intro: `This glossary brings together the 42 technical terms used in the <em>TaxShift</em> pedagogical simulation. It covers three complementary fields: accounting and financial structure of extractive sector entities, mechanisms of aggressive tax planning (BEPS) and their regulatory countermeasures, and international tax policy concepts most relevant to developing countries. References follow the Harvard style.`,
+    placeholder: 'Search for a term…',
+    leg: ['General concept','BEPS mechanism','Countermeasure','Accounting / Finance'],
+    refLabel: 'References',
+    noResults: 'No term matches this search.',
+    countFn: n => n + (n>1?' entries':' entry') + ' displayed',
+    footL: 'TaxShift · CERDI – Université Clermont Auvergne · EU–INTPA Partnership',
+    footR: '42 entries · Harvard references · 2024'
+  }
+};
+
+const GLOSS_ENTRIES = [
+  { cat:'counter', fr_term:'Accord préalable en matière de prix de transfert', en_term:'Advance Pricing Agreement (APA)',
+    fr_def:`Un <strong>accord préalable en matière de prix de transfert (APA)</strong> est un accord conclu à l'avance entre une entreprise multinationale et une ou plusieurs administrations fiscales, fixant la méthode de prix de transfert applicable à des transactions intra-groupe futures pour une période déterminée. Il offre une sécurité juridique et réduit le risque de redressement. Les APA bilatéraux éliminent aussi le risque de double imposition. Leur négociation requiert une expertise élevée, souvent hors de portée des administrations des pays à faible revenu.`,
+    en_def:`An <strong>Advance Pricing Agreement (APA)</strong> is an arrangement concluded in advance between a multinational enterprise and one or more tax authorities, establishing the transfer pricing methodology for specified intra-group transactions for a defined period. It provides legal certainty and reduces adjustment risk. Bilateral APAs also eliminate double taxation risk. Their negotiation requires high expertise, often beyond low-income country administrations.`,
+    refs:['OCDE (2017). <em>Principes directeurs applicables en matière de prix de transfert.</em> Paris : Éditions OCDE. Chapitre IV, §§ 4.123–4.165.','Oguttu, A.W. (2016). Tax base erosion and profit shifting in Africa, Part 2. <em>ICTD Working Paper</em>, 54.'],
+    en_refs:['OECD (2017). <em>Transfer Pricing Guidelines for Multinational Enterprises and Tax Administrations.</em> Paris: OECD Publishing. Chapter IV, §§ 4.123–4.165.','Oguttu, A.W. (2016). Tax base erosion and profit shifting in Africa, Part 2. <em>ICTD Working Paper</em>, 54.'] },
+  { cat:'accounting', fr_term:'Actif', en_term:'Asset',
+    fr_def:`Ensemble des ressources économiques contrôlées par une entité, inscrites à gauche du bilan. Dans le jeu : <strong>actif immobilisé</strong> (équipements miniers bruts de <strong>200 $M</strong>, amortis à 10 %/an) et <strong>actif courant</strong>. Total actif = 300 $M dans le scénario de référence. La surévaluation des actifs par manipulation des prix de transfert gonfle l'amortissement déductible.`,
+    en_def:`The totality of economic resources controlled by an entity, on the left-hand side of the balance sheet. In the simulation: <strong>non-current assets</strong> (mining equipment at gross value <strong>$200M</strong>, depreciated at 10%/year) and <strong>current assets</strong>. Total assets $300M in the baseline. Overvaluing assets through transfer price manipulation inflates deductible depreciation.`,
+    refs:['Nobes, C. et Parker, R. (2016). <em>Comparative International Accounting.</em> 13e éd. Harlow : Pearson.','IASB (2018). <em>Cadre conceptuel de l\'information financière.</em> Londres : IFRS Foundation. §§ 4.3–4.26.'],
+    en_refs:['Nobes, C. and Parker, R. (2016). <em>Comparative International Accounting.</em> 13th edn. Harlow: Pearson.','IASB (2018). <em>Conceptual Framework for Financial Reporting.</em> London: IFRS Foundation. §§ 4.3–4.26.'] },
+  { cat:'accounting', fr_term:'Amortissement', en_term:'Depreciation / Amortisation',
+    fr_def:`Constatation de la dépréciation progressive d'un actif immobilisé sur sa durée d'utilisation. La <strong>dotation aux amortissements</strong> est une charge déductible réduisant l'IS. Dans le jeu : <strong>linéaire à 10 %/an</strong> sur 200 $M = <strong>20 $M/an</strong>. Surévaluation à 400 $M → 40 $M/an, érodant le bénéfice imposable. Lien bilan ↔ résultat matérialisé par le <em>code couleur violet</em>.`,
+    en_def:`The systematic recognition of the progressive decline in value of a non-current asset. The <strong>depreciation charge</strong> is a deductible expense reducing CIT. In the simulation: <strong>straight-line at 10%/year</strong> on $200M = <strong>$20M/year</strong>. Overvaluing assets at $400M → $40M/year, eroding the tax base. Balance sheet ↔ income statement link shown in <em>purple colour coding</em>.`,
+    refs:['Nobes, C. et Parker, R. (2016). <em>Comparative International Accounting.</em> 13e éd. Harlow : Pearson.','OCDE (2017). <em>Principes directeurs applicables en matière de prix de transfert.</em> Paris : Éditions OCDE. §§ 6.17–6.35.'],
+    en_refs:['Nobes, C. and Parker, R. (2016). <em>Comparative International Accounting.</em> 13th edn. Harlow: Pearson.','OECD (2017). <em>Transfer Pricing Guidelines.</em> Paris: OECD Publishing. §§ 6.17–6.35.'] },
+  { cat:'general', fr_term:`Asymétrie d'information`, en_term:'Information Asymmetry',
+    fr_def:`Situation où l'administration fiscale de l'État hôte dispose d'une information incomplète sur les structures, flux financiers et prix de transfert d'une multinationale, tandis que celle-ci maîtrise l'intégralité de ces données. Cette asymétrie est au cœur de la vulnérabilité des pays en développement face au BEPS. Le jeu la matérialise en permettant au participant d'adopter alternativement le point de vue du <strong>PDG</strong> et celui du <strong>Ministre des Finances</strong>.`,
+    en_def:`A situation where the host state's revenue authority has incomplete information on the structures, financial flows and transfer prices of a multinational enterprise, while the enterprise commands full access to this information. This asymmetry lies at the heart of developing countries' BEPS vulnerability. The simulation makes it tangible through the dual <strong>CEO / Finance Minister</strong> perspectives.`,
+    refs:['Stiglitz, J.E. (2000). <em>Economics of the Public Sector.</em> 3e éd. New York : W.W. Norton. Chapitre 11.','FMI (2014). <em>Externalités en matière de fiscalité internationale des entreprises.</em> Washington, D.C.'],
+    en_refs:['Stiglitz, J.E. (2000). <em>Economics of the Public Sector.</em> 3rd edn. New York: W.W. Norton. Chapter 11.','IMF (2014). <em>Spillovers in International Corporate Taxation.</em> Washington, D.C.'] },
+  { cat:'general', fr_term:'Attractivité fiscale', en_term:'Tax Competitiveness',
+    fr_def:`Capacité d'un État à attirer des investissements directs étrangers par une fiscalité favorable. La concurrence fiscale peut conduire à un nivellement par le bas (<em>race to the bottom</em>) des taux et bases imposables, réduisant les recettes disponibles pour le développement. Le jeu invite à évaluer le compromis entre attractivité et <strong>mobilisation des ressources domestiques</strong>.`,
+    en_def:`A state's capacity to attract FDI through favourable tax conditions. Tax competition can lead to a <em>race to the bottom</em> on rates and bases, reducing revenues available for development. The simulation invites evaluation of the trade-off between tax attractiveness and <strong>domestic resource mobilisation</strong>.`,
+    refs:['Keen, M. et Mansour, M. (2010). Revenue mobilization in Sub-Saharan Africa. <em>IMF Staff Papers</em>, 57(1), pp. 1–38.','Zodrow, G.R. et Mieszkowski, P. (1986). Pigou, Tiebout, property taxation. <em>Journal of Urban Economics</em>, 19(3), pp. 356–370.'],
+    en_refs:['Keen, M. and Mansour, M. (2010). Revenue mobilization in Sub-Saharan Africa. <em>IMF Staff Papers</em>, 57(1), pp. 1–38.','Zodrow, G.R. and Mieszkowski, P. (1986). Pigou, Tiebout, property taxation. <em>Journal of Urban Economics</em>, 19(3), pp. 356–370.'] },
+  { cat:'accounting', fr_term:'Bénéfice imposable', en_term:'Taxable Profit / Taxable Income',
+    fr_def:`Assiette sur laquelle est calculé l'IS : chiffre d'affaires moins toutes les charges fiscalement déductibles. Dans le scénario de référence : <strong>75 $M</strong> (300 − 170 − 40 − 15) → IS de 15 $M au taux de 20 %. L'optimisation fiscale agressive vise à réduire ce montant — parfois jusqu'à zéro ou en territoire négatif — par accumulation de charges déductibles intra-groupe.`,
+    en_def:`The base on which CIT is computed: revenue minus all fiscally deductible expenses. Baseline: <strong>$75M</strong> (300 − 170 − 40 − 15) → CIT $15M at 20%. Aggressive tax planning aims to reduce this — sometimes to zero or below — by accumulating deductible intra-group charges.`,
+    refs:['Devereux, M.P. et Sørensen, P.B. (2006). The corporate income tax. <em>European Economy Economic Papers</em>, 264.','FMI (2014). <em>Externalités en matière de fiscalité internationale des entreprises.</em> Washington, D.C.'],
+    en_refs:['Devereux, M.P. and Sørensen, P.B. (2006). The corporate income tax. <em>European Economy Economic Papers</em>, 264.','IMF (2014). <em>Spillovers in International Corporate Taxation.</em> Washington, D.C.'] },
+  { cat:'accounting', fr_term:'Bénéfice net', en_term:'Net Profit / Net Income',
+    fr_def:`Résultat final du compte de résultat après déduction de toutes les charges et de l'IS. Dans le scénario de référence : <strong>60 $M</strong> (75 − 15). L'optimisation fiscale agressive maximise ce bénéfice net — et le rendement de l'actionnaire — au détriment des recettes de l'État hôte, illustrant le <em>jeu à somme nulle</em> entre ces deux parties prenantes.`,
+    en_def:`The bottom line of the income statement after all charges and CIT. Baseline: <strong>$60M</strong> (75 − 15). Aggressive tax planning maximises this net profit — and shareholder returns — at the expense of host state revenues, illustrating the <em>zero-sum game</em> between these two stakeholders.`,
+    refs:['Scholes, M.S. et al. (2015). <em>Taxes and Business Strategy.</em> 5e éd. Upper Saddle River : Pearson.'],
+    en_refs:['Scholes, M.S. et al. (2015). <em>Taxes and Business Strategy.</em> 5th edn. Upper Saddle River: Pearson.'] },
+  { cat:'mechanism', fr_term:'BEPS (Base Erosion and Profit Shifting)', en_term:'BEPS — Base Erosion and Profit Shifting',
+    fr_def:`Ensemble des stratégies par lesquelles des entreprises multinationales exploitent les lacunes et asymétries des règles fiscales pour éroder la base imposable de l'État source et transférer les bénéfices vers des juridictions à faible imposition. Crivelli, De Mooij et Keen (2016) estiment que ces pratiques coûtent aux pays en développement environ <strong>1,3 % de leur PIB annuel</strong> en recettes perdues.`,
+    en_def:`The totality of strategies by which multinational enterprises exploit gaps and mismatches in tax rules to erode the source state's tax base and shift profits to low-tax jurisdictions. Crivelli, De Mooij and Keen (2016) estimate these practices cost developing countries approximately <strong>1.3% of GDP annually</strong> in lost revenues.`,
+    refs:['Crivelli, E., De Mooij, R. et Keen, M. (2016). Base erosion, profit shifting and developing countries. <em>FinanzArchiv</em>, 72(3), pp. 268–301.','OCDE (2015). <em>Plans d\'action concernant l\'érosion de la base d\'imposition et le transfert de bénéfices.</em> Paris : Éditions OCDE.'],
+    en_refs:['Crivelli, E., De Mooij, R. and Keen, M. (2016). Base erosion, profit shifting and developing countries. <em>FinanzArchiv</em>, 72(3), pp. 268–301.','OECD (2015). <em>Action Plan on Base Erosion and Profit Shifting.</em> Paris: OECD Publishing.'] },
+  { cat:'general', fr_term:'Bénéficiaire effectif', en_term:'Beneficial Owner',
+    fr_def:`Personne physique ou entité qui, en dernier ressort, possède ou contrôle réellement les revenus ou actifs faisant l'objet d'un flux financier transfrontalier. Un intermédiaire conduit ne peut invoquer les avantages d'une convention que si le bénéficiaire effectif en est résident. Son identification est un instrument clé de lutte contre le chalandage conventionnel et l'opacité offshore.`,
+    en_def:`The natural person or entity that ultimately owns or effectively controls income or assets subject to a cross-border financial flow. A conduit intermediary may not invoke treaty benefits unless the beneficial owner is a treaty-state resident. Its identification is a key instrument against treaty shopping and offshore opacity.`,
+    refs:['OCDE (2014). <em>Model Tax Convention on Income and on Capital.</em> Paris : Éditions OCDE. Commentaires art. 10, §§ 12–12.6.','Dagan, T. (2018). <em>International Tax Law.</em> Cambridge : Cambridge University Press.'],
+    en_refs:['OECD (2014). <em>Model Tax Convention on Income and on Capital.</em> Paris: OECD Publishing. Commentary art. 10, §§ 12–12.6.','Dagan, T. (2018). <em>International Tax Law.</em> Cambridge: Cambridge University Press.'] },
+  { cat:'general', fr_term:'Capacité administrative fiscale', en_term:'Tax Administration Capacity',
+    fr_def:`Aptitude d'une administration fiscale à identifier, évaluer, contrôler et recouvrer l'impôt dû : ressources humaines qualifiées, systèmes d'information, accès aux données de comparables. Dans les pays d'Afrique subsaharienne, ce déficit de capacité est l'un des principaux obstacles à la mise en œuvre efficace des règles anti-BEPS.`,
+    en_def:`The capacity of a revenue administration to identify, assess, audit and collect taxes: qualified staff, information systems, access to comparable transaction databases. In Sub-Saharan African countries, this capacity deficit is a principal obstacle to effective anti-BEPS implementation.`,
+    refs:['Keen, M. et Mansour, M. (2010). Revenue mobilization in Sub-Saharan Africa. <em>IMF Staff Papers</em>, 57(1), pp. 1–38.','Oguttu, A.W. (2016). Tax base erosion and profit shifting in Africa, Part 2. <em>ICTD Working Paper</em>, 54.'],
+    en_refs:['Keen, M. and Mansour, M. (2010). Revenue mobilization in Sub-Saharan Africa. <em>IMF Staff Papers</em>, 57(1), pp. 1–38.','Oguttu, A.W. (2016). Tax base erosion and profit shifting in Africa, Part 2. <em>ICTD Working Paper</em>, 54.'] },
+  { cat:'accounting', fr_term:'Capitaux propres', en_term:`Equity / Shareholders' Equity`,
+    fr_def:`Part du financement de l'entité apportée par les actionnaires au passif du bilan : <strong>capital libéré</strong> + <strong>bénéfices non distribués</strong>. Scénario de référence : <strong>160 $M</strong> (capital 100 $M + BND 60 $M). Dans les montages de sous-capitalisation, les capitaux propres sont réduits à <strong>1 $M</strong> pour maximiser les intérêts déductibles.`,
+    en_def:`The portion of an entity's financing contributed by shareholders, on the right-hand side of the balance sheet: <strong>paid-in capital</strong> + <strong>retained earnings</strong>. Baseline: <strong>$160M</strong> (capital $100M + retained $60M). In thin capitalisation arrangements, equity is reduced to <strong>$1M</strong> to maximise deductible interest.`,
+    refs:['Myers, S.C. (2001). Capital structure. <em>Journal of Economic Perspectives</em>, 15(2), pp. 81–102.','Beer, S. et Loeprick, J. (2015). Profit shifting. <em>Banque mondiale.</em>'],
+    en_refs:['Myers, S.C. (2001). Capital structure. <em>Journal of Economic Perspectives</em>, 15(2), pp. 81–102.','Beer, S. and Loeprick, J. (2015). Profit shifting. <em>World Bank.</em>'] },
+  { cat:'mechanism', fr_term:'Chalandage conventionnel', en_term:'Treaty Shopping',
+    fr_def:`Stratégie consistant à interposer une entité résidente dans un État signataire d'une convention fiscale avantageuse pour bénéficier de taux réduits de retenue à la source. L'entité interposée — souvent dépourvue de <strong>substance économique</strong> réelle — sert de conduit entre la filiale source et le bénéficiaire effectif. L'Action 6 du Plan BEPS recommande une clause de <em>Limitation on Benefits</em>.`,
+    en_def:`A strategy interposing an entity resident in a state with a favourable tax treaty to benefit from reduced withholding tax rates on outbound dividends, interest and royalties. The interposed entity — often lacking genuine <strong>economic substance</strong> — acts as a conduit. BEPS Action 6 recommends a Limitation on Benefits clause.`,
+    refs:['Johannesen, N., Tørsløv, T. et Wier, L. (2020). Are less developed countries more exposed to multinational tax avoidance? <em>Economic Policy</em>, 35(103), pp. 457–498.','OCDE (2015). <em>Prévenir l\'octroi inapproprié des avantages des conventions fiscales — Action 6.</em> Paris : Éditions OCDE.'],
+    en_refs:['Johannesen, N., Tørsløv, T. and Wier, L. (2020). Are less developed countries more exposed to multinational tax avoidance? <em>Economic Policy</em>, 35(103), pp. 457–498.','OECD (2015). <em>Preventing the Granting of Treaty Benefits in Inappropriate Circumstances — Action 6.</em> Paris: OECD Publishing.'] },
+  { cat:'accounting', fr_term:'Charges', en_term:'Expenses',
+    fr_def:`Appauvrissements inscrits au débit du compte de résultat. Dans le jeu : <strong>charges d'exploitation</strong> (achats 50 $M + salaires 100 $M + amortissements 20 $M), <strong>charges financières</strong> (intérêts intra-groupe, variables), <strong>redevance minière</strong> (15 $M). La déductibilité des charges est le levier central de l'optimisation fiscale agressive.`,
+    en_def:`Outflows recorded as debits in the income statement. In the simulation: <strong>operating expenses</strong> (purchases $50M + wages $100M + depreciation $20M), <strong>financial charges</strong> (intra-group interest, variable), <strong>mining royalty</strong> ($15M). The deductibility of expenses is the central lever of aggressive tax planning.`,
+    refs:['Scholes, M.S. et al. (2015). <em>Taxes and Business Strategy.</em> 5e éd. Chapitres 1–3.','OCDE (2015). <em>Lutter contre l\'érosion de la base d\'imposition et le transfert de bénéfices.</em> Paris : Éditions OCDE.'],
+    en_refs:['Scholes, M.S. et al. (2015). <em>Taxes and Business Strategy.</em> 5th edn. Chapters 1–3.','OECD (2015). <em>Addressing Base Erosion and Profit Shifting.</em> Paris: OECD Publishing.'] },
+  { cat:'accounting', fr_term:`Chiffre d'affaires`, en_term:'Revenue / Turnover',
+    fr_def:`Total des ventes réalisées par une entité au cours d'un exercice. Dans le jeu : <strong>300 $M</strong> dans tous les scénarios. La redevance minière (5 % × CA = 15 $M) y est directement assise. Exception : dans le scénario de couverture sur matières premières, le CA local est artificiellement réduit à <strong>150 $M</strong>, réduisant aussi la redevance à 7,5 $M.`,
+    en_def:`Total sales generated by an entity during an accounting period. In the simulation: <strong>$300M</strong> across all scenarios. The mining royalty (5% × revenue = $15M) is levied directly on it. Exception: in the commodity hedging scenario, locally recognised revenue is artificially reduced to <strong>$150M</strong>, halving the royalty to $7.5M.`,
+    refs:['Devereux, M.P. et Sørensen, P.B. (2006). The corporate income tax. <em>European Economy Economic Papers</em>, 264.','Readhead, A. (2016). Special rules for commodity sales. <em>NRGI.</em>'],
+    en_refs:['Devereux, M.P. and Sørensen, P.B. (2006). The corporate income tax. <em>European Economy Economic Papers</em>, 264.','Readhead, A. (2016). Special rules for commodity sales. <em>NRGI.</em>'] },
+  { cat:'counter', fr_term:'Clause anti-abus (GAAR)', en_term:'General Anti-Avoidance Rule (GAAR)',
+    fr_def:`Disposition législative générale permettant à l'administration fiscale de requalifier ou d'écarter des montages dont le but principal est l'obtention d'un avantage fiscal, indépendamment de leur conformité formelle à la loi. À la différence des règles spécifiques (<em>SAAR</em>), la GAAR est une clause-filet applicable à tout arrangement abusif non expressément prévu par le législateur.`,
+    en_def:`A general legislative provision enabling the tax authority to recharacterise or disregard arrangements whose principal purpose is obtaining a tax advantage, regardless of formal legal compliance. Unlike Specific Anti-Avoidance Rules (SAARs), the GAAR is a catch-all provision for any abusive arrangement not specifically addressed by the legislature.`,
+    refs:['Avi-Yonah, R.S. (2014). <em>Advanced Introduction to International Tax Law.</em> Cheltenham : Edward Elgar. Chapitre 8.','Lang, M. et al. (dir.) (2010). <em>Tax Treaties: Building Bridges between Law and Economics.</em> Amsterdam : IBFD.'],
+    en_refs:['Avi-Yonah, R.S. (2014). <em>Advanced Introduction to International Tax Law.</em> Cheltenham: Edward Elgar. Chapter 8.','Lang, M. et al. (eds) (2010). <em>Tax Treaties: Building Bridges between Law and Economics.</em> Amsterdam: IBFD.'] },
+  { cat:'general', fr_term:'Contrat minier et clause de stabilisation fiscale', en_term:'Mining Agreement / Fiscal Stabilisation Clause',
+    fr_def:`Convention négociée entre un État hôte et une entreprise minière fixant le régime fiscal applicable à l'exploitation d'un gisement pour une durée déterminée. La <strong>clause de stabilisation fiscale</strong> garantit que le régime fiscal ne sera pas alourdi pendant toute la durée du contrat. Si elle protège les investissements à long terme, elle peut empêcher l'État d'adopter les nouvelles normes anti-BEPS, créant un <em>verrouillage</em> coûteux.`,
+    en_def:`An agreement negotiated between a host state and a mining enterprise defining the applicable tax regime for a specified duration. A <strong>fiscal stabilisation clause</strong> guarantees the regime will not be made more onerous. While it protects long-term investment, it may prevent the state from adopting new anti-BEPS standards, creating a costly <em>lock-in</em>.`,
+    refs:['Daniel, P., Keen, M. et McPherson, C. (dir.) (2010). <em>The Taxation of Petroleum and Minerals.</em> London : Routledge.','Cotula, L. (2010). Investment contracts and sustainable development. <em>IIED Natural Resource Issues</em>, 20.'],
+    en_refs:['Daniel, P., Keen, M. and McPherson, C. (eds) (2010). <em>The Taxation of Petroleum and Minerals.</em> London: Routledge.','Cotula, L. (2010). Investment contracts and sustainable development. <em>IIED Natural Resource Issues</em>, 20.'] },
+  { cat:'general', fr_term:'Convention fiscale bilatérale', en_term:'Double Tax Treaty (DTT)',
+    fr_def:`Accord entre deux États éliminant la double imposition des revenus transfrontaliers en répartissant les droits d'imposition entre l'État source et l'État de résidence. Elle fixe les taux maximaux de retenue à la source sur dividendes, intérêts et redevances. Pour les pays en développement, ces conventions peuvent involontairement restreindre la capacité fiscale de l'État source si elles sont négociées sans analyse suffisante des enjeux BEPS.`,
+    en_def:`An agreement between two states eliminating double taxation of cross-border income by allocating taxing rights between the source and residence state. It sets maximum withholding tax rates on dividends, interest and royalties. For developing countries, these treaties can inadvertently constrain the source state's fiscal capacity if negotiated without adequate BEPS analysis.`,
+    refs:['Hearson, M. (2018). Transnational expertise and the expansion of the international tax regime. <em>Review of International Political Economy</em>, 25(5), pp. 579–604.','FMI (2014). <em>Externalités en matière de fiscalité internationale des entreprises.</em> Washington, D.C.'],
+    en_refs:['Hearson, M. (2018). Transnational expertise and the expansion of the international tax regime. <em>Review of International Political Economy</em>, 25(5), pp. 579–604.','IMF (2014). <em>Spillovers in International Corporate Taxation.</em> Washington, D.C.'] },
+  { cat:'mechanism', fr_term:`Couverture sur matières premières — Sixième méthode`, en_term:'Commodity Hedging / Sixth Method',
+    fr_def:`Mécanisme intra-groupe par lequel la filiale locale vend sa production à une centrale commerciale offshore à un prix contractuel <strong>inférieur au cours du marché</strong>. La centrale capture la marge dans une juridiction à faible imposition. La sixième méthode impose l'utilisation du <strong>cours de marché à la date d'embarquement</strong> comme prix de référence. L'affaire <em>Glencore-Mopani Copper Mines</em> (Zambie) en est l'illustration documentée la plus connue.`,
+    en_def:`An intra-group mechanism whereby the local subsidiary sells its production to an offshore trading entity at a contractual price <strong>below the prevailing market price</strong>. The trading entity captures the margin in a low-tax jurisdiction. The sixth method requires the use of the <strong>market price at date of shipment</strong> as the reference price. The <em>Glencore-Mopani Copper Mines</em> case (Zambia) is the most widely documented illustration.`,
+    refs:['Readhead, A. (2016). Special rules for commodity sales: Zambia\'s Sixth Method. <em>Natural Resource Governance Institute.</em>','OCDE (2017). <em>Principes directeurs applicables en matière de prix de transfert.</em> Paris : Éditions OCDE. §§ 2.18–2.22.'],
+    en_refs:['Readhead, A. (2016). Special rules for commodity sales: Zambia\'s Sixth Method. <em>Natural Resource Governance Institute.</em>','OECD (2017). <em>Transfer Pricing Guidelines.</em> Paris: OECD Publishing. §§ 2.18–2.22.'] },
+  { cat:'general', fr_term:`Déduction pour épuisement`, en_term:'Depletion Allowance',
+    fr_def:`Mécanisme fiscal permettant à une entreprise extractive de déduire de son bénéfice imposable une fraction représentant l'épuisement progressif du gisement, par analogie avec l'amortissement. Son calibrage est crucial : une déduction trop généreuse réduit les recettes de l'État sur le long terme ; une déduction insuffisante peut décourager l'investissement d'exploration.`,
+    en_def:`A tax mechanism allowing an extractive enterprise to deduct from taxable profit a fraction representing the progressive depletion of the deposit, by analogy with depreciation. Its calibration is crucial: an overly generous allowance reduces long-term state revenues; an insufficient one may discourage exploration investment.`,
+    refs:['Boadway, R. et Keen, M. (2010). Theoretical perspectives on resource tax design. Dans P. Daniel et al. (dir.), <em>The Taxation of Petroleum and Minerals.</em> London : Routledge. pp. 13–74.'],
+    en_refs:['Boadway, R. and Keen, M. (2010). Theoretical perspectives on resource tax design. In P. Daniel et al. (eds), <em>The Taxation of Petroleum and Minerals.</em> London: Routledge. pp. 13–74.'] },
+  { cat:'accounting', fr_term:'EBITDA', en_term:'EBITDA (Earnings Before Interest, Taxes, Depreciation and Amortisation)',
+    fr_def:`Bénéfice avant intérêts, impôts, dépréciations et amortissements. Dans le jeu, il sert de base au <strong>plafond de déductibilité des intérêts</strong> (Action 4 BEPS) : intérêts nets déductibles ≤ <strong>30 % de l'EBITDA</strong>. Scénario de référence : EBITDA = 150 $M → plafond = 45 $M.`,
+    en_def:`Earnings before interest, taxes, depreciation and amortisation. In the simulation, it is the basis for the <strong>interest deductibility cap</strong> (BEPS Action 4): net deductible interest ≤ <strong>30% of EBITDA</strong>. Baseline: EBITDA = $150M → cap = $45M.`,
+    refs:['OCDE (2016). <em>Limiting Base Erosion Involving Interest Deductions — Action 4: 2016 Update.</em> Paris : Éditions OCDE.'],
+    en_refs:['OECD (2016). <em>Limiting Base Erosion Involving Interest Deductions — Action 4: 2016 Update.</em> Paris: OECD Publishing.'] },
+  { cat:'counter', fr_term:`Échange automatique d'informations (CRS)`, en_term:'Automatic Exchange of Information (AEOI / CRS)',
+    fr_def:`Mécanisme par lequel les administrations fiscales se transmettent automatiquement des informations sur les comptes financiers détenus par leurs résidents à l'étranger. Le <strong>Common Reporting Standard (CRS)</strong>, développé par l'OCDE depuis 2014, en est le cadre de référence. Ses bénéfices restent limités pour les pays à faible revenu dépourvus des capacités techniques pour exploiter les données reçues.`,
+    en_def:`A mechanism by which tax administrations automatically exchange information on financial accounts held by their residents abroad. The <strong>Common Reporting Standard (CRS)</strong>, developed by the OECD since 2014, provides the normative framework. Its benefits remain limited for low-income countries lacking the technical capacity to exploit the data received.`,
+    refs:['OCDE (2014). <em>Standard for Automatic Exchange of Financial Account Information in Tax Matters.</em> Paris : Éditions OCDE.','Johannesen, N. et Zucman, G. (2014). The end of bank secrecy? <em>American Economic Journal: Economic Policy</em>, 6(1), pp. 65–91.'],
+    en_refs:['OECD (2014). <em>Standard for Automatic Exchange of Financial Account Information in Tax Matters.</em> Paris: OECD Publishing.','Johannesen, N. and Zucman, G. (2014). The end of bank secrecy? <em>American Economic Journal: Economic Policy</em>, 6(1), pp. 65–91.'] },
+  { cat:'mechanism', fr_term:'Entité conduit', en_term:'Conduit Entity',
+    fr_def:`Entité interposée dans une structure de groupe dont le rôle se limite à faire transiter des flux financiers vers une juridiction à faible imposition, sans exercer d'activité économique substantielle propre. L'absence de <strong>substance économique</strong> — pas de personnel, pas de locaux, pas de décisions de gestion autonomes — est le critère principal permettant de la requalifier comme abusive.`,
+    en_def:`An entity interposed within a group structure whose role is limited to channelling financial flows to a low-tax jurisdiction, without exercising genuine economic activity of its own. The absence of <strong>economic substance</strong> — no employees, no premises, no autonomous management decisions — is the principal criterion for recharacterising it as abusive.`,
+    refs:['Avi-Yonah, R.S. et Panayi, C. (2010). Rethinking treaty shopping. Dans M. Lang et al. (dir.), <em>Tax Treaties.</em> Amsterdam : IBFD. pp. 21–57.','OCDE (2015). <em>Prévenir l\'octroi inapproprié des avantages des conventions fiscales — Action 6.</em> Paris : Éditions OCDE.'],
+    en_refs:['Avi-Yonah, R.S. and Panayi, C. (2010). Rethinking treaty shopping. In M. Lang et al. (eds), <em>Tax Treaties.</em> Amsterdam: IBFD. pp. 21–57.','OECD (2015). <em>Preventing the Granting of Treaty Benefits in Inappropriate Circumstances — Action 6.</em> Paris: OECD Publishing.'] },
+  { cat:'mechanism', fr_term:`Érosion de la base imposable`, en_term:'Tax Base Erosion',
+    fr_def:`Réduction artificielle du bénéfice soumis à l'impôt dans l'État hôte, obtenue par des charges déductibles gonflées — intérêts intra-groupe, redevances, prix de transfert manipulés — qui diminuent le résultat fiscal local sans refléter une création de valeur réelle. Premier volet du phénomène BEPS.`,
+    en_def:`The artificial reduction of profit subject to tax in the host state, achieved through inflated deductible charges — intra-group interest, royalties, manipulated transfer prices — reducing the local taxable result without reflecting genuine value creation. The first dimension of the BEPS phenomenon.`,
+    refs:['OCDE (2015). <em>Lutter contre l\'érosion de la base d\'imposition et le transfert de bénéfices.</em> Paris : Éditions OCDE.'],
+    en_refs:['OECD (2015). <em>Addressing Base Erosion and Profit Shifting.</em> Paris: OECD Publishing.'] },
+  { cat:'general', fr_term:`Établissement stable`, en_term:'Permanent Establishment (PE)',
+    fr_def:`Notion juridique désignant une présence commerciale fixe et suffisamment substantielle d'une entreprise non résidente pour que l'État puisse exercer son droit d'imposition sur les bénéfices qui y sont générés. L'absence d'établissement stable prive l'État hôte de tout droit d'imposition sur les revenus transitant par l'entité. L'<strong>Action 7</strong> du Plan BEPS vise à élargir la définition pour contrer les montages d'évitement artificiels.`,
+    en_def:`A legal concept designating a fixed, sufficiently substantial commercial presence of a non-resident enterprise enabling a state to exercise its taxing right over profits generated there. The absence of a PE deprives the host state of any taxing right over income flowing through the entity. <strong>BEPS Action 7</strong> aims to broaden the definition to counter artificial avoidance.`,
+    refs:['OCDE (2015). <em>Empêcher les mesures visant à éviter artificiellement le statut d\'établissement stable — Action 7.</em> Paris : Éditions OCDE.','Kobetsky, M. (2011). <em>International Taxation of Permanent Establishments.</em> Cambridge : Cambridge University Press.'],
+    en_refs:['OECD (2015). <em>Preventing the Artificial Avoidance of Permanent Establishment Status — Action 7.</em> Paris: OECD Publishing.','Kobetsky, M. (2011). <em>International Taxation of Permanent Establishments.</em> Cambridge: Cambridge University Press.'] },
+  { cat:'general', fr_term:'Fiscalité des ressources naturelles', en_term:'Resource Taxation',
+    fr_def:`Ensemble des instruments fiscaux et para-fiscaux appliqués à l'exploitation des ressources naturelles non renouvelables : IS, redevances ad valorem, taxes sur les profits exceptionnels (<em>resource rent tax</em>), bonus de signature, participation étatique au capital. Concevoir ce régime est l'un des défis les plus complexes de la politique fiscale dans les pays en développement.`,
+    en_def:`The totality of fiscal and para-fiscal instruments applied to non-renewable natural resource exploitation: CIT, ad valorem royalties, resource rent taxes, signature bonuses, state equity participation. Designing such a regime is one of the most complex challenges of fiscal policy in developing countries.`,
+    refs:['Boadway, R. et Keen, M. (2010). Theoretical perspectives on resource tax design. Dans P. Daniel et al. (dir.), <em>The Taxation of Petroleum and Minerals.</em> London : Routledge. pp. 13–74.'],
+    en_refs:['Boadway, R. and Keen, M. (2010). Theoretical perspectives on resource tax design. In P. Daniel et al. (eds), <em>The Taxation of Petroleum and Minerals.</em> London: Routledge. pp. 13–74.'] },
+  { cat:'counter', fr_term:`Impôt minimum mondial — Pilier 2`, en_term:'Global Minimum Tax — Pillar Two',
+    fr_def:`Réforme fiscale internationale (Cadre inclusif BEPS OCDE/G20) garantissant qu'une multinationale réalisant plus de 750 M€ de CA consolidé acquitte un <strong>taux effectif minimal de 15 %</strong> dans chaque juridiction. Repose sur la règle d'inclusion du revenu (<em>IIR</em>) et la règle des bénéfices insuffisamment imposés (<em>UTPR</em>). Pour les pays en développement exportateurs de ressources, le Pilier 2 représente à la fois une opportunité et un risque.`,
+    en_def:`An international tax reform (OECD/G20 Inclusive Framework) ensuring multinationals with consolidated revenues above €750M pay a <strong>minimum effective tax rate of 15%</strong> in each jurisdiction. It relies on the Income Inclusion Rule (IIR) and the Undertaxed Profits Rule (UTPR). For resource-exporting developing countries, Pillar Two represents both an opportunity and a risk.`,
+    refs:['OCDE (2021). <em>Global Anti-Base Erosion Model Rules (Pillar Two).</em> Paris : Éditions OCDE.','Mansour, M. et Hebous, S. (2023). Global minimum tax and low-income countries. <em>IMF Working Paper</em>, WP/23/112.'],
+    en_refs:['OECD (2021). <em>Global Anti-Base Erosion Model Rules (Pillar Two).</em> Paris: OECD Publishing.','Mansour, M. and Hebous, S. (2023). Global minimum tax and low-income countries. <em>IMF Working Paper</em>, WP/23/112.'] },
+  { cat:'general', fr_term:`Impôt sur les sociétés (IS)`, en_term:'Corporate Income Tax (CIT)',
+    fr_def:`Prélèvement fiscal assis sur le bénéfice net des entités légales résidentes ou des établissements stables. Dans le jeu : taux de <strong>20 %</strong> dans le scénario de référence → 15 $M d'IS sur un bénéfice imposable de 75 $M. L'optimisation réduit la base sans modifier le taux affiché — d'où l'importance de distinguer <strong>taux nominal</strong> et <strong>taux effectif</strong>.`,
+    en_def:`A tax levied on the net profit of resident legal entities or permanent establishments. In the simulation: rate of <strong>20%</strong> in the baseline → $15M CIT on taxable profit of $75M. Optimisation reduces the base without changing the headline rate — hence the importance of distinguishing <strong>statutory rate</strong> from <strong>effective rate</strong>.`,
+    refs:['Cobham, A. et Janský, P. (2018). Global distribution of revenue loss from corporate tax avoidance. <em>Journal of International Development</em>, 30(2), pp. 206–232.'],
+    en_refs:['Cobham, A. and Janský, P. (2018). Global distribution of revenue loss from corporate tax avoidance. <em>Journal of International Development</em>, 30(2), pp. 206–232.'] },
+  { cat:'general', fr_term:'Incidence fiscale', en_term:'Tax Incidence',
+    fr_def:`Analyse de la répartition effective de la charge fiscale entre les différents agents économiques — entreprises, actionnaires, salariés, consommateurs, État hôte — indépendamment de la désignation légale du redevable. Dans le contexte du jeu, l'incidence des stratégies BEPS dépasse la perte de recettes de l'État : elle se répercute sur les services publics et les populations locales.`,
+    en_def:`Analysis of the effective distribution of the tax burden among economic agents — firms, shareholders, employees, consumers, host state — regardless of the legal designation of the taxpayer. In the simulation's context, the incidence of BEPS strategies extends beyond the host state's revenue loss: it cascades onto public services and local populations.`,
+    refs:['Harberger, A.C. (1962). The incidence of the corporation income tax. <em>Journal of Political Economy</em>, 70(3), pp. 215–240.','Suárez Serrato, J.C. et Zidar, O. (2016). Who benefits from state corporate tax cuts? <em>American Economic Review</em>, 106(9), pp. 2582–2624.'],
+    en_refs:['Harberger, A.C. (1962). The incidence of the corporation income tax. <em>Journal of Political Economy</em>, 70(3), pp. 215–240.','Suárez Serrato, J.C. and Zidar, O. (2016). Who benefits from state corporate tax cuts? <em>American Economic Review</em>, 106(9), pp. 2582–2624.'] },
+  { cat:'general', fr_term:`Indice d'érosion BEPS`, en_term:'BEPS Erosion Index',
+    fr_def:`Indicateur synthétique du jeu TaxShift mesurant l'intensité de l'optimisation fiscale dans chaque scénario. Il rapporte la perte de recettes fiscales de l'État hôte à la situation de référence. Un indice élevé traduit une érosion sévère de la base imposable. <em>Indicateur pédagogique propre au jeu TaxShift, fondé sur la méthodologie de Cobham et Janský (2018).</em>`,
+    en_def:`A synthetic indicator in TaxShift measuring the intensity of tax optimisation in each scenario. It relates the host state's tax revenue loss to the baseline. A high index reflects severe tax base erosion. <em>A pedagogical indicator specific to TaxShift, based on the methodology of Cobham and Janský (2018).</em>`,
+    refs:['Cobham, A. et Janský, P. (2018). Global distribution of revenue loss from corporate tax avoidance. <em>Journal of International Development</em>, 30(2), pp. 206–232.'],
+    en_refs:['Cobham, A. and Janský, P. (2018). Global distribution of revenue loss from corporate tax avoidance. <em>Journal of International Development</em>, 30(2), pp. 206–232.'] },
+  { cat:'general', fr_term:'Mobilisation des ressources domestiques', en_term:'Domestic Resource Mobilisation (DRM)',
+    fr_def:`Capacité d'un État à collecter des recettes fiscales sur son territoire pour financer ses dépenses publiques et son développement sans recourir à l'aide extérieure ou à l'endettement. L'optimisation fiscale agressive des multinationales dans le secteur extractif est l'un des principaux obstacles à la DRM dans les pays à faible revenu.`,
+    en_def:`A state's capacity to collect tax revenues on its territory to finance public expenditure and development without resorting to external aid or borrowing. Aggressive tax planning by multinational enterprises in the extractive sector is one of the principal obstacles to DRM in low-income countries.`,
+    refs:['Cobham, A. et Janský, P. (2018). Global distribution of revenue loss from corporate tax avoidance. <em>Journal of International Development</em>, 30(2), pp. 206–232.','FMI, OCDE, ONU et Banque mondiale (2016). <em>Platform for Collaboration on Tax.</em> Washington, D.C.'],
+    en_refs:['Cobham, A. and Janský, P. (2018). Global distribution of revenue loss from corporate tax avoidance. <em>Journal of International Development</em>, 30(2), pp. 206–232.','IMF, OECD, UN and World Bank (2016). <em>Platform for Collaboration on Tax.</em> Washington, D.C.'] },
+  { cat:'mechanism', fr_term:'Paradis fiscal', en_term:'Tax Haven',
+    fr_def:`Juridiction caractérisée par une fiscalité nulle ou très faible sur les sociétés, une faiblesse des obligations d'échange d'informations fiscales, et l'absence de retenues à la source sur les flux sortants. Ces trois caractéristiques combinées en font des destinations privilégiées pour les montages d'optimisation, notamment dans les industries extractives.`,
+    en_def:`A jurisdiction characterised by zero or very low corporate taxation, weak tax information exchange obligations, and the absence of withholding taxes on outbound flows. These three combined characteristics make such jurisdictions prime destinations for tax optimisation, particularly in the extractive industries.`,
+    refs:['Cobham, A. et Janský, P. (2018). Global distribution of revenue loss from corporate tax avoidance. <em>Journal of International Development</em>, 30(2), pp. 206–232.','Zucman, G. (2015). <em>The Hidden Wealth of Nations.</em> Chicago : University of Chicago Press.'],
+    en_refs:['Cobham, A. and Janský, P. (2018). Global distribution of revenue loss from corporate tax avoidance. <em>Journal of International Development</em>, 30(2), pp. 206–232.','Zucman, G. (2015). <em>The Hidden Wealth of Nations.</em> Chicago: University of Chicago Press.'] },
+  { cat:'accounting', fr_term:'Passif', en_term:'Liabilities',
+    fr_def:`Ensemble des obligations actuelles de l'entité envers des tiers, inscrites à droite du bilan. Dans le jeu : <strong>capitaux propres</strong>, <strong>dettes financières à long terme</strong> (100 $M dans le scénario de référence, jusqu'à <strong>499 $M</strong> en sous-capitalisation extrême) et <strong>passifs courants</strong>. En substituant des dettes intra-groupe aux fonds propres, le groupe transforme des dividendes non déductibles en intérêts déductibles.`,
+    en_def:`The totality of an entity's present obligations to third parties, on the right-hand side of the balance sheet. In the simulation: <strong>shareholders' equity</strong>, <strong>long-term financial debt</strong> ($100M baseline, up to <strong>$499M</strong> in extreme thin capitalisation), and <strong>current liabilities</strong>. By substituting intra-group debt for equity, the group converts non-deductible dividends into deductible interest.`,
+    refs:['Myers, S.C. (2001). Capital structure. <em>Journal of Economic Perspectives</em>, 15(2), pp. 81–102.','FMI (2014). <em>Externalités en matière de fiscalité internationale des entreprises.</em> Washington, D.C.'],
+    en_refs:['Myers, S.C. (2001). Capital structure. <em>Journal of Economic Perspectives</em>, 15(2), pp. 81–102.','IMF (2014). <em>Spillovers in International Corporate Taxation.</em> Washington, D.C.'] },
+  { cat:'counter', fr_term:`Plan d'action BEPS de l'OCDE`, en_term:"OECD BEPS Action Plan",
+    fr_def:`Ensemble de 15 actions publiées par l'OCDE en 2015, visant à réformer les règles fiscales internationales pour lutter contre l'érosion de la base imposable et le transfert de bénéfices. Le jeu illustre principalement l'<strong>Action 4</strong> (plafonnement des intérêts), l'<strong>Action 6</strong> (prévention du chalandage conventionnel), les <strong>Actions 8–10</strong> (alignement des prix de transfert sur la création de valeur) et l'<strong>Action 7</strong> (établissement stable).`,
+    en_def:`A set of 15 actions published by the OECD in 2015, designed to reform international tax rules to address BEPS. The simulation primarily illustrates <strong>Action 4</strong> (interest limitation), <strong>Action 6</strong> (prevention of treaty shopping), <strong>Actions 8–10</strong> (aligning transfer pricing with value creation), and <strong>Action 7</strong> (permanent establishment).`,
+    refs:['OCDE (2015). <em>Plans d\'action concernant l\'érosion de la base d\'imposition et le transfert de bénéfices.</em> Paris : Éditions OCDE.'],
+    en_refs:['OECD (2015). <em>Action Plan on Base Erosion and Profit Shifting.</em> Paris: OECD Publishing.'] },
+  { cat:'mechanism', fr_term:'Planification fiscale agressive', en_term:'Aggressive Tax Planning',
+    fr_def:`Exploitation des lacunes, asymétries et ambiguïtés des législations fiscales et des conventions bilatérales pour réduire l'impôt dû en deçà de ce que le législateur avait prévu, sans nécessairement enfreindre la loi. Elle se distingue de la <strong>fraude fiscale</strong> (illégale) et de l'<strong>optimisation courante</strong> (légale et non abusive).`,
+    en_def:`The exploitation of gaps, mismatches and ambiguities in national tax laws and bilateral conventions to reduce tax liabilities below the level intended by the legislature, without necessarily breaking the law. It is distinct from <strong>tax fraud</strong> (illegal) and <strong>routine tax planning</strong> (legal and non-abusive).`,
+    refs:['FMI (2014). <em>Externalités en matière de fiscalité internationale des entreprises.</em> Washington, D.C.','Avi-Yonah, R.S. (2014). <em>Advanced Introduction to International Tax Law.</em> Cheltenham : Edward Elgar.'],
+    en_refs:['IMF (2014). <em>Spillovers in International Corporate Taxation.</em> Washington, D.C.','Avi-Yonah, R.S. (2014). <em>Advanced Introduction to International Tax Law.</em> Cheltenham: Edward Elgar.'] },
+  { cat:'counter', fr_term:'Principe de pleine concurrence', en_term:"Arm's Length Principle (ALP)",
+    fr_def:`Norme internationale exigeant que les transactions intra-groupe soient valorisées comme si elles étaient réalisées entre parties indépendantes dans des conditions comparables. Il sous-tend l'article 9 du Modèle de convention fiscale de l'OCDE et les Actions 8–10 du Plan BEPS. Son application est particulièrement difficile pour les administrations des pays à faible revenu, faute d'accès à des bases de données de transactions comparables.`,
+    en_def:`The international standard requiring intra-group transactions to be priced as if carried out between independent parties under comparable conditions. It underpins Article 9 of the OECD Model Tax Convention and BEPS Actions 8–10. Its application is particularly challenging for low-income country administrations lacking access to comparable transaction databases.`,
+    refs:['OCDE (2017). <em>Principes directeurs applicables en matière de prix de transfert.</em> Paris : Éditions OCDE. §§ 1.33–1.57.','Oguttu, A.W. (2016). Tax base erosion and profit shifting in Africa, Part 2. <em>ICTD Working Paper</em>, 54.'],
+    en_refs:['OECD (2017). <em>Transfer Pricing Guidelines.</em> Paris: OECD Publishing. §§ 1.33–1.57.','Oguttu, A.W. (2016). Tax base erosion and profit shifting in Africa, Part 2. <em>ICTD Working Paper</em>, 54.'] },
+  { cat:'mechanism', fr_term:'Prix de transfert', en_term:'Transfer Pricing',
+    fr_def:`Prix auxquels des entités d'un même groupe multinational se facturent mutuellement des biens, services ou actifs incorporels. Lorsque ces prix s'écartent des conditions de marché, ils permettent de déplacer artificiellement des bénéfices vers des juridictions à faible imposition. La manipulation des prix de transfert est le mécanisme BEPS le plus répandu dans le secteur extractif africain.`,
+    en_def:`The prices at which entities of the same multinational group charge one another for goods, services or intangible assets. When these prices deviate from market conditions, they enable the artificial shifting of profits to low-tax jurisdictions. Transfer price manipulation is the most widespread BEPS mechanism in the African extractive sector.`,
+    refs:['OCDE (2017). <em>Principes directeurs applicables en matière de prix de transfert à l\'intention des entreprises multinationales et des administrations fiscales.</em> Paris : Éditions OCDE.','Beer, S. et Loeprick, J. (2015). Profit shifting. <em>Banque mondiale.</em>'],
+    en_refs:['OECD (2017). <em>Transfer Pricing Guidelines for Multinational Enterprises and Tax Administrations.</em> Paris: OECD Publishing.','Beer, S. and Loeprick, J. (2015). Profit shifting. <em>World Bank.</em>'] },
+  { cat:'accounting', fr_term:'Produits', en_term:'Revenue / Income (Accounting)',
+    fr_def:`Enrichissements de l'entité inscrits au crédit du compte de résultat. Dans le jeu, le <strong>chiffre d'affaires</strong> de la société minière s'élève à <strong>300 $M</strong> dans tous les scénarios. Dans le scénario de couverture, le produit local est artificiellement réduit à 150 $M. Pour l'entité offshore (Île Maurice), les produits correspondent aux <strong>marges capturées</strong> entre le prix intra-groupe et le prix de marché (149 $M).`,
+    en_def:`Inflows recorded as credits in the income statement. In the simulation, the mining company's <strong>turnover</strong> amounts to <strong>$300M</strong> across all scenarios. In the hedging scenario, locally recognised income is artificially reduced to $150M. For the offshore entity (Mauritius), income corresponds to the <strong>margin captured</strong> between the intra-group price and market price ($149M).`,
+    refs:['Devereux, M.P. et Sørensen, P.B. (2006). The corporate income tax. <em>European Economy Economic Papers</em>, 264.','Readhead, A. (2016). Special rules for commodity sales. <em>NRGI.</em>'],
+    en_refs:['Devereux, M.P. and Sørensen, P.B. (2006). The corporate income tax. <em>European Economy Economic Papers</em>, 264.','Readhead, A. (2016). Special rules for commodity sales. <em>NRGI.</em>'] },
+  { cat:'accounting', fr_term:'Ratio dettes/fonds propres', en_term:'Debt-to-Equity Ratio',
+    fr_def:`Rapport entre les dettes financières et les capitaux propres d'une entité. Indicateur standard de détection de la <strong>sous-capitalisation</strong>. Dans le scénario extrême du jeu : <strong>499:1</strong>. La règle de sous-capitalisation plafonne ce ratio à un niveau légalement admissible (4:1 dans le scénario correctif).`,
+    en_def:`The ratio of financial debt to shareholders' equity. The standard diagnostic indicator for <strong>thin capitalisation</strong>. In the simulation's extreme scenario: <strong>499:1</strong>. The thin capitalisation rule caps this ratio at a legally permissible level (4:1 in the corrective scenario).`,
+    refs:['FMI (2014). <em>Externalités en matière de fiscalité internationale des entreprises.</em> Washington, D.C.'],
+    en_refs:['IMF (2014). <em>Spillovers in International Corporate Taxation.</em> Washington, D.C.'] },
+  { cat:'mechanism', fr_term:'Redevance', en_term:'Royalty',
+    fr_def:`Paiement versé en contrepartie de l'utilisation d'actifs incorporels — brevets, marques, savoir-faire, droits d'exploitation. Dans les montages BEPS, la localisation des droits de propriété intellectuelle dans une juridiction à faible imposition permet de transférer des bénéfices via des flux de redevances déductibles dans l'État source.`,
+    en_def:`A payment made in exchange for the use of intangible assets — patents, trademarks, know-how, exploitation rights. In BEPS arrangements, locating intellectual property rights in a low-tax jurisdiction enables profit shifting through deductible royalty flows in the source state.`,
+    refs:['OCDE (2017). <em>Principes directeurs applicables en matière de prix de transfert.</em> Paris : Éditions OCDE. Chapitre VI.'],
+    en_refs:['OECD (2017). <em>Transfer Pricing Guidelines.</em> Paris: OECD Publishing. Chapter VI.'] },
+  { cat:'general', fr_term:'Redevance minière', en_term:'Mining Royalty',
+    fr_def:`Prélèvement obligatoire assis sur la valeur ou le volume de la production minière, versé à l'État hôte indépendamment du résultat fiscal. Ne peut être réduit par les charges déductibles liées aux montages BEPS. Dans le jeu : <strong>5 % du CA</strong> = plancher de <strong>15 $M</strong> dans le scénario de référence.`,
+    en_def:`A mandatory levy on the value or volume of mineral production, payable to the host state regardless of the fiscal result. Cannot be reduced by BEPS-related deductible charges. In the simulation: <strong>5% of revenue</strong> = revenue floor of <strong>$15M</strong> in the baseline scenario.`,
+    refs:['Boadway, R. et Keen, M. (2010). Theoretical perspectives on resource tax design. Dans P. Daniel et al. (dir.), <em>The Taxation of Petroleum and Minerals.</em> London : Routledge. pp. 13–74.'],
+    en_refs:['Boadway, R. and Keen, M. (2010). Theoretical perspectives on resource tax design. In P. Daniel et al. (eds), <em>The Taxation of Petroleum and Minerals.</em> London: Routledge. pp. 13–74.'] },
+  { cat:'counter', fr_term:`Règle de plafonnement des intérêts — Action 4 BEPS`, en_term:'Interest Limitation Rule — BEPS Action 4',
+    fr_def:`Contre-mesure recommandée par l'OCDE limitant la déductibilité des charges d'intérêts nettes à <strong>30 % de l'EBITDA</strong>. Plus flexible que la règle dettes/fonds propres, ce plafond s'adapte automatiquement à la rentabilité de l'entité. Dans le jeu : appliquée à la dette de 499 $M (intérêts 49,9 $M), elle ramène les intérêts déductibles à <strong>45 $M</strong> (30 % × 150 $M d'EBITDA).`,
+    en_def:`An OECD-recommended countermeasure capping deductible net interest at <strong>30% of EBITDA</strong>. More flexible than a debt-to-equity rule, this cap adjusts automatically to the entity's profitability. In the simulation: applied to the $499M debt ($49.9M interest), it limits deductible interest to <strong>$45M</strong> (30% × $150M EBITDA).`,
+    refs:['OCDE (2016). <em>Limiting Base Erosion Involving Interest Deductions — Action 4: 2016 Update.</em> Paris : Éditions OCDE.'],
+    en_refs:['OECD (2016). <em>Limiting Base Erosion Involving Interest Deductions — Action 4: 2016 Update.</em> Paris: OECD Publishing.'] },
+  { cat:'general', fr_term:'Report de perte fiscale', en_term:'Loss Carry-Forward',
+    fr_def:`Mécanisme permettant d'imputer un déficit fiscal d'un exercice sur les bénéfices imposables des exercices ultérieurs, réduisant l'IS futur. Dans le jeu, le scénario de couverture génère une <strong>perte d'exploitation de 67,5 $M</strong> inscrite comme <strong>actif d'impôt différé</strong>. Ce report prolonge l'érosion de la base : l'État hôte ne percevra aucun IS jusqu'à absorption complète de la perte.`,
+    en_def:`A mechanism allowing a fiscal deficit from one period to be offset against taxable profits in future periods, reducing future CIT. In the simulation, the hedging scenario generates an <strong>operating loss of $67.5M</strong> recorded as a <strong>deferred tax asset</strong>. This carry-forward extends base erosion: the host state will collect no CIT until the loss is fully absorbed.`,
+    refs:['Devereux, M.P. et Sørensen, P.B. (2006). The corporate income tax. <em>European Economy Economic Papers</em>, 264.','FMI (2014). <em>Externalités en matière de fiscalité internationale des entreprises.</em> Washington, D.C.'],
+    en_refs:['Devereux, M.P. and Sørensen, P.B. (2006). The corporate income tax. <em>European Economy Economic Papers</em>, 264.','IMF (2014). <em>Spillovers in International Corporate Taxation.</em> Washington, D.C.'] },
+  { cat:'mechanism', fr_term:'Rescrit fiscal', en_term:'Tax Ruling',
+    fr_def:`Accord préalable entre une entreprise et une administration fiscale fixant à l'avance le traitement fiscal d'une opération ou structure donnée. Certains rescrits — comme ceux révélés par les affaires <em>LuxLeaks</em> (2014) et <em>Panama Papers</em> (2016) — ont garanti une imposition quasi nulle sur des revenus financiers intra-groupe massifs. Dans le jeu, la centrale luxembourgeoise bénéficie d'un rescrit ramenant son IS à <strong>zéro</strong> sur 49,9 $M d'intérêts reçus.`,
+    en_def:`An advance agreement between an enterprise and a tax authority establishing the tax treatment of a given operation or structure. Certain rulings — as revealed by <em>LuxLeaks</em> (2014) and <em>Panama Papers</em> (2016) — guaranteed near-zero taxation on massive intra-group financial income. In the simulation, the Luxembourg financial entity benefits from a ruling reducing its CIT to <strong>zero</strong> on $49.9M of interest received.`,
+    refs:['OCDE (2015). <em>Harmful Tax Practices — 2015 Progress Report on Preferential Regimes.</em> Paris : Éditions OCDE.','Perrou, K. (2020). <em>Taxpayer Participation in Tax Treaty Disputes.</em> Amsterdam : IBFD.'],
+    en_refs:['OECD (2015). <em>Harmful Tax Practices — 2015 Progress Report on Preferential Regimes.</em> Paris: OECD Publishing.','Perrou, K. (2020). <em>Taxpayer Participation in Tax Treaty Disputes.</em> Amsterdam: IBFD.'] },
+  { cat:'counter', fr_term:'Retenue à la source', en_term:'Withholding Tax (WHT)',
+    fr_def:`Prélèvement opéré par l'État hôte sur les flux financiers sortants — dividendes, intérêts, redevances — avant leur transfert vers une entité non résidente. <strong>Filet de sécurité fiscal</strong> garantissant un niveau minimal d'imposition à la source. Son efficacité est contrainte par les conventions bilatérales (taux plafonnés) et par le chalandage conventionnel.`,
+    en_def:`A tax levied by the host state on outbound financial flows — dividends, interest, royalties — before transfer to a non-resident entity. A <strong>fiscal safety net</strong> ensuring a minimum level of taxation at source. Its effectiveness is constrained by bilateral conventions (capped rates) and treaty shopping.`,
+    refs:['Keen, M. (2018). The taxation and regulation of multinational enterprises. <em>IMF Working Paper.</em>','Beer, S. et Loeprick, J. (2015). Profit shifting. <em>Banque mondiale.</em>'],
+    en_refs:['Keen, M. (2018). The taxation and regulation of multinational enterprises. <em>IMF Working Paper.</em>','Beer, S. and Loeprick, J. (2015). Profit shifting. <em>World Bank.</em>'] },
+  { cat:'mechanism', fr_term:'Sous-capitalisation', en_term:'Thin Capitalisation',
+    fr_def:`Montage consistant à financer une filiale quasi exclusivement par des <strong>dettes intra-groupe</strong> plutôt que par des fonds propres. Les intérêts versés à l'entité prêteuse, déductibles du bénéfice imposable local, érodent la base d'imposition de l'État hôte. Scénario extrême dans le jeu : capitaux propres réduits à 1 $M, dette à 499 $M — ratio <strong>499:1</strong>.`,
+    en_def:`An arrangement financing a subsidiary almost exclusively through <strong>intra-group debt</strong> rather than equity. Deductible interest paid to the lending entity erodes the host state's tax base. In the simulation's extreme scenario: equity reduced to $1M, debt $499M — ratio <strong>499:1</strong>.`,
+    refs:['Beer, S. et Loeprick, J. (2015). Profit shifting. <em>Banque mondiale.</em>','FMI (2014). <em>Externalités en matière de fiscalité internationale des entreprises.</em> Washington, D.C.'],
+    en_refs:['Beer, S. and Loeprick, J. (2015). Profit shifting. <em>World Bank.</em>','IMF (2014). <em>Spillovers in International Corporate Taxation.</em> Washington, D.C.'] },
+  { cat:'counter', fr_term:'Substance économique', en_term:'Economic Substance',
+    fr_def:`Réalité des activités économiques effectivement exercées par une entité dans la juridiction où elle est domiciliée — personnel, locaux, décisions de gestion, risques supportés. Critère central pour distinguer une présence légitime d'une <strong>structure conduit</strong> artificielle. Au cœur des règles anti-abus des Actions 6 et 7 du Plan BEPS.`,
+    en_def:`The reality of economic activities genuinely conducted by an entity in its jurisdiction — employees, premises, management decisions, risks borne. The central criterion distinguishing a legitimate presence from an artificial <strong>conduit structure</strong>. At the heart of the anti-abuse rules of BEPS Actions 6 and 7.`,
+    refs:['OCDE (2015). <em>Prévenir l\'octroi inapproprié des avantages des conventions fiscales — Action 6.</em> Paris : Éditions OCDE.'],
+    en_refs:['OECD (2015). <em>Preventing the Granting of Treaty Benefits in Inappropriate Circumstances — Action 6.</em> Paris: OECD Publishing.'] },
+  { cat:'general', fr_term:`Taux effectif d'imposition`, en_term:'Effective Tax Rate (ETR)',
+    fr_def:`Rapport entre l'impôt effectivement acquitté et le bénéfice économique réel, par opposition au <strong>taux nominal</strong> légal. L'optimisation fiscale agressive vise à abaisser le taux effectif bien en deçà du taux affiché — parfois jusqu'à zéro. L'écart entre taux nominal (20 %) et taux effectif est un indicateur clé d'intensité BEPS.`,
+    en_def:`The ratio of tax actually paid to real economic profit, as opposed to the <strong>statutory (nominal) rate</strong>. Aggressive tax planning aims to reduce the effective rate well below the headline rate — sometimes to zero. The gap between the statutory rate (20%) and the effective rate is a key indicator of BEPS intensity.`,
+    refs:['Cobham, A. et Janský, P. (2018). Global distribution of revenue loss from corporate tax avoidance. <em>Journal of International Development</em>, 30(2), pp. 206–232.','Janský, P. et Prats, A. (2015). International profit-shifting out of developing countries. <em>Development Policy Review</em>, 33(3), pp. 271–292.'],
+    en_refs:['Cobham, A. and Janský, P. (2018). Global distribution of revenue loss from corporate tax avoidance. <em>Journal of International Development</em>, 30(2), pp. 206–232.','Janský, P. and Prats, A. (2015). International profit-shifting out of developing countries. <em>Development Policy Review</em>, 33(3), pp. 271–292.'] },
+  { cat:'mechanism', fr_term:`Transfert de bénéfices`, en_term:'Profit Shifting',
+    fr_def:`Déplacement artificiel de bénéfices d'une juridiction à forte imposition vers une juridiction à faible imposition, sans déplacement correspondant d'une activité économique réelle. Second volet du phénomène BEPS. S'opère principalement via la manipulation des prix de transfert, la sous-capitalisation et les flux de redevances.`,
+    en_def:`The artificial relocation of profits from a high-tax to a low-tax jurisdiction, without a corresponding movement of genuine economic activity. The second dimension of the BEPS phenomenon. Operates primarily through transfer price manipulation, thin capitalisation, and royalty flows.`,
+    refs:['Johannesen, N., Tørsløv, T. et Wier, L. (2020). Are less developed countries more exposed to multinational tax avoidance? <em>Economic Policy</em>, 35(103), pp. 457–498.'],
+    en_refs:['Johannesen, N., Tørsløv, T. and Wier, L. (2020). Are less developed countries more exposed to multinational tax avoidance? <em>Economic Policy</em>, 35(103), pp. 457–498.'] }
+];
+
+let glossOpenIdx = null;
+
+function renderGlossary() {
+  const L = GLOSS_I18N[glossLang];
+  const mc = document.getElementById('mainContent');
+  mc.innerHTML = `
+  <div class="gloss-wrap" id="glossWrap">
+    <div class="gloss-header">
+      <div class="gloss-eyebrow">${L.eyebrow}</div>
+      <div class="gloss-h1">${L.title}</div>
+      <div class="gloss-meta-bar">${L.meta.map(m=>`<span>${m}</span>`).join('')}</div>
+    </div>
+    <p class="gloss-intro-p">${L.intro}</p>
+    <div class="gloss-controls">
+      <div class="gloss-search-wrap">
+        <span class="gloss-search-icon">🔍</span>
+        <input class="gloss-search-inp" id="glossSearch" type="text" placeholder="${L.placeholder}" oninput="filterGloss()">
+      </div>
+      <div class="gloss-lang-pills">
+        <button class="gloss-lang-pill ${glossLang==='fr'?'active':''}" onclick="setGlossLang('fr')">FR</button>
+        <button class="gloss-lang-pill ${glossLang==='en'?'active':''}" onclick="setGlossLang('en')">EN</button>
+      </div>
+    </div>
+    <div class="gloss-count-line" id="glossCount">${L.countFn(GLOSS_ENTRIES.length)}</div>
+    <div class="gloss-legend">
+      <div class="gloss-leg-item"><div class="gloss-leg-dot" style="background:rgba(255,255,255,0.28)"></div>${L.leg[0]}</div>
+      <div class="gloss-leg-item"><div class="gloss-leg-dot" style="background:var(--red)"></div>${L.leg[1]}</div>
+      <div class="gloss-leg-item"><div class="gloss-leg-dot" style="background:var(--green2)"></div>${L.leg[2]}</div>
+      <div class="gloss-leg-item"><div class="gloss-leg-dot" style="background:#6b7280"></div>${L.leg[3]}</div>
+    </div>
+    <div class="gloss-alpha-nav" id="glossAlpha"></div>
+    <div class="gloss-body" id="glossBody"></div>
+    <div class="gloss-footer"><span>${L.footL}</span><span>${L.footR}</span></div>
+  </div>`;
+  filterGloss();
+}
+
+function setGlossLang(lang) {
+  glossLang = lang;
+  glossOpenIdx = null;
+  renderGlossary();
+}
+
+function filterGloss() {
+  const L = GLOSS_I18N[glossLang];
+  const inp = document.getElementById('glossSearch');
+  const q = inp ? inp.value.trim().toLowerCase() : '';
+  const sorted = [...GLOSS_ENTRIES].sort((a,b)=>{
+    const ta = glossLang==='fr'?a.fr_term:a.en_term;
+    const tb = glossLang==='fr'?b.fr_term:b.en_term;
+    return ta.localeCompare(tb, glossLang==='fr'?'fr':'en');
+  });
+  const filtered = sorted.filter(e=>{
+    const term = (glossLang==='fr'?e.fr_term:e.en_term).toLowerCase();
+    const def  = (glossLang==='fr'?e.fr_def :e.en_def ).toLowerCase().replace(/<[^>]+>/g,'');
+    return !q || term.includes(q) || def.includes(q);
+  });
+  const countEl = document.getElementById('glossCount');
+  if (countEl) countEl.textContent = L.countFn(filtered.length);
+  const groups = {};
+  filtered.forEach(e=>{
+    const term = glossLang==='fr'?e.fr_term:e.en_term;
+    const letter = term[0].toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')[0];
+    if(!groups[letter]) groups[letter]=[];
+    groups[letter].push(e);
+  });
+  const letters = Object.keys(groups).sort();
+  const alphaEl = document.getElementById('glossAlpha');
+  if (alphaEl) {
+    const all = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+    alphaEl.innerHTML = all.map(l=>{
+      const has = letters.includes(l);
+      return '<button class="gloss-alpha-btn' + (has?' has':'') + '"' + (has?' onclick="scrollToGlossLetter(\'' + l + '\')"':'') + '>' + l + '</button>';
+    }).join('');
+  }
+  const bodyEl = document.getElementById('glossBody');
+  if (!bodyEl) return;
+  if (filtered.length===0) { bodyEl.innerHTML = '<div class="gloss-nores">' + L.noResults + '</div>'; return; }
+  const catCls = {general:'',mechanism:'gmec',counter:'gcor',accounting:'gacc'};
+  const tagCls = {general:'gtag-gen',mechanism:'gtag-mec',counter:'gtag-cor',accounting:'gtag-acc'};
+  bodyEl.innerHTML = letters.map(letter=>{
+    const items = groups[letter].map(e=>{
+      const idx = GLOSS_ENTRIES.indexOf(e);
+      const term = glossLang==='fr'?e.fr_term:e.en_term;
+      const alt  = glossLang==='fr'?e.en_term:e.fr_term;
+      const def  = glossLang==='fr'?e.fr_def:e.en_def;
+      const refs = (glossLang==='fr'?e.refs:e.en_refs)||[];
+      const isOpen = glossOpenIdx===idx;
+      return '<div class="gloss-entry ' + (catCls[e.cat]||'') + (isOpen?' open':'') + '" id="ge-' + idx + '">'
+        + '<button class="gloss-trigger" onclick="toggleGlossEntry(' + idx + ')">'
+        + '<span class="gloss-tag ' + (tagCls[e.cat]||'gtag-gen') + '"></span>'
+        + '<span class="gloss-term">' + term + '</span>'
+        + '<span class="gloss-alt">' + alt + '</span>'
+        + '<span class="gloss-chev">&#9660;</span>'
+        + '</button>'
+        + '<div class="gloss-body-inner">'
+        + '<div class="gloss-content">'
+        + '<p class="gloss-def">' + def + '</p>'
+        + '<div class="gloss-refs"><div class="gloss-ref-label">' + L.refLabel + '</div>'
+        + refs.map(r=>'<p>' + r + '</p>').join('')
+        + '</div></div></div></div>';
+    }).join('');
+    return '<div class="gloss-letter-group" id="glet-' + letter + '"><div class="gloss-letter-head">' + letter + '</div>' + items + '</div>';
+  }).join('');
+}
+
+function toggleGlossEntry(idx) {
+  const el = document.getElementById('ge-'+idx);
+  if (!el) return;
+  const wasOpen = glossOpenIdx===idx;
+  document.querySelectorAll('.gloss-entry.open').forEach(e=>e.classList.remove('open'));
+  glossOpenIdx = wasOpen ? null : idx;
+  if (!wasOpen) el.classList.add('open');
+}
+
+function scrollToGlossLetter(l) {
+  const el = document.getElementById('glet-'+l);
+  const wrap = document.getElementById('glossWrap');
+  if (el && wrap) { wrap.scrollTop = el.offsetTop - 20; }
+}
+
 </script>
 </body>
 </html>
