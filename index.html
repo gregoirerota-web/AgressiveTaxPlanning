@@ -3530,8 +3530,18 @@ function togSim(key) {
 }
 
 function updSim(key, v) {
-  simState[key] = parseFloat(v);
-  if (simDefaults[key] !== undefined && parseFloat(v) !== simDefaults[key]) {
+  const next = Number(v);
+  const limits = {
+    citRate: [0, 100], interestRate: [1, 20], tpMarkup: [200, 600],
+    debtLevel: [100, 900], hedgeDiscount: [0, 100],
+    minCitRate: [0, 100], minRoyaltyRate: [0, 100], whtRate: [0, 100],
+    alpMarkup: [0, 30], thinCapRatio: [1, 10], esrRate: [0, 100]
+  };
+  if (!Object.prototype.hasOwnProperty.call(limits, key) || !Number.isFinite(next)) return;
+  const [lower, upper] = limits[key];
+  if (next < lower || next > upper) return;
+  simState[key] = next;
+  if (simDefaults[key] !== undefined && next !== simDefaults[key]) {
     changedParams.add(key);
   } else {
     changedParams.delete(key);
@@ -3640,8 +3650,10 @@ function computeSim() {
     }
     if (simState.scOn) {
       const debt = simState.debtLevel;
-      interets = debt * r;
-      offshoreProfit += debt * r * (simState.ptOn ? 1 : 1);
+      // Preserve the extra equipment financing when both strategies are active.
+      const equipmentFinancing = simState.ptOn ? 200 + (tpEquipment - 200) * 0.3 : 0;
+      interets = (debt + equipmentFinancing) * r;
+      offshoreProfit += debt * r;
       beps += 3;
     }
     if (simState.hedgeOn) {
@@ -3681,7 +3693,8 @@ function computeSim() {
   // ALP correction: limit equipment value to ALP-corrected level
   let equipmentBase = 400; // assume firm used TP (inflated equipment)
   if (simState.alpOn) {
-    const alpPrice = 200 * (1 + simState.alpMarkup / 100);
+    // ALP corrections cannot raise an already-inflated invoice value.
+    const alpPrice = Math.min(equipmentBase, 200 * (1 + simState.alpMarkup / 100));
     depr = alpPrice * 0.10;
     interets = (alpPrice * 0.7) * r;
     offshoreProfit = Math.max(0, offshoreProfit - (400 - alpPrice) * 0.5);
