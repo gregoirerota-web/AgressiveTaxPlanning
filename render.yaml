@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: filons-multijoueur
+    runtime: node
+    plan: free
+    rootDir: filons
+    buildCommand: npm install --no-audit --no-fund && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
