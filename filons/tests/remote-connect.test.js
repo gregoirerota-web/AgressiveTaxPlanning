@@ -34,18 +34,23 @@ test("two distant sockets create/join and synchronise a round", {timeout:30000},
     const a=await send(sockets[1],"room:join",{name:"Firme Alpha",code:r.code});
     const b=await send(sockets[2],"room:join",{name:"Firme Beta",code:r.code});
     assert.equal(a.ok,true); assert.equal(b.ok,true);
-    let stateA=await new Promise(resolve=>{
-      sockets[1].once("room:state",resolve);
-      sockets[0].emit("game:act",{},()=>{});
+    const awaitStage = (sock,stage) => new Promise((resolve,reject)=>{
+      const timeout = setTimeout(()=>{sock.off("room:state",onState);reject(Error("Timeout waiting for "+stage));},5000);
+      function onState(next){if(next.stage===stage){clearTimeout(timeout);sock.off("room:state",onState);resolve(next);}}
+      sock.on("room:state",onState);
     });
+    const stagePolicy=awaitStage(sockets[1],"policy");
+    assert.equal((await send(sockets[0],"game:act",{})).ok,true);
+    const stateA=await stagePolicy;
     assert.equal(stateA.stage,"policy");
     assert.equal(stateA.blocks[0].name,undefined);
     assert.equal((await send(sockets[0],"game:act",{cit:20,royalty:4,reserve:60})).ok,true);
     assert.equal((await send(sockets[1],"game:act",{block:0,bid:60})).ok,true);
     assert.equal((await send(sockets[2],"game:act",{block:0,bid:70})).ok,true);
-    const snapshot=await new Promise(resolve=>{
-      sockets[1].once("room:state",resolve);
-      send(sockets[1],"game:act",{investments:{}}).catch(()=>{});
+    const snapshot=await new Promise(async (resolve,reject)=>{
+      const stageWait=awaitStage(sockets[1],"investment");
+      try{assert.equal((await send(sockets[1],"game:act",{investments:{}})).ok,true);resolve(await stageWait);}
+      catch(err){reject(err);}
     });
     assert.equal(snapshot.stage,"investment");
     assert.equal(snapshot.players.find(p=>p.name==="Firme Alpha").cash,1000);
