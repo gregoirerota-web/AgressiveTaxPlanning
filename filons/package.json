@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "test:e2e": "playwright test",
     "start": "node server/index.js",
-    "test:server": "node --test tests/multiplayer.test.js"
+    "test:server": "node --test tests/multiplayer.test.js tests/remote-connect.test.js"
   },
   "dependencies": {
     "react": "^18.3.1",
