@@ -40,6 +40,9 @@ test("hotseat: Minister → firm → sealed bid → mine → fiscal audit → ne
   await expect(page.getByText(/Décisions scellées/)).toBeVisible();
   await page.getByRole("button", { name: "Continuer" }).click();
   await investBlockTwo(page);
+  // A second handoff protects the firm's confidential declaration.
+  await expect(page.getByText(/Passage de main/)).toBeVisible();
+  await page.getByRole("button", { name: /Je suis seul devant l'écran/ }).click();
   await page.getByRole("button", { name: "Sceller les déclarations" }).click();
   await expect(page.getByText(/Passage de main/)).toBeVisible();
   await page.getByRole("button", { name: /Je suis seul devant l'écran/ }).click();
