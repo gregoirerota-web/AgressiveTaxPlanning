@@ -59,7 +59,7 @@ function LiveGame(){
     <p>Un ministre, jusqu’à cinq firmes, chacun sur son ordinateur. Les décisions des firmes se prennent simultanément ; le serveur arbitre les offres.</p>
     {panel(<>
       <h2>Créer une salle ou rejoindre une partie</h2>
-      {numeric(name,setName,0,24,"Votre nom :")}
+      <label style={{display:"block",margin:"12px 0"}}>Votre nom : <input type="text" maxLength={24} value={name} onChange={e=>setName(e.target.value)} style={{...btn,width:190,marginLeft:8}} placeholder="Nom de joueur"/></label>
       {action("Créer une partie (ministre)",()=>invoke("room:create",{name},true),name.trim().length<2)}
       <hr style={{margin:"25px 0"}}/>
       <label>Code de partie <input value={code} maxLength={6} onChange={e=>setCode(e.target.value.toUpperCase())} placeholder="ABC123" style={{...btn,marginLeft:8,width:120}}/></label>
