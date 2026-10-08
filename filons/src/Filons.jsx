@@ -590,36 +590,111 @@ Texte simple, sans titres ni listes.`;
     setLoading(false);
   };
 
-  const Colonnes = ({ pickable, onPick }) => (
-    <div className="flex gap-2 my-4">
-      {g.terr.map((t, i) => {
-        const ouvert = openIdx.includes(i);
-        const mine = g.mines.find((m) => m.bloc === i);
-        const sel = g.selection.includes(i);
-        return (
-          <button key={i} disabled={!pickable || !ouvert} onClick={() => onPick && onPick(i)}
-            style={{
-              background: t.revele ? C.card : `repeating-linear-gradient(0deg, ${C.dark}, ${C.dark} 6px, #212930 6px, #212930 12px)`,
-              border: `2px solid ${sel ? C.brass : t.revele ? (t.restant === 0 ? C.line : C.brass) : ouvert ? C.ink : C.line}`,
-              boxShadow: sel ? `0 0 0 3px ${C.brass}55` : "none",
-              opacity: t.revele || ouvert ? 1 : 0.3, cursor: pickable && ouvert ? "pointer" : "default",
-            }} className="flex-1 h-36 flex flex-col items-center justify-center p-1">
-            <span style={{ fontFamily: F.mono, fontSize: 10, color: t.revele ? C.ink2 : "#6C7883", letterSpacing: "0.1em" }}>BLOC {i + 1}</span>
-            {t.revele ? (
-              <>
-                <span style={{ fontFamily: F.display, lineHeight: 1.1 }} className="text-sm text-center mt-1">{t.nom}</span>
-                <span style={{ fontFamily: F.mono, color: t.restant === 0 ? C.ink2 : C.brass, fontWeight: 700 }} className="text-xl">{t.restant}<span className="text-xs">/{t.q}</span></span>
-                <span style={{ fontFamily: F.mono, fontSize: 10, color: C.patina }}>{t.regime.id} · {t.regime.is}/{t.regime.red}</span>
-                <span style={{ fontFamily: F.body, fontSize: 9, color: C.ink2 }}>{mine ? mine.tuile.nom : "sans mine"}</span>
-              </>
-            ) : (
-              <span style={{ fontFamily: F.display, color: ouvert ? C.paper : "#4A545D" }} className="text-sm mt-2">{ouvert ? (sel ? "choisi" : "ouvert") : "fermé"}</span>
-            )}
-          </button>
-        );
-      })}
-    </div>
-  );
+  /* Plateau : uniquement les informations publiques des blocs révélés.
+     Jamais de propriété nom/q/capacité d'un bloc masqué dans le DOM. */
+  const Colonnes = ({ pickable = false, onPick }) => {
+    const revealed = g.terr.filter(t => t.revele).length;
+    const equipped = g.mines.filter(m => g.terr[m.bloc]?.restant > 0).length;
+    return (
+      <section className="my-4" aria-label="Plateau minier interactif">
+        <div className="flex flex-wrap justify-between items-center gap-2 mb-3">
+          <div>
+            <div style={{fontFamily:F.mono,fontSize:10,letterSpacing:"0.13em",color:C.ink2}}>TERRITOIRE MINIER · PLATEAU DE JEU</div>
+            <div style={{fontFamily:F.display,fontWeight:700,fontSize:19}}>Cinq concessions, une ressource incertaine</div>
+          </div>
+          <div style={{fontFamily:F.mono,color:C.ink2,fontSize:11}}>{revealed}/5 blocs révélés · {equipped} mine{equipped>1?"s":""} équipée{equipped>1?"s":""}</div>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2" role="group" aria-label="Concessions minières">
+          {g.terr.map((t,i)=>{
+            const opened = openIdx.includes(i);
+            const selected = g.selection.includes(i);
+            const mine = g.mines.find(m=>m.bloc===i);
+            const blocked = !t.revele;
+            const exhausted = t.revele && t.restant <= 0;
+            const progress = t.revele && t.q > 0 ? 100 * Math.max(0,t.q-t.restant)/t.q : 0;
+            const status = blocked ? (opened ? "Offert, encore inconnu" : "Non révélé") :
+              exhausted ? "Épuisé" : mine ? mine.cocon ? "Mine en sommeil" : "En production" : t.q===0 ? "Stérile" : "À équiper";
+            const surface = blocked ? C.dark : exhausted ? "#E6E9E3" : mine ? "#DBE9DF" : "#F0E6D2";
+            return (
+              <button key={i} type="button" disabled={!pickable || !opened || !blocked}
+                aria-pressed={pickable ? selected : undefined}
+                aria-label={blocked ? `Bloc ${i+1} : ${status}` : `Bloc ${i+1} : ${t.nom}, ${status}`}
+                onClick={()=>onPick?.(i)}
+                className="p-3 flex flex-col justify-between text-left"
+                style={{minHeight:178,background:surface,color:blocked?"#E5E8E6":C.ink,
+                  border:`2px solid ${selected?C.brass:opened&&blocked?C.brass:mine?C.patina:C.line}`,
+                  boxShadow:selected?`inset 0 0 0 2px ${C.brass}`:"none",
+                  cursor:pickable&&opened&&blocked?"pointer":"default",opacity:blocked&&!opened?.75:1}}>
+                <div className="flex justify-between items-center gap-1">
+                  <span style={{fontFamily:F.mono,fontSize:11,fontWeight:700}}>BLOC {i+1}</span>
+                  <span style={{fontSize:15}} aria-hidden="true">{blocked?"◆":exhausted?"◌":mine?"⚒":"◇"}</span>
+                </div>
+                {blocked ? (
+                  <div style={{textAlign:"center",margin:"15px 0 10px"}}>
+                    <div style={{fontFamily:F.display,fontSize:29}}>?</div>
+                    <div style={{fontFamily:F.mono,fontSize:10,marginTop:6}}>{selected?"✓ Sélectionné":opened?"Permis disponible":"Sous-sol inconnu"}</div>
+                  </div>
+                ):(
+                  <div style={{margin:"12px 0 8px"}}>
+                    <div style={{fontFamily:F.display,fontWeight:700,fontSize:17,lineHeight:1.15}}>{t.nom}</div>
+                    <div style={{fontFamily:F.mono,fontSize:12,marginTop:5}}>{t.restant}/{t.q} unités restantes</div>
+                    <div style={{height:5,background:C.line,marginTop:8}} aria-hidden="true">
+                      <div style={{height:"100%",width:`${progress}%`,background:C.patina}} />
+                    </div>
+                  </div>
+                )}
+                <div>
+                  <div style={{fontSize:11,fontWeight:700,color:blocked?"#D8C39D":mine?C.patina:C.ink2}}>{status}</div>
+                  {!blocked && <div style={{fontSize:10,marginTop:3}}>
+                    {t.regime?.id} · IS {t.regime?.is}% · R {t.regime?.red}%
+                    {mine && <div style={{marginTop:3}}>{mine.tuile.nom} · {mine.tuile.cap} u./tour</div>}
+                  </div>}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+        <div className="flex flex-wrap gap-3 mt-2 text-xs" style={{color:C.ink2}}>
+          <span>◆ Non révélé</span><span>◇ Permis sans mine</span><span>⚒ Mine équipée</span><span>◌ Épuisé</span>
+          {pickable && <strong style={{color:C.brass}}>Sélectionnez les blocs proposés pour acquérir les permis.</strong>}
+        </div>
+      </section>
+    );
+  };
+
+  const FluxPublics = () => {
+    const source = g.phase==="P7" ? {
+      ca:T.CA,rede:T.redevance,is:T.IS,pen:T.penalite,permis:g.permisDuTour
+    } : {
+      ca:g.cum.tours.reduce((acc,t)=>acc+t.CA,0),
+      rede:g.cum.prelev, is:0, pen:0, permis:g.cum.permis
+    };
+    const fiscal = source.rede + source.is + source.pen;
+    const recette = fiscal + source.permis;
+    return (
+      <section aria-label="Circulation publique de la valeur" className="mb-5 p-3" style={{background:C.card,border:`1px solid ${C.line}`}}>
+        <div style={{fontFamily:F.mono,color:C.ink2,fontSize:10,letterSpacing:"0.12em"}}>CIRCULATION DE LA VALEUR · {g.phase==="P7"?"TOUR EN COURS":"CUMUL DES TOURS TERMINÉS"}</div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-3">
+          <div style={{background:"#E9E2CF",borderLeft:`3px solid ${C.brass}`}} className="p-3">
+            <div style={{fontSize:11}}>Production vendue</div>
+            <strong style={{fontFamily:F.mono,fontSize:20}}>{fmt(source.ca)} M€</strong>
+            <div className="text-xs">Chiffre d'affaires</div>
+          </div>
+          <div style={{background:"#DFEDE5",borderLeft:`3px solid ${C.patina}`}} className="p-3">
+            <div style={{fontSize:11}}>État hôte</div>
+            <strong style={{fontFamily:F.mono,fontSize:20}}>{fmt(recette)} M€</strong>
+            <div className="text-xs">Fiscalité et permis</div>
+          </div>
+          <div style={{background:"#E6E8EA",borderLeft:`3px solid ${C.ink2}`}} className="p-3">
+            <div style={{fontSize:11}}>Redevances + IS + pénalités</div>
+            <strong style={{fontFamily:F.mono,fontSize:20}}>{fmt(fiscal)} M€</strong>
+            <div className="text-xs">Hors recettes des permis : {fmt(source.permis)} M€</div>
+          </div>
+        </div>
+        <p className="text-xs mt-2" style={{color:C.ink2}}>Les flux détaillés de la firme et les trois canaux de charges restent derrière le paravent. Ce panneau affiche uniquement les montants publics.</p>
+      </section>
+    );
+  };
 
   const Bandeau = () => (
     <>
@@ -751,6 +826,8 @@ Texte simple, sans titres ni listes.`;
         ) : (
         <>
         {g.mode && g.phase !== "setup" && <Bandeau />}
+        {g.mode && ["P3","P4","P5","P6","P7"].includes(g.phase) && <Colonnes />}
+        {g.mode && ["P7","FIN"].includes(g.phase) && <FluxPublics />}
         {g.mode && g.phase !== "setup" && g.phase !== "FIN" && <Objectifs />}
 
         {g.phase === "setup" && (
