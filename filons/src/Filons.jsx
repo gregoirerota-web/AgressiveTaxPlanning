@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 
 /* =========================================================================
    FILONS — Partie complète (8 tours). Duel : 1 Ministre / 1 Firme.
@@ -335,6 +335,17 @@ class Garde extends React.Component {
   }
 }
 
+const STORAGE_KEY = "filons-partie-v4-2";
+const PHASES_GUIDE = { P1M:["Code minier","Fixez le prix des permis et le régime fiscal avant la révélation des gisements."], P1F:["Candidature","Achetez des permis, mais réservez des fonds pour équiper les mines."], P1R:["Octroi","Vérifiez le montant et révélez les gisements choisis."], P3:["Investissement","Comparez le coût et la capacité des équipements avant de vous engager."], P4:["Cours","Tirez le cours de l’or ; les décisions d’investissement sont déjà prises."], P5:["Déclaration","Répartissez les charges : une seule catégorie sera contrôlée."], P6:["Contrôle","Choisissez un seul canal fiscal à contrôler."], P7:["Résultats","Analysez les redressements et les recettes avant le tour suivant."] };
+const ETAPES = ["Code minier","Permis","Investissement","Cours","Déclaration","Contrôle","Résultats"];
+function restoreFilons(){
+  try { const raw = window.localStorage.getItem(STORAGE_KEY); if(!raw) return initGame();
+    const saved = JSON.parse(raw); const g = saved.game;
+    return saved.version === 2 && g && Array.isArray(g.terr) && g.terr.length === GISEMENTS.length &&
+      Array.isArray(g.mines) && g.cum && Array.isArray(g.cum.tours) && Number.isInteger(g.turn) &&
+      g.turn >= 1 && g.turn <= HORIZON && typeof g.phase === "string" ? g : initGame();
+  } catch { return initGame(); }
+}
 /* ---------------- jeu ---------------- */
 const initGame = () => ({
   phase: "setup", mode: null, turn: 1, dernierTour: HORIZON,
@@ -349,7 +360,14 @@ const initGame = () => ({
 });
 
 function Jeu() {
-  const [g, setG] = useState(initGame);
+  const [g, setG] = useState(restoreFilons);
+  const [showGuide, setShowGuide] = useState(false);
+  const [saveOk, setSaveOk] = useState(true);
+  useEffect(() => { try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify({version:2,game:g})); setSaveOk(true); } catch { setSaveOk(false); } }, [g]);
+  const resetFilons = () => {
+    if (!window.confirm("Recommencer ? La partie enregistrée sur cet appareil sera remplacée.")) return;
+    setG(initGame()); setDebrief(null); setShowGuide(false);
+  };
   const [debrief, setDebrief] = useState(null);
   const [loading, setLoading] = useState(false);
   const up = (patch) => setG((p) => ({ ...p, ...(typeof patch === "function" ? patch(p) : patch) }));
@@ -415,6 +433,7 @@ function Jeu() {
   const confirmerOctroi = () => setG((p) => {
     const sel = p.selection.length ? p.selection : openIdx.slice(0, p.env.k);
     const total = sel.length * p.env.mise;
+    if (!p.env.depose || sel.length !== p.env.k || !Number.isFinite(total) || total < 0 || total > p.cash || sel.some(i => p.terr[i]?.revele)) return p;
     const terr = p.terr.map((t, i) => sel.includes(i) ? { ...t, revele: true, regime: p.offre.regime, modeOctroi: p.offre.mode, prix: p.env.mise } : t);
     return { ...p, terr, cash: p.cash - total, permisDuTour: total, pendingBlocs: [...sel].sort((a, b) => a - b), selection: [], phase: "P3" };
   });
@@ -422,7 +441,7 @@ function Jeu() {
 
   /* Temps 3 — on peut équiper tout bloc détenu et non équipé, à n'importe quel tour */
   const investir = (bloc, t) => setG((p) => {
-    if (!t || t.inv > p.cash) return { ...p, pendingBlocs: p.pendingBlocs.filter((b) => b !== bloc) };
+    if (!t || t.inv > p.cash || !p.terr[bloc]?.revele || p.terr[bloc]?.restant <= 0 || p.mines.some(m => m.bloc === bloc)) return p;
     const mines = [...p.mines, { bloc, tuile: t, invCumul: t.inv, pending: null, pendingActif: null, cocon: false, curseurs: null }];
     return { ...p, mines, cash: p.cash - t.inv, cum: { ...p.cum, inv: p.cum.inv + t.inv },
       pendingBlocs: p.pendingBlocs.filter((b) => b !== bloc) };
@@ -656,6 +675,9 @@ Texte simple, sans titres ni listes.`;
   };
 
   const blocsSansMine = g.terr.filter((t, i) => t.revele && t.q > 0 && t.restant > 0 && !g.mines.some((m) => m.bloc === i)).length;
+  const guide = PHASES_GUIDE[g.phase] || [g.phase === "FIN" ? "Bilan" : "Mise en place", "Suivez les décisions du tour et observez leur effet sur les résultats."];
+  const etape = ["P1M","P1F","P1R"].includes(g.phase) ? (g.phase === "P1M" ? 0 : 1) :
+    ["P3","P4","P5","P6","P7"].indexOf(g.phase) + 2;
 
   return (
     <div style={{ background: C.paper, color: C.ink, minHeight: "100vh", fontFamily: F.body }} className="p-5 md:p-10">
@@ -670,6 +692,20 @@ Texte simple, sans titres ni listes.`;
           </div>
         </header>
 
+        {g.mode && <section className="mb-4 p-3" style={{background:C.card,border:"1px solid "+C.line}} aria-label="Progression">
+          <div className="flex flex-wrap gap-2 items-center justify-between mb-2">
+            <div><b>{g.handoff ? "Passage de main" : guide[0]}</b> · Tour {g.turn}/{g.dernierTour}</div>
+            <div className="flex gap-2 items-center">
+              <span role="status" className="text-xs" style={{color:saveOk?C.patina:C.oxblood}}>{saveOk?"Sauvegarde automatique":"Sauvegarde indisponible"}</span>
+              <button className="px-2 py-1 text-xs" style={{border:"1px solid "+C.line}} onClick={()=>setShowGuide(v=>!v)} aria-expanded={showGuide}>{showGuide?"Masquer l’aide":"Aide"}</button>
+              <button className="px-2 py-1 text-xs" style={{border:"1px solid "+C.oxblood,color:C.oxblood}} onClick={resetFilons}>Recommencer</button>
+            </div>
+          </div>
+          <div className="grid grid-cols-7 gap-1" aria-label="Étapes du tour">
+            {ETAPES.map((nom,i)=><div key={nom} title={nom} aria-current={!g.handoff && i===etape?"step":undefined} className="text-center py-1" style={{background:i===etape&&!g.handoff?C.patina:C.paper,color:i===etape&&!g.handoff?"white":C.ink2,border:"1px solid "+C.line}}><div className="text-xs font-bold">{i+1}</div><div className="hidden sm:block" style={{fontSize:10}}>{nom}</div></div>)}
+          </div>
+          {showGuide && <div className="mt-3 p-3 text-sm" style={{background:C.paper,borderLeft:"3px solid "+C.brass}}>{g.handoff?"Passez l’écran au joueur désigné. Les choix secrets sont masqués.":guide[1]} Les règles fiscales sont stabilisées pour chaque permis octroyé.</div>}
+        </section>}
         {g.handoff ? (
           <div style={{ background: C.dark, color: C.paper }} className="p-10 text-center">
             <div style={{ fontFamily: F.mono, color: C.brass, letterSpacing: "0.18em" }} className="text-xs uppercase mb-4">Paravent · tour {g.turn} / {g.dernierTour}</div>
@@ -1267,7 +1303,7 @@ Texte simple, sans titres ni listes.`;
               <Eyebrow>Débriefing</Eyebrow>
               {!debrief && <Btn onClick={demanderDebrief} disabled={loading}>{loading ? "Analyse de la partie…" : "Débriefer la partie"}</Btn>}
               {debrief && <p style={{ fontFamily: F.display, lineHeight: 1.7 }} className="text-base whitespace-pre-wrap">{debrief}</p>}
-              <div className="mt-5"><Btn kind="ghost" onClick={() => { setG(initGame()); setDebrief(null); }}>Nouvelle partie</Btn></div>
+              <div className="mt-5"><Btn kind="ghost" onClick={resetFilons}>Nouvelle partie</Btn></div>
             </Bloc>
           </>
         )}
@@ -1275,7 +1311,7 @@ Texte simple, sans titres ni listes.`;
         )}
 
         <footer className="mt-8 pt-4" style={{ borderTop: `1px solid ${C.line}`, fontFamily: F.mono, color: C.ink2 }}>
-          <p className="text-xs">FILONS v3 — duel, achat multi-blocs. Barèmes du livret v2. CERDI — Université Clermont Auvergne.</p>
+          <p className="text-xs">FILONS v4.2 — guide et sauvegarde automatique. Barèmes du livret v2. CERDI — Université Clermont Auvergne.</p>
         </footer>
       </div>
     </div>
