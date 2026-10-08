@@ -1,0 +1,29 @@
+name: Validate serious games
+on:
+  push:
+    branches: [main, improve-simulator-robustness-2026-10]
+  pull_request:
+
+jobs:
+  taxshift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tests/strategic-game.test.cjs
+      - run: node --check strategic-game.js
+
+  filons:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: filons
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - run: npm run build
