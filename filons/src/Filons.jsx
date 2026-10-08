@@ -847,6 +847,7 @@ Texte simple, sans titres ni listes.`;
               <Btn onClick={() => lancer("solo_firme")}>Solo — je joue la Firme</Btn>
               <Btn onClick={() => lancer("solo_ministre")}>Solo — je joue le Ministre</Btn>
               <Btn kind="ghost" onClick={() => lancer("hotseat")}>Hotseat — deux joueurs, un paravent</Btn>
+              <a href="/multiplayer.html" style={{display:"block",padding:"12px 16px",border:"2px solid "+C.patina,color:C.patina,textAlign:"center",fontWeight:700}}>En ligne — plusieurs joueurs à distance ↗</a>
             </div>
           </Bloc>
         )}
