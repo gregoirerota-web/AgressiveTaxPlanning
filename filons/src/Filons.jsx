@@ -512,7 +512,7 @@ function Jeu() {
       const b = bornes(m.tuile, units, units * prix);
       return { ...m, curseurs: { pt: b.pt.hi, sc: b.sc.hi, fs: b.fs.seuil } };
     })
-  });
+  }));
 
   /* Temps 7 — avancement du tour. Fonctionne aussi sans dé (aucune extraction). */
   function avancerTour(p) {
