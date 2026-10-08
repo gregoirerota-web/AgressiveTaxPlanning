@@ -676,7 +676,7 @@ Texte simple, sans titres ni listes.`;
 
   const blocsSansMine = g.terr.filter((t, i) => t.revele && t.q > 0 && t.restant > 0 && !g.mines.some((m) => m.bloc === i)).length;
   const guide = PHASES_GUIDE[g.phase] || [g.phase === "FIN" ? "Bilan" : "Mise en place", "Suivez les décisions du tour et observez leur effet sur les résultats."];
-  const etape = ["P1M","P1F","P1R"].includes(g.phase) ? (g.phase === "P1M" ? 0 : 1) :
+  const etape = g.phase === "FIN" ? -1 : ["P1M","P1F","P1R"].includes(g.phase) ? (g.phase === "P1M" ? 0 : 1) :
     ["P3","P4","P5","P6","P7"].indexOf(g.phase) + 2;
 
   return (
