@@ -363,6 +363,7 @@ function Jeu() {
   const [g, setG] = useState(restoreFilons);
   const [showGuide, setShowGuide] = useState(false);
   const [saveOk, setSaveOk] = useState(true);
+  const [pendingControl, setPendingControl] = useState(null);
   useEffect(() => { try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify({version:2,game:g})); setSaveOk(true); } catch { setSaveOk(false); } }, [g]);
   const resetFilons = () => {
     if (!window.confirm("Recommencer ? La partie enregistrée sur cet appareil sera remplacée.")) return;
@@ -496,7 +497,22 @@ function Jeu() {
       up({ cm: d.choix, cmRaison: d.raison, phase: "P7" });
     } else go("P6", "Ministre des Finances");
   };
-  const poserCM = (k) => up({ cm: k, phase: "P7" });
+  const poserCM = (k) => setPendingControl(k);
+  const confirmerCM = () => {
+    if (!pendingControl || !CM[pendingControl]) return;
+    up({ cm: pendingControl, phase: "P7" });
+    setPendingControl(null);
+  };
+  const appliquerZoneSure = () => setG((p) => ({
+    ...p,
+    mines: p.mines.map((m) => {
+      if (m.cocon || !p.de || p.terr[m.bloc].restant <= 0) return m;
+      const units = Math.min(m.tuile.cap, p.terr[m.bloc].restant);
+      const prix = r0(PRIX_REF * DE_COURS[p.de - 1]);
+      const b = bornes(m.tuile, units, units * prix);
+      return { ...m, curseurs: { pt: b.pt.hi, sc: b.sc.hi, fs: b.fs.seuil } };
+    })
+  });
 
   /* Temps 7 — avancement du tour. Fonctionne aussi sans dé (aucune extraction). */
   function avancerTour(p) {
@@ -955,6 +971,14 @@ Texte simple, sans titres ni listes.`;
                           const tours = Math.ceil(t.restant / x.cap);
                           const trop = tours > toursRestants;
                           const cher = x.inv > g.cash;
+                          // Repère illustratif : prix moyen, coûts réels et fiscalité du bloc.
+                          const quantite = Math.min(t.restant, x.cap * toursRestants);
+                          const coutVariable = x.local + (x.pt.reel + x.sc.reel + x.fs.reel) / x.cap;
+                          const caPrevu = quantite * PRIX_REF;
+                          const redevancePrevue = caPrevu * t.regime.red / 100;
+                          const margeAvantIS = caPrevu - quantite * coutVariable - redevancePrevue - x.inv;
+                          const impotEstime = Math.max(0, margeAvantIS) * t.regime.is / 100;
+                          const surplusIndicatif = r0(margeAvantIS - impotEstime);
                           return (
                             <button key={x.id} disabled={cher} onClick={() => investir(i, x)}
                               style={{ border: `1px solid ${C.line}`, background: C.card, opacity: cher ? 0.4 : 1 }}
@@ -962,6 +986,9 @@ Texte simple, sans titres ni listes.`;
                               <div>
                                 <span style={{ fontFamily: F.display, fontWeight: 600 }} className="text-sm">{x.nom}</span>
                                 <span style={{ fontFamily: F.mono, color: C.ink2 }} className="text-xs"> · {fmt(x.inv)} M€ · capacité {x.cap}/tour · coût local {x.local}/u</span>
+                                <div style={{fontSize:11,color:surplusIndicatif>=0?C.patina:C.oxblood,marginTop:4}}>
+                                  Repère à prix moyen : {fmt(quantite)} unités extractibles ; solde net indicatif {surplusIndicatif>=0?"+":""}{fmt(surplusIndicatif)} M€ (après investissement)
+                                </div>
                               </div>
                               <span style={{ fontFamily: F.mono, fontWeight: 700, color: trop ? C.oxblood : C.patina }} className="text-sm">
                                 {tours} tour{tours > 1 ? "s" : ""}{trop ? " — au-delà de l'horizon" : ""}
@@ -1030,7 +1057,11 @@ Texte simple, sans titres ni listes.`;
               <p style={{ fontFamily: F.display }} className="text-base mb-4">Aucun bloc détenu, aucune mine. Rien à investir ce tour.</p>
             )}
 
-            <Btn onClick={finT3}>Passer au cours</Btn>
+            <div className="p-3 mb-3" style={{background:C.card,border:"1px solid "+C.line}}>
+              <p className="text-sm">Trésorerie disponible : <strong>{fmt(g.cash)} M€</strong> · Mines équipées : <strong>{g.mines.length}</strong> · Blocs à équiper : <strong>{sansMine.length}</strong></p>
+              {sansMine.length > 0 && !jeSuisMinistre && <p className="text-xs mt-2" style={{color:C.ink2}}>Passer au cours laisse ces blocs inexploités pendant ce tour. Vous pourrez encore investir au prochain tour.</p>}
+            </div>
+            <Btn onClick={finT3}>{sansMine.length > 0 ? "Terminer les investissements et poursuivre" : "Passer au cours"}</Btn>
           </Bloc>
           );
         })()}
@@ -1080,6 +1111,10 @@ Texte simple, sans titres ni listes.`;
             <Note color={C.oxblood}>
               Une seule contre-mesure frappera tout le territoire. Charger le même canal sur toutes vos mines, c'est offrir au Ministre une prise unique.
             </Note>
+            <div className="flex flex-wrap gap-3 items-center mb-4 p-3" style={{background:C.card,border:"1px solid "+C.line}}>
+              <Btn kind="ghost" onClick={appliquerZoneSure}>Rétablir les charges dans les zones sûres</Btn>
+              <span className="text-xs" style={{color:C.ink2}}>Applique les plafonds autorisés à chaque mine active. Vous pouvez ensuite ajuster les curseurs.</span>
+            </div>
             {resMines.map((r, i) => r.units === 0 ? (
               <div key={i} style={{ border: `1px solid ${C.line}` }} className="p-3 mb-3">
                 <span style={{ fontFamily: F.display }}>Bloc {r.mine.bloc + 1} — aucune extraction ce tour.</span>
@@ -1136,13 +1171,20 @@ Texte simple, sans titres ni listes.`;
             <p style={{ fontFamily: F.display }} className="text-sm mb-3 italic">
               {T.hors > 0 ? "Vous savez combien. Vous ignorez par quelle porte." : "Tout est dans les clous — et pourtant du bénéfice a bougé."}
             </p>
+            <p className="text-xs mb-3" style={{color:C.ink2}}>La catégorie sélectionnée sera confirmée avant le redressement. Les montants par canal restent inconnus : aucun indice privé n'est révélé.</p>
             <div className="grid gap-2">
               {Object.entries(CM).map(([k, c]) => (
-                <button key={k} onClick={() => poserCM(k)} style={{ border: `1px solid ${C.patina}`, background: C.card }} className="p-3 text-left">
+                <button key={k} onClick={() => poserCM(k)} aria-pressed={pendingControl === k}
+                  style={{ border: `2px solid ${pendingControl === k ? C.patina : C.line}`, background: pendingControl===k ? `${C.patina}16` : C.card }} className="p-3 text-left">
                   <div style={{ fontFamily: F.display, fontWeight: 600 }} className="text-base">{c.nom}</div>
                   <div style={{ fontFamily: F.mono, color: C.ink2 }} className="text-xs">Ouvre : {c.canal} · {c.src}</div>
                 </button>
               ))}
+            </div>
+            <div className="mt-4 p-3" style={{border:"1px solid "+C.line,background:C.paper}}>
+              {pendingControl ? <p className="text-sm mb-3">Contrôle choisi : <strong>{CM[pendingControl].nom}</strong>. Ce choix s’appliquera à toutes les mines actives du territoire.</p> :
+                <p className="text-sm mb-3">Sélectionnez un canal de contrôle pour poursuivre.</p>}
+              <Btn disabled={!pendingControl} onClick={confirmerCM}>Confirmer le contrôle et révéler les résultats</Btn>
             </div>
             <Note color={C.patina}>La contre-mesure est une règle de droit : elle s'applique à toutes les mines du territoire. Un État ne légifère pas contre un contribuable.</Note>
           </Bloc>
