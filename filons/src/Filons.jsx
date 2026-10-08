@@ -553,7 +553,11 @@ function Jeu() {
     const suite = { ...base, turn: p.turn + 1, de: null, cm: null, cmRaison: null, curseursRaison: null, dernierTour };
     return debutTour(suite);
   }
-  const tourSuivant = () => setG((p) => avancerTour(p));
+  const tourSuivant = () => {
+    // The current round is committed only once, when the player sees the public summary.
+    setG((p) => p.phase === "P7" ? avancerTour(p) : p);
+    setPendingControl(null);
+  };
 
   const bilan = useMemo(() => {
     const c = g.cum;
@@ -1346,7 +1350,27 @@ Texte simple, sans titres ni listes.`;
                 <div style={{ color: C.ink2 }} className="text-xs">déplacé {fmt(T.deplace)} − repris {fmt(T.reprise)} · rente {fmt(T.rente)}</div>
               </div>
             </div>
-            <div className="mt-5"><Btn onClick={tourSuivant}>{g.turn >= g.dernierTour ? "Clore la partie" : `Tour ${g.turn + 1}`}</Btn></div>
+            <div className="mt-5 p-4" style={{border:`2px solid ${C.patina}`,background:C.card}}>
+              <div style={{fontFamily:F.mono,fontSize:10,letterSpacing:"0.13em",color:C.ink2}}>SYNTHÈSE DU TOUR {g.turn}</div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 mb-3">
+                {[
+                  ["Production",T.CA,C.brass],
+                  ["État : recettes",T.prelev+g.permisDuTour,C.patina],
+                  ["Rente économique",T.rente,C.ink],
+                  ["Redressements",T.reprise,C.oxblood]
+                ].map(([name,value,color])=>(
+                  <div key={name} className="p-2" style={{background:C.paper,borderTop:`3px solid ${color}`}}>
+                    <div className="text-xs">{name}</div>
+                    <strong style={{fontFamily:F.mono,color}}>{fmt(value)} M€</strong>
+                  </div>
+                ))}
+              </div>
+              <p className="text-sm mb-3" style={{color:C.ink2}}>
+                {g.turn===g.dernierTour ? "Dernier tour : vous allez découvrir le bilan final et les conditions de victoire." :
+                  "Le passage au tour suivant enregistre les résultats, actualise les ressources restantes et prépare les prochaines décisions."}
+              </p>
+              <Btn onClick={tourSuivant}>{g.turn >= g.dernierTour ? "Valider le dernier tour → Bilan final" : `Valider le tour ${g.turn} → Tour ${g.turn+1}`}</Btn>
+            </div>
           </Bloc>
         )}
 
@@ -1404,6 +1428,24 @@ Texte simple, sans titres ni listes.`;
             </Bloc>
 
             <Bloc>
+              <Eyebrow>Évolution des recettes et de l'activité</Eyebrow>
+              <p className="text-xs mb-3" style={{color:C.ink2}}>Les barres présentent les encaissements publics et le chiffre d'affaires de chaque tour, sur une échelle commune.</p>
+              {(() => {
+                const max = Math.max(1,...g.cum.tours.map(t=>Math.max(t.CA,t.prelev+t.permis)));
+                return <div className="grid gap-3 mb-5">
+                  {g.cum.tours.map(t=>(
+                    <div key={t.t} className="grid grid-cols-1 sm:grid-cols-5 gap-2 items-center">
+                      <div className="text-xs font-semibold">Tour {t.t}</div>
+                      <div className="sm:col-span-4 grid gap-1">
+                        <div className="flex items-center gap-2"><span className="text-xs" style={{width:72}}>Activité</span>
+                          <div style={{background:C.line,flex:1,height:9}}><div style={{background:C.brass,width:`${Math.max(0,t.CA)/max*100}%`,height:"100%"}} /></div><span style={{width:58,textAlign:"right",fontFamily:F.mono,fontSize:11}}>{fmt(t.CA)}</span></div>
+                        <div className="flex items-center gap-2"><span className="text-xs" style={{width:72}}>État</span>
+                          <div style={{background:C.line,flex:1,height:9}}><div style={{background:C.patina,width:`${Math.max(0,t.prelev+t.permis)/max*100}%`,height:"100%"}} /></div><span style={{width:58,textAlign:"right",fontFamily:F.mono,fontSize:11}}>{fmt(t.prelev+t.permis)}</span></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>;
+              })()}
               <Eyebrow>Journal de la partie</Eyebrow>
               <div style={{ fontFamily: F.mono }} className="text-xs overflow-x-auto">
                 <div className="grid grid-cols-7 gap-2 py-1 font-bold" style={{ borderBottom: `1px solid ${C.ink}` }}>
