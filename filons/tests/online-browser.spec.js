@@ -39,8 +39,8 @@ test("remote firms see deposits, select three tax channels and receive a mine-le
       if(await slider.count()){
         editable++;
         await expect(page.getByText(/Bénéfice imposable estimé/).first()).toBeVisible();
-        const max=await slider.getAttribute("max");
-        await slider.fill(max);
+        await slider.focus();
+        await slider.press("End");
       }
       await page.getByRole("button",{name:"Sceller toutes mes déclarations"}).click();
     }
