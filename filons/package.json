@@ -1,0 +1,26 @@
+{
+  "name": "filons-serious-game",
+  "version": "4.6.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test:e2e": "playwright test",
+    "start": "node server/index.js",
+    "test:server": "node --test tests/multiplayer.test.js tests/remote-connect.test.js tests/persistence.test.js"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "express": "^4.21.2",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0",
+    "@playwright/test": "^1.56.0"
+  }
+}

@@ -1976,7 +1976,7 @@ input[type="range"]::-webkit-slider-thumb {
 
       <div class="note-h2">1. General Presentation</div>
 
-      <p>Base erosion and profit shifting — commonly referred to by the acronym BEPS — represent a structural fiscal challenge for the partner countries of the European Commission's Directorate-General for International Partnerships (INTPA), whose tax revenues rely heavily on the taxation of multinational enterprises operating in the extractive sector. Crivelli, De Mooij, and Keen (2016) estimate that these practices cost developing countries approximately 1.3 percent of GDP annually in foregone revenues, more than twice the estimated impact on advanced economies. This pedagogical simulation, available in French and English versions with identical content, enables participants to engage concretely and interactively with the mechanisms of aggressive tax planning. It is grounded in a stylized case study representative of a mining enterprise operating in a low-income developing country that is a partner of INTPA: the enterprise generates revenues of 300 million euros and, in the baseline scenario, remits 12 million euros in corporate income tax at a statutory rate of 20 percent. A self-assessment quiz completes the learning experience.</p>
+      <p>Base erosion and profit shifting — commonly referred to by the acronym BEPS — represent a structural fiscal challenge for the partner countries of the European Commission's Directorate-General for International Partnerships (INTPA), whose tax revenues rely heavily on the taxation of multinational enterprises operating in the extractive sector. Crivelli, De Mooij, and Keen (2016) estimate that these practices cost developing countries approximately 1.3 percent of GDP annually in foregone revenues, more than twice the estimated impact on advanced economies. This pedagogical simulation, available in French and English versions with identical content, enables participants to engage concretely and interactively with the mechanisms of aggressive tax planning. It is grounded in a stylized case study representative of a mining enterprise operating in a low-income developing country that is a partner of INTPA: the enterprise generates annual sales of USD 300 million and, in the baseline scenario, remits USD 15 million in corporate income tax at 20 percent, plus USD 15 million in mining royalties. A self-assessment quiz completes the learning experience.</p>
 
       <div class="note-h2">2. Structure of the Simulation</div>
 
@@ -2113,6 +2113,7 @@ input[type="range"]::-webkit-slider-thumb {
   </div>
 </div>
 
+<script src="strategic-game.js"></script>
 <script>
 // ═══════════════════════════════════════════════════════
 // SCENARIO DATA
@@ -3244,7 +3245,7 @@ function renderSim() {
           </div>
         </div>
       </div>
-
+      <div id="linked-game-panel">${renderLinkedPanel()}</div>
     </div>`;
   setTimeout(() => { if(document.querySelector('[data-rvc]')) patchSimResults(); }, 0);
 }
@@ -3530,8 +3531,18 @@ function togSim(key) {
 }
 
 function updSim(key, v) {
-  simState[key] = parseFloat(v);
-  if (simDefaults[key] !== undefined && parseFloat(v) !== simDefaults[key]) {
+  const next = Number(v);
+  const limits = {
+    citRate: [0, 100], interestRate: [1, 20], tpMarkup: [200, 600],
+    debtLevel: [100, 900], hedgeDiscount: [0, 100],
+    minCitRate: [0, 100], minRoyaltyRate: [0, 100], whtRate: [0, 100],
+    alpMarkup: [0, 30], thinCapRatio: [1, 10], esrRate: [0, 100]
+  };
+  if (!Object.prototype.hasOwnProperty.call(limits, key) || !Number.isFinite(next)) return;
+  const [lower, upper] = limits[key];
+  if (next < lower || next > upper) return;
+  simState[key] = next;
+  if (simDefaults[key] !== undefined && next !== simDefaults[key]) {
     changedParams.add(key);
   } else {
     changedParams.delete(key);
@@ -3553,6 +3564,7 @@ function patchSimResults() {
   const resMin = computeSim();
   simState.simMode = savedMode;
 
+  refreshLinkedPanel();
   // Patch CEO results panel
   const ceoPatch = document.getElementById('sim-results-ceo');
   if (ceoPatch) ceoPatch.innerHTML = renderSimResults(resCeo, true);
@@ -3621,6 +3633,34 @@ function patchSimResults() {
   });
 }
 
+
+let linked = {stage:0,firm:null,policy:null,result:null,audit:false,error:''};
+function linkedFirm(){return {transferPricing:simState.ptOn,equipmentInvoice:simState.tpMarkup,thinCapitalisation:simState.scOn,debtLevel:simState.debtLevel,exportMispricing:simState.hedgeOn,exportDiscount:simState.hedgeDiscount,interestRate:simState.interestRate};}
+function linkedPolicy(){return {citRate:simState.minCitRate,royaltyRate:simState.minRoyaltyRate,armLength:simState.alpOn,alpMarkup:simState.alpMarkup,thinCap:simState.thinCapOn,thinCapRatio:simState.thinCapRatio,earningsStripping:simState.esrOn,esrRate:simState.esrRate,withholding:simState.whtOn,withholdingRate:simState.whtRate,exportAudit:linked.audit};}
+function linkedNext(){
+ if(linked.stage===0){linked.firm=linkedFirm();linked.stage=1;}
+ else if(linked.stage===1){try{const p=linkedPolicy();const r=TaxShiftLinked.calculateRound(linked.firm,p);linked.policy=p;linked.result=r;linked.stage=2;linked.error='';}catch(err){linked.error=err.message;}}
+ refreshLinkedPanel();
+}
+function linkedReset(){linked={stage:0,firm:null,policy:null,result:null,audit:false,error:''};refreshLinkedPanel();}
+function linkedAudit(){if(linked.stage===1){linked.audit=!linked.audit;refreshLinkedPanel();}}
+function renderLinkedPanel(){
+ const g=linked,p=g.stage===1?linkedPolicy():g.policy,r=g.result;
+ const points=p?Number(p.armLength)+Number(p.thinCap)+Number(p.earningsStripping)+Number(p.withholding)+2*Number(p.exportAudit):0;
+ const fields=r?[['Declared local sales',r.declaredSales],['Tax-adjusted sales',r.correctedSales],['Declared profit before tax',r.declaredPretax],['Taxable profit',r.taxableProfit],['Actual interest',r.actualInterest],['Deductible interest',r.deductibleInterest],['Deductible depreciation',r.allowableDepreciation],['Corporate tax',r.cit],['Mining royalty',r.royalty],['Withholding tax',r.wht],['Administrative cost',r.adminCost],['Net public revenue',r.stateNet],['Shareholder annual proxy',r.shareholderAnnualIncome]]:[];
+ const rows=fields.map(([label,v])=>'<tr><td style="padding:7px;border-bottom:1px solid #ddd">'+label+'</td><td style="text-align:right;padding:7px;border-bottom:1px solid #ddd">$'+v.toFixed(1)+'M</td></tr>').join('');
+ return '<section style="background:white;border:2px solid var(--navy);margin-top:24px;padding:22px">'+
+ '<h2 style="font:700 22px Noto Serif,serif">Linked strategic game — Firm → Minister</h2>'+
+ '<p style="margin:12px 0">Sequential teaching exercise using the two control panels above. Commit one player’s choices before the next player responds. The model distinguishes cash expenses from tax deductions.</p>'+
+ '<p><strong>Stage '+(g.stage+1)+'/3: '+['Firm decision','Minister response','Results'][g.stage]+'</strong></p>'+
+ (g.stage===0?'<p>Configure the CEO controls above before committing.</p><button class="start-btn" type="button" onclick="linkedNext()">Commit firm strategy →</button>':'')+
+ (g.stage===1?'<p>Firm choices locked: transfer pricing '+(g.firm.transferPricing?'on':'off')+', debt planning '+(g.firm.thinCapitalisation?'on':'off')+', export mispricing '+(g.firm.exportMispricing?'on':'off')+'. Configure the Minister controls above.</p><label style="display:block;margin:12px 0"><input type="checkbox" onchange="linkedAudit()" '+(g.audit?'checked':'')+'> Audit related-party export prices (2 capacity points)</label><p>Administrative capacity: '+points+' / 4 points. Each other activated control costs 1 point. Each point costs $1M.</p><button class="start-btn" type="button" onclick="linkedNext()">Commit minister response →</button>':'')+
+ (g.error?'<p style="color:var(--red)" role="alert">'+g.error+'</p>':'')+
+ (r?'<p style="margin:12px 0"><strong>Gross revenue: $'+r.stateGross.toFixed(1)+'M; net revenue: $'+r.stateNet.toFixed(1)+'M.</strong></p><table style="border-collapse:collapse;width:100%;max-width:650px">'+rows+'</table><p style="margin-top:12px;font-size:12px">One-period educational model, not consolidated accounts; excludes investment response, tax losses, foreign taxation, and probabilistic audit outcomes.</p>':'')+
+ '<button type="button" onclick="linkedReset()" style="display:block;margin-top:12px;padding:9px;cursor:pointer">Start new round</button></section>';
+}
+function refreshLinkedPanel(){const el=document.getElementById('linked-game-panel');if(el)el.innerHTML=renderLinkedPanel();}
+
 function computeSim() {
   // ── CEO MODE ──────────────────────────────────────
   if (simState.simMode === 'ceo') {
@@ -3640,8 +3680,10 @@ function computeSim() {
     }
     if (simState.scOn) {
       const debt = simState.debtLevel;
-      interets = debt * r;
-      offshoreProfit += debt * r * (simState.ptOn ? 1 : 1);
+      // Preserve the extra equipment financing when both strategies are active.
+      const equipmentFinancing = simState.ptOn ? 200 + (tpEquipment - 200) * 0.3 : 0;
+      interets = (debt + equipmentFinancing) * r;
+      offshoreProfit += debt * r;
       beps += 3;
     }
     if (simState.hedgeOn) {
@@ -3681,7 +3723,8 @@ function computeSim() {
   // ALP correction: limit equipment value to ALP-corrected level
   let equipmentBase = 400; // assume firm used TP (inflated equipment)
   if (simState.alpOn) {
-    const alpPrice = 200 * (1 + simState.alpMarkup / 100);
+    // ALP corrections cannot raise an already-inflated invoice value.
+    const alpPrice = Math.min(equipmentBase, 200 * (1 + simState.alpMarkup / 100));
     depr = alpPrice * 0.10;
     interets = (alpPrice * 0.7) * r;
     offshoreProfit = Math.max(0, offshoreProfit - (400 - alpPrice) * 0.5);

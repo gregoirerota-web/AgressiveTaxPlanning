@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: filons-multijoueur
+    runtime: node
+    plan: free
+    branch: improve-simulator-robustness-2026-10
+    rootDir: filons
+    buildCommand: npm install --include=dev --no-audit --no-fund && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
