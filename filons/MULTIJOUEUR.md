@@ -12,6 +12,18 @@ Le jeu classique est accessible à `/`. Le nouveau mode **multijoueur en ligne**
 
 Chaque joueur a besoin d'un ordinateur et d'une connexion Internet. Le jeu peut aussi fonctionner sur le réseau local.
 
+## Version enrichie : fiscalité et partage de la rente
+
+Après l'attribution, le plateau indique le **gisement découvert**, son exploitant et son équipement éventuel. Les concessions sans mine sont aussi visibles et ne produisent rien.
+
+Au stade « Stratégies fiscales », chaque entreprise choisit **pour chacune de ses mines** trois montants distincts (M€) : achats intragroupe / prix de transfert, intérêts intragroupe et frais de siège. Les valeurs de référence (coût réel, zone sûre, plafond) sont affichées, ainsi que le bénéfice imposable et l'IS estimé *avant contrôle*. Les données détaillées ne sont transmises qu'à la firme concernée.
+
+Le ministre ne voit que le chiffre d'affaires, les charges totales déclarées et leur écart au sommet des zones sûres. Il choisit un contrôle national parmi les trois canaux. Le bilan présente le **résultat par gisement et par firme**, la **rente économique**, les **redevances**, l'**impôt sur les sociétés**, les **pénalités**, les **profits économiques après prélèvements** et les parts de rente de l'État et des entreprises (si la rente est positive).
+
+**Conventions de calcul :** rente = recettes de vente − dépenses réelles d'exploitation − amortissement ; profit économique = rente − prélèvements fiscaux ; recettes fiscales = redevances + IS + pénalités. Le prix des permis est une recette supplémentaire de l'État, mais n'entre pas dans la répartition de la rente d'exploitation du tour. Le rendement cumulé de chaque firme est le solde de trésorerie généré pendant la partie (y compris dépenses de permis et d'équipements) divisé par les investissements en équipements. Il s'agit d'un **indicateur pédagogique**, sans actualisation ni risque probabilisé.
+
+La nouvelle déclaration détaille les trois canaux ; la mécanique demeure une simplification des règles de FILONS classique. Les contrôles restent déterministes, sans probabilité d'audit, et toutes les firmes attendent la clôture de la phase pour voir avancer le jeu.
+
 ## Déployer gratuitement sur Render
 
 Le fichier `../render.yaml` définit un **Web Service Node.js**, plan `free`, dans le sous-répertoire `filons/`.
