@@ -16,6 +16,7 @@ function LiveGame(){
   const [plan,setPlan]=useState({});
   const [resultDetails,setResultDetails]=useState(true);
   const [audit,setAudit]=useState("pt");
+  useEffect(()=>{ setPlan({}); setInvestments({}); setBlock("none"); },[state?.turn]);
   useEffect(()=>{
     const handleConnect=()=>{
       setConnected(true);
@@ -169,6 +170,17 @@ function LiveGame(){
         <p style={{margin:"6px 0"}}>État : {unit(state.result.summary.royalty)} M€ de redevances + {unit(state.result.summary.cit)} M€ d'IS + {unit(state.result.summary.penalties)} M€ de pénalités.</p>
         <p style={{margin:"6px 0"}}>Firmes : {unit(state.result.summary.companyProfit)} M€ de profit économique après prélèvements, avant prise en compte des permis et investissements passés.</p>
       </div>}
+      <h3>Concessions et mines attribuées</h3>
+      <p>La découverte du gisement intervient dès l'attribution du permis. Une mine non équipée apparaît ci-dessous, même si elle n'a encore réalisé aucune production.</p>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(190px,1fr))",gap:9,marginBottom:16}}>
+        {state.blocks.filter(b=>b.revealed).map(b=><div key={b.id} style={{background:COLORS.paper,padding:10,borderLeft:"3px solid "+(b.investment?COLORS.green:COLORS.gold)}}>
+          <strong>Bloc {b.id+1} — {b.name}</strong>
+          <div>Entreprise : {state.players.find(p=>p.id===b.owner)?.name||"—"}</div>
+          <div>Minerai restant : {b.remaining}/{b.ore} unités</div>
+          <div>Équipement : {b.investment?.name||"non équipé"}</div>
+          <div style={{fontSize:12,color:"#63726C"}}>{b.investment?"Capacité : "+b.investment.capacity+" u./tour":"Pas encore de production sur cette concession"}</div>
+        </div>)}
+      </div>
       <h3>Résultats mine par mine</h3>
       <div style={{overflowX:"auto"}}><table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}>
         <thead><tr>{["Bloc / gisement","Entreprise","Équipement","Volume","CA","Rente","Redevance","IS","Pénalité","Profit"].map(x=><th key={x} style={{textAlign:"left",padding:7,borderBottom:"1px solid #bbb"}}>{x}</th>)}</tr></thead>
@@ -186,6 +198,11 @@ function LiveGame(){
         {state.players.map(p=><div key={p.id} style={{background:COLORS.paper,padding:10}}>
           <strong>{p.name}</strong><div>{p.role==="minister"?"Recettes totales de l'État (permis inclus)":"Trésorerie nette cumulée (permis et investissements inclus)"}</div>
           <strong>{unit(p.score)} M€</strong>
+          {p.role==="firm"&&<div style={{fontSize:12,marginTop:5}}>
+            Investissement : {unit(p.invested||0)} M€ · Permis : {unit(p.permitsPaid||0)} M€
+            <div>Rendement cumulé du capital : <strong>{p.invested>0?(100*p.score/p.invested).toFixed(1).replace(".",",")+" %":"—"}</strong></div>
+            <div style={{fontSize:11}}>Flux nets cumulés, après achat des permis et investissements, divisés par le capital investi dans les équipements.</div>
+          </div>}
         </div>)}
       </div>
       <button style={{...btn,marginTop:15}} onClick={()=>setResultDetails(x=>!x)}>
