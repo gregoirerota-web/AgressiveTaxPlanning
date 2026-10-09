@@ -29,7 +29,7 @@ app.get("/", (_,res)=>res.sendFile(join(dist,"index.html")));
 
 const broadcast = room => {
   for (const player of room.players) if (player.connected && player.socketId) {
-    io.to(player.socketId).emit("room:state",publicState(room,player.id));
+    io.to(player.socketId).emit("room:state",{...publicState(room,player.id),durable:store.enabled});
   }
 };
 const fail = (ack,message)=>typeof ack==="function"&&ack({ ok:false, error:String(message||"Action impossible") });
