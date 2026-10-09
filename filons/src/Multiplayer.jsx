@@ -73,7 +73,7 @@ function LiveGame(){
   return <main style={{maxWidth:1060,margin:"0 auto",padding:20,background:COLORS.paper,minHeight:"100vh",fontFamily:"system-ui,sans-serif",color:COLORS.navy}}>
     <header style={{display:"flex",flexWrap:"wrap",justifyContent:"space-between",alignItems:"center",gap:15,marginBottom:18}}>
       <div><h1 style={{fontFamily:"Georgia,serif",letterSpacing:4}}>FILONS <span style={{fontSize:14,letterSpacing:1}}>EN LIGNE</span></h1><div>Tour {state.turn}/8 · {state.stage==="lobby"?"Salle d’attente":state.stage==="policy"?"Code minier":state.stage==="bidding"?"Offres simultanées":state.stage==="investment"?"Investissements":state.stage==="planning"?"Stratégies fiscales":state.stage==="audit"?"Contrôle fiscal":state.stage==="results"?"Résultats du tour":"Partie terminée"}</div></div>
-      <div style={{background:"white",padding:12,border:"1px solid "+COLORS.border}}>Code de partie : <strong style={{fontSize:25,letterSpacing:3}}>{state.code}</strong><div style={{fontSize:12}}>{connected?"● Connecté":"○ Déconnecté — reconnexion…"}</div></div>
+      <div style={{background:"white",padding:12,border:"1px solid "+COLORS.border}}>Code de partie : <strong style={{fontSize:25,letterSpacing:3}}>{state.code}</strong><div style={{fontSize:12}}>{connected?"● Connecté":"○ Déconnecté — reconnexion…"}</div><div style={{fontSize:12,color:state.durable?"#2A6756":"#9C3530"}}>{state.durable?"● Sauvegarde permanente activée":"○ Partie non sauvegardée sur serveur"}</div></div>
     </header>
     {error&&<p role="alert" style={{background:"#FFEDEB",padding:12,color:"#842B26"}}>{error}</p>}
     {panel(<><h3>Participants — {state.players.length}/6</h3>
