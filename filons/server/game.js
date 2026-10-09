@@ -17,6 +17,23 @@ const round = x => Math.round(x);
 const bound = (x, lo, hi) => typeof x === "number" && Number.isFinite(x) && x >= lo && x <= hi;
 const publicPlayer = p => ({ id: p.id, name: p.name, role: p.role, connected: p.connected, ready: p.ready, cash: p.role === "firm" ? p.cash : undefined, score: p.score });
 const mkCode = () => randomBytes(3).toString("hex").toUpperCase();
+const scale = (x,ratio)=>round(x*ratio);
+// Cost bands consistent with the local teaching model. FS safe threshold
+// is the greater of actual headquarters cost and 5% of sales.
+export function decisionBands(block, price) {
+  if (!block.investment || !block.remaining) return null;
+  const t=block.investment;
+  const units=Math.min(t.capacity,block.remaining);
+  const ratio=units/t.capacity, sales=units*price;
+  const ptReal=scale(t.pt,ratio), scReal=scale(t.sc,ratio), fsReal=scale(t.fs,ratio);
+  const ptSafe=scale(t.pt*[1.25,1.25,1.125,1.125][t.id-1],ratio);
+  const scSafe=scale(t.sc*[2,4/3,4/3,4/3][t.id-1],ratio);
+  const fsSafe=Math.max(fsReal,round(sales/20));
+  return {units,sales,pt:{real:ptReal,safe:ptSafe,max:scale(t.pt*[1.5,1.5,1.3125,1.275][t.id-1],ratio),median:round((ptReal+ptSafe)/2)},
+    sc:{real:scReal,safe:scSafe,max:scale(t.sc*[4.5,7/3,7/3,7/3][t.id-1],ratio),median:round((scReal+scSafe)/2)},
+    fs:{real:fsReal,safe:fsSafe,max:Math.max(fsSafe,scale(t.fs*2.5,ratio))},
+    local:t.local*units, depreciation:round(t.cost/block.ore*units)};
+}
 
 export function createRoom(hostId, name, token, random = randomInt) {
   const geology = [...GEOLOGY];
@@ -25,7 +42,7 @@ export function createRoom(hostId, name, token, random = randomInt) {
     code: mkCode(), hostId, stage: "lobby", turn: 1, price: null, policy: { cit: 20, royalty: 4, reserve: 60 },
     blocks: geology.map((g, id) => ({ id, ...g, revealed: false, owner: null, remaining: g.ore, investment: null, contract: null })),
     players: [{ id: hostId, token, name, role: "minister", connected: true, ready: false, cash: 0, score: 0, decision: null }],
-    journal: [], lastResult: null
+    journal: [], lastResult: null, history: []
   };
 }
 export function publicState(room, viewerId) {
@@ -41,8 +58,19 @@ export function publicState(room, viewerId) {
     } : { id: b.id, revealed: false, owner: null }),
     me: viewer.id,
     myDecision: viewer.decision,
+    myBands: room.stage==="planning" ? Object.fromEntries(room.blocks.filter(b=>b.owner===viewer.id && b.investment && b.remaining>0).map(b=>[b.id,decisionBands(b,room.price)])) : {},
+    auditSignal: room.stage==="audit" && viewer.role==="minister" ? room.blocks.filter(b=>b.investment&&b.remaining>0).map(b=>{
+      const bands=decisionBands(b,room.price);
+      const d=room.players.find(p=>p.id===b.owner)?.decision?.plan?.[b.id];
+      if(!d)return null;
+      return {block:b.id+1,firm:room.players.find(p=>p.id===b.owner)?.name,sales:bands.sales,
+        charges:d.pt+d.sc+d.fs, safeCeiling:bands.pt.safe+bands.sc.safe+bands.fs.safe};
+    }).filter(Boolean) : [],
     log: room.journal.slice(-8),
-    result: room.lastResult
+    history: room.history,
+    result: room.lastResult && { ...room.lastResult,
+      details:room.lastResult.details.map(d => d.ownerId===viewer.id ?
+        d : Object.fromEntries(Object.entries(d).filter(([key])=>!["declared","actualCosts","ownerId"].includes(key)))) }
   };
 }
 export function joinRoom(room, id, name, token) {
@@ -64,7 +92,7 @@ function nextIfAll(room) {
       const { block, bid } = p.decision;
       const b = room.blocks[block];
       if (!b || b.owner || issued.has(block) || bid > p.cash) continue;
-      p.cash -= bid; room.players[0].score += bid; issued.add(block);
+      p.cash -= bid; p.score -= bid; room.players[0].score += bid; issued.add(block);
       b.revealed = true; b.owner = p.id; b.contract = { ...room.policy };
       room.journal.push(p.name + " obtient le bloc " + (block + 1) + " pour " + bid + " M€.");
     }
@@ -76,7 +104,7 @@ function nextIfAll(room) {
         const b = room.blocks[Number(key)];
         const tech = TECHNOLOGIES.find(t => t.id === techId);
         if (b?.owner !== p.id || !b?.remaining || b.investment || !tech || tech.cost > p.cash) continue;
-        p.cash -= tech.cost; b.investment = tech;
+        p.cash -= tech.cost; p.score -= tech.cost; b.investment = tech;
       }
     }
     room.price = round(200 * [0.6,0.8,0.9,1.1,1.2,1.4][randomInt(6)]);
@@ -122,11 +150,22 @@ export function decide(room, playerId, data) {
       p.decision = { investments };
     } else {
       const plan = data?.plan || {};
-      for (const [key, intensity] of Object.entries(plan)) {
-        if (!room.blocks[Number(key)] || room.blocks[Number(key)].owner !== p.id ||
-          !bound(intensity,0,3) || !Number.isInteger(intensity)) throw Error("Stratégie fiscale invalide");
+      if(!plan || typeof plan!=="object" || Array.isArray(plan))throw Error("Stratégie fiscale invalide");
+      const declared={};
+      for(const b of room.blocks.filter(b=>b.owner===p.id&&b.investment&&b.remaining>0)){
+        const bands=decisionBands(b,room.price);
+        const choice=plan[b.id] || {pt:bands.pt.safe,sc:bands.sc.safe,fs:bands.fs.safe};
+        if(!choice||typeof choice!=="object"||Array.isArray(choice)||
+           !bound(choice.pt,bands.pt.real,bands.pt.max)||
+           !bound(choice.sc,bands.sc.real,bands.sc.max)||
+           !bound(choice.fs,0,bands.fs.max)||
+           ![choice.pt,choice.sc,choice.fs].every(Number.isInteger))
+          throw Error("Déclaration hors barème sur le bloc "+(b.id+1));
+        declared[b.id]={pt:choice.pt,sc:choice.sc,fs:choice.fs};
       }
-      p.decision = { plan };
+      if(Object.keys(plan).some(key=>!Object.hasOwn(declared,key)))
+        throw Error("Déclaration sur une mine non exploitée ou non détenue");
+      p.decision = { plan:declared };
     }
     p.ready = true; nextIfAll(room); return;
   }
@@ -145,34 +184,51 @@ export function decide(room, playerId, data) {
   throw Error("Action indisponible à cette étape");
 }
 export function settle(room, channel) {
-  if (room.stage !== "audit") throw Error("Étape de contrôle requise");
-  const details = [];
-  let fiscalTotal = 0;
-  for (const b of room.blocks) {
-    if (!b.owner || !b.investment || b.remaining<=0) continue;
-    const owner = room.players.find(p=>p.id===b.owner), t=b.investment;
-    const units=Math.min(b.remaining,t.capacity), sales=units*room.price;
-    const factor=units/t.capacity, real={ pt:t.pt*factor,sc:t.sc*factor,fs:t.fs*factor };
-    const extraRate=owner.decision?.plan?.[b.id] || 0;
-    const extra = { pt:0, sc:0, fs:0 };
-    const selected = ["pt","sc","fs"][Math.floor((b.id + room.turn) % 3)];
-    extra[selected]=round(real[selected]*0.2*extraRate);
-    const shifted=extra[selected], recovered=channel===selected ? shifted : 0;
-    const depreciation=round(t.cost/b.ore*units);
+  if(room.stage!=="audit")throw Error("Étape de contrôle requise");
+  const details=[], firmsSummary={};
+  let fiscalTotal=0, salesTotal=0, economicRent=0, companyProfit=0, royaltyTotal=0, citTotal=0, penalties=0;
+  for(const p of firms(room)) firmsSummary[p.id]={id:p.id,name:p.name,profit:0,sales:0,taxes:0};
+  for(const b of room.blocks){
+    if(!b.owner||!b.investment||b.remaining<=0)continue;
+    const owner=room.players.find(p=>p.id===b.owner);
+    const bands=decisionBands(b,room.price),t=b.investment;
+    const {units,sales,local,depreciation}=bands;
+    const declared=owner.decision?.plan?.[b.id] || {pt:bands.pt.safe,sc:bands.sc.safe,fs:bands.fs.safe};
+    const rejections={pt:0,sc:0,fs:0};
+    if(channel==="pt"&&declared.pt>bands.pt.safe)rejections.pt=declared.pt-bands.pt.median;
+    if(channel==="sc"&&declared.sc>bands.sc.safe)rejections.sc=declared.sc-bands.sc.median;
+    if(channel==="fs"&&declared.fs>bands.fs.safe)rejections.fs=declared.fs-bands.fs.safe;
+    const recovered=round(Object.values(rejections).reduce((a,x)=>a+x,0));
+    const realCosts=bands.pt.real+bands.sc.real+bands.fs.real+local;
+    const displaced=declared.pt-bands.pt.real+declared.sc-bands.sc.real+declared.fs-bands.fs.real;
     const royalties=round(sales*b.contract.royalty/100);
-    const taxable=Math.max(0,sales-t.local*units-depreciation-Object.values(real).reduce((a,x)=>a+x,0)-shifted+recovered-royalties);
+    const profitDeclared=sales-local-depreciation-declared.pt-declared.sc-declared.fs-royalties;
+    const taxable=Math.max(0,profitDeclared+recovered);
     const cit=round(taxable*b.contract.cit/100);
-    const penalty=channel===selected?round(recovered*b.contract.cit/100*0.4):0;
+    const penalty=round(recovered*b.contract.cit/100*0.4);
     const taxes=cit+royalties+penalty;
-    fiscalTotal+=taxes;room.players[0].score+=taxes;
-    const economicCosts=t.local*units+Object.values(real).reduce((a,x)=>a+x,0);
-    const yearlyNet=sales-economicCosts-taxes;
-    owner.cash+=yearlyNet;
-    owner.score+=yearlyNet; b.remaining-=units;
-    details.push({ block:b.id+1, firm:owner.name, sales, units, royalty:royalties, cit, penalty, displaced:shifted, recovered, channel: channel==="none" ? null : channel });
+    const rent=sales-realCosts-depreciation;
+    const profit=rent-taxes; // Includes economic amortization, not permit fees.
+    const cashFlow=sales-realCosts-taxes; // Investment and permits were paid at award.
+    fiscalTotal+=taxes;royaltyTotal+=royalties;citTotal+=cit;penalties+=penalty;
+    salesTotal+=sales;economicRent+=rent;companyProfit+=profit;
+    room.players[0].score+=taxes;owner.cash+=cashFlow;owner.score+=cashFlow;
+    firmsSummary[owner.id].sales+=sales;firmsSummary[owner.id].taxes+=taxes;firmsSummary[owner.id].profit+=profit;
+    b.remaining-=units;
+    details.push({ownerId:owner.id,block:b.id+1,deposit:b.name,technology:t.name,firm:owner.name,
+      units,sales,local,depreciation,realCosts,rent,profit,royalty:royalties,cit,penalty,taxes,
+      displaced,recovered,declared,actualCosts:{pt:bands.pt.real,sc:bands.sc.real,fs:bands.fs.real},channel});
   }
-  room.lastResult={ price:room.price, fiscalTotal, details };
-  room.journal.push("Tour "+room.turn+" : recettes fiscales "+fiscalTotal+" M€, prix "+room.price+" M€/unité.");
+  const summary={sales:salesTotal,economicRent,fiscalTotal,companyProfit,
+    royalty:royaltyTotal,cit:citTotal,penalties,
+    governmentTotal:fiscalTotal, // concession fees paid before the production phase
+    firms:Object.values(firmsSummary)};
+  room.lastResult={turn:room.turn,price:room.price,summary,fiscalTotal,details};
+  room.history.push({turn:room.turn,price:room.price,summary,details:details.map(d=>{
+    const {declared,actualCosts,ownerId,...publicFields}=d;
+    return publicFields;
+  })});
+  room.journal.push("Tour "+room.turn+" : rente "+round(economicRent)+" M€, recettes fiscales "+fiscalTotal+" M€, résultat des firmes "+round(companyProfit)+" M€.");
   room.stage="results";
 }
 export { TECHNOLOGIES };
