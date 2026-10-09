@@ -39,11 +39,25 @@ Ce lien est **un exemple de format**, pas une adresse de jeu déjà hébergée. 
 ### Limites de la version gratuite et du prototype
 
 - Render peut arrêter le service après 15 minutes sans trafic entrant ; le réveil peut prendre une minute.
-- L'état des salles est **en mémoire serveur** : redémarrage, redéploiement ou extinction = parties perdues. Le jeton de reconnexion du navigateur ne remplace pas une sauvegarde permanente.
+- Sans `DATABASE_URL`, l'état des salles est **en mémoire serveur** et perdu au redémarrage. Avec PostgreSQL configuré, les salles et les décisions sont rechargées automatiquement.
 - Le code de salle facilite la connexion, mais **n'est pas une authentification forte** ; ne pas utiliser avec des données personnelles ou confidentielles réelles.
 - Une seule instance serveur est prévue. Pas de synchronisation entre plusieurs serveurs ni de base persistante.
 - Le mode en ligne est pour l'instant un **prototype stratégique simplifié**, distinct du moteur complet des règles FILONS classique : une firme peut proposer un bloc par tour, une adjudication compare les offres et les stratégies d'optimisation sont résumées en quatre intensités. Les 8 tours, les régimes IS/redevance, la production, les investissements et les contrôles restent représentés. Il faudra harmoniser les règles avant une formation avancée.
 - Les règles des modes classiques (solo et hotseat) restent inchangées.
+
+## Sauvegarde permanente des parties en ligne
+
+**Une base PostgreSQL externe est nécessaire sur la formule gratuite Render.**
+Sans `DATABASE_URL`, l'application fonctionne mais conserve les parties uniquement en mémoire. L'écran affiche alors « Partie non sauvegardée sur serveur ».
+
+1. Créer une base PostgreSQL hébergée, par exemple chez [Neon](https://neon.tech/), et relever la chaîne de connexion PostgreSQL.
+2. Dans Render → service `filons-multijoueur` → **Environment**, ajouter la variable d'environnement `DATABASE_URL` avec cette chaîne de connexion (la garder secrète ; ne jamais la mettre dans GitHub).
+3. Vérifier que le fournisseur PostgreSQL accepte une connexion TLS valide et que l'URL correspond à la bonne base ; le client active TLS par défaut (mettre `PGSSLMODE=disable` uniquement pour une base locale sans TLS).
+4. Redéployer le service. La table `filons_rooms` est créée automatiquement si l'utilisateur PostgreSQL en a la permission.
+5. Ouvrir `https://<votre-service>.onrender.com/api/health` : le champ `durable` doit être `true`. L'interface affiche alors « Sauvegarde permanente activée ».
+6. Tester : ouvrir une salle, prendre des décisions, conserver le code et les navigateurs ; redémarrer le service Render et rouvrir la page sur les mêmes navigateurs. Les jetons de session sauvegardés dans les navigateurs permettent de récupérer la salle.
+
+**Garanties et limites :** les salles et les décisions sont enregistrées après chaque action validée, avant leur confirmation au client. Les joueurs sont rechargés comme « déconnectés » au redémarrage et se reconnectent avec leur jeton local. Les jetons sont stockés dans PostgreSQL : protéger les accès à la base et éviter de partager l'URL de connexion. Les performances et limites de la base gratuite dépendent du prestataire. Cette version cible **une seule instance de serveur** et ne fournit pas de gestion des comptes ni de sauvegardes administrateur indépendantes. Une base PostgreSQL indisponible empêche le service de démarrer afin d'éviter la perte silencieuse de données. Le service gratuit Render peut toujours s'endormir.
 
 ## Démarrer localement
 
