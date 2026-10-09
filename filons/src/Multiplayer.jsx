@@ -169,6 +169,12 @@ function LiveGame(){
         <p style={{margin:"6px 0"}}>Rente économique = ventes − coûts réels d'exploitation − amortissement des équipements.</p>
         <p style={{margin:"6px 0"}}>État : {unit(state.result.summary.royalty)} M€ de redevances + {unit(state.result.summary.cit)} M€ d'IS + {unit(state.result.summary.penalties)} M€ de pénalités.</p>
         <p style={{margin:"6px 0"}}>Firmes : {unit(state.result.summary.companyProfit)} M€ de profit économique après prélèvements, avant prise en compte des permis et investissements passés.</p>
+        {state.result.summary.economicRent>0&&<div style={{marginTop:8,paddingTop:8,borderTop:"1px solid #bbb"}}>
+          <strong>Taux de partage de la rente :</strong>
+          État {(100*state.result.summary.fiscalTotal/state.result.summary.economicRent).toFixed(1).replace(".",",")} %
+          {" · "}Firmes {(100*state.result.summary.companyProfit/state.result.summary.economicRent).toFixed(1).replace(".",",")} %.
+          <div style={{fontSize:12}}>Ces parts incluent les pénalités fiscales mais excluent le prix des permis et les nouveaux investissements. Elles ne sont interprétables comme des parts positives que si la rente est positive.</div>
+        </div>}
       </div>}
       <h3>Concessions et mines attribuées</h3>
       <p>La découverte du gisement intervient dès l'attribution du permis. Une mine non équipée apparaît ci-dessous, même si elle n'a encore réalisé aucune production.</p>
