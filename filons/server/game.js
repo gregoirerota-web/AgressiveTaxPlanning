@@ -15,7 +15,7 @@ const TECHNOLOGIES = [
 ];
 const round = x => Math.round(x);
 const bound = (x, lo, hi) => typeof x === "number" && Number.isFinite(x) && x >= lo && x <= hi;
-const publicPlayer = p => ({ id: p.id, name: p.name, role: p.role, connected: p.connected, ready: p.ready, cash: p.role === "firm" ? p.cash : undefined, score: p.score });
+const publicPlayer = p => ({ id: p.id, name: p.name, role: p.role, connected: p.connected, ready: p.ready, cash: p.role === "firm" ? p.cash : undefined, score: p.score, invested: p.invested||0, permitsPaid: p.permitsPaid||0 });
 const mkCode = () => randomBytes(3).toString("hex").toUpperCase();
 const scale = (x,ratio)=>round(x*ratio);
 // Cost bands consistent with the local teaching model. FS safe threshold
@@ -41,7 +41,7 @@ export function createRoom(hostId, name, token, random = randomInt) {
   return {
     code: mkCode(), hostId, stage: "lobby", turn: 1, price: null, policy: { cit: 20, royalty: 4, reserve: 60 },
     blocks: geology.map((g, id) => ({ id, ...g, revealed: false, owner: null, remaining: g.ore, investment: null, contract: null })),
-    players: [{ id: hostId, token, name, role: "minister", connected: true, ready: false, cash: 0, score: 0, decision: null }],
+    players: [{ id: hostId, token, name, role: "minister", connected: true, ready: false, cash: 0, score: 0, invested: 0, permitsPaid: 0, decision: null }],
     journal: [], lastResult: null, history: []
   };
 }
@@ -78,7 +78,7 @@ export function joinRoom(room, id, name, token) {
   if (room.players.length >= MAX_PLAYERS) throw Error("Salle complète");
   if (room.players.some(p => p.id === id || p.name.toLocaleLowerCase() === name.toLocaleLowerCase()))
     throw Error("Nom déjà utilisé");
-  room.players.push({ id, token, name, role: "firm", connected: true, ready: false, cash: 1000, score: 0, decision: null });
+  room.players.push({ id, token, name, role: "firm", connected: true, ready: false, cash: 1000, score: 0, invested: 0, permitsPaid: 0, decision: null });
 }
 const firms = room => room.players.filter(p => p.role === "firm");
 const acting = room => firms(room).filter(p => p.connected);
@@ -92,7 +92,7 @@ function nextIfAll(room) {
       const { block, bid } = p.decision;
       const b = room.blocks[block];
       if (!b || b.owner || issued.has(block) || bid > p.cash) continue;
-      p.cash -= bid; p.score -= bid; room.players[0].score += bid; issued.add(block);
+      p.cash -= bid; p.score -= bid; p.permitsPaid+=bid; room.players[0].score += bid; issued.add(block);
       b.revealed = true; b.owner = p.id; b.contract = { ...room.policy };
       room.journal.push(p.name + " obtient le bloc " + (block + 1) + " pour " + bid + " M€.");
     }
@@ -104,7 +104,7 @@ function nextIfAll(room) {
         const b = room.blocks[Number(key)];
         const tech = TECHNOLOGIES.find(t => t.id === techId);
         if (b?.owner !== p.id || !b?.remaining || b.investment || !tech || tech.cost > p.cash) continue;
-        p.cash -= tech.cost; p.score -= tech.cost; b.investment = tech;
+        p.cash -= tech.cost; p.score -= tech.cost; p.invested+=tech.cost; b.investment = tech;
       }
     }
     room.price = round(200 * [0.6,0.8,0.9,1.1,1.2,1.4][randomInt(6)]);
