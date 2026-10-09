@@ -10,13 +10,13 @@ test("remote firms see deposits, select three tax channels and receive a mine-le
     }
     await minister.getByPlaceholder("Nom de joueur").fill("Ministre Test");
     await minister.getByRole("button",{name:"Créer une partie (ministre)"}).click();
-    await expect(minister.getByText(/Salle d’attente/)).toBeVisible();
+    await expect(minister.getByRole("heading",{name:"Salle d’attente"})).toBeVisible();
     const code=(await minister.locator("header strong").innerText()).trim();
     for(const [page,name] of [[firmA,"Entreprise A"],[firmB,"Entreprise B"]]){
       await page.getByPlaceholder("Nom de joueur").fill(name);
       await page.getByPlaceholder("ABC123").fill(code);
       await page.getByRole("button",{name:"Rejoindre (firme)"}).click();
-      await expect(page.getByText(/Salle d’attente/)).toBeVisible();
+      await expect(page.getByRole("heading",{name:"Salle d’attente"})).toBeVisible();
     }
     await minister.getByRole("button",{name:"Lancer la partie"}).click();
     await minister.getByRole("button",{name:"Publier le code minier"}).click();
